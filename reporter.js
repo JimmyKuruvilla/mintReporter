@@ -3,6 +3,24 @@ const fs = require("fs");
 const { sortBy, partition } = require('lodash');
 const { summary } = require('./summary');
 const NEW_LINE = '\n';
+const IGNORE = 'IGNORE';
+
+const printUnchangedCategories = (unchangedCategories) => {
+  for (let [k, v] of Object.entries(unchangedCategories)) {
+    console.log(k, v.map(_ => [_.date, _.description, _.amount]))
+  }
+}
+
+const printDebugOutput = (ignoredCredits, ignoredDebits, unchangedCreditCategories, unchangedDebitCategories) => {
+  console.log('############ IGNORED CREDITS ###################')
+  console.log(ignoredCredits)
+  console.log('############ IGNORED DEBITS ###################')
+  console.log(ignoredDebits)
+  console.log('############ UNCHANGED CREDITS ###################')
+  printUnchangedCategories(unchangedCreditCategories)
+  console.log('############ UNCHANGED DEBITS ###################')
+  printUnchangedCategories(unchangedDebitCategories)
+}
 
 const convertCsvToObjs = (csv) => {
   const [headers, ...lines] = csv.split(NEW_LINE);
@@ -46,18 +64,23 @@ const rewriteCategories = (transactions) => {
       if (matchingEntry) {
         t.category = matchingEntry[1].umbrellaCategory;
       } else {
-        unchangedCategories[t.category] = true
+        if (unchangedCategories[t.category]) {
+          unchangedCategories[t.category].push(t)
+        } else {
+          unchangedCategories[t.category] = [t]
+        }
       }
-
       return t;
     }
   })
 
-  return [rewrittenTransactions, unchangedCategories];
+  const [ignore, notIgnore] = partition(rewrittenTransactions, ['category', IGNORE])
+  return [notIgnore, unchangedCategories, ignore];
 }
 
 const summarize = (transactions) => {
-  const baseSummary = Object.values(summary).reduce((acc, next) => ({ ...acc, ...{ [next.umbrellaCategory]: 0 } }), {})
+  const baseSummary = Object.values(summary).reduce((acc, next) =>
+    ({ ...acc, ...(next.umbrellaCategory === IGNORE ? {} : { [next.umbrellaCategory]: 0 }) }), {})
 
   const summarizedTransactions = transactions.reduce((acc, t) => {
     const currentValue = acc[t.category] ?? 0;
@@ -74,7 +97,7 @@ const combineSummaries = (debitsSummary, creditsSummary) => {
     mergedDebits[key] = debitsSummary[key] + creditsSummary[key]
   })
 
-  return {...mergedDebits, 'Total Expenses': debitsSummary.Net, 'Total Income': creditsSummary.Net}
+  return { ...mergedDebits, 'Total Expenses': debitsSummary.Net, 'Total Income': creditsSummary.Net }
 }
 
 const writeSummaryAsCsv = (filename, summary) => {
@@ -105,18 +128,22 @@ const createFinancialSummary = (startDate, endDate) => {
 
   const [_debits, _credits] = partition(transactionsWithoutTransfers, ['transactionType', 'debit'])
   const negativeDebits = _debits.map(d => ({ ...d, amount: -d.amount }))
-  const [debits, unchangedDebitCategories] = rewriteCategories(sortBy(negativeDebits, 'category').filter(objWithinDateRange))
-  const [credits, unchangedCreditCategories] = rewriteCategories(sortBy(_credits, 'category').filter(objWithinDateRange))
+  const [debits, unchangedDebitCategories, ignoredDebits] = rewriteCategories(sortBy(negativeDebits, 'category').filter(objWithinDateRange))
+  const [credits, unchangedCreditCategories, ignoredCredits] = rewriteCategories(sortBy(_credits, 'category').filter(objWithinDateRange))
 
-  console.log('unchanged debits', Object.keys(unchangedDebitCategories))
-  console.log('unchanged credits', Object.keys(unchangedCreditCategories))
-
+  printDebugOutput(ignoredCredits, ignoredDebits, unchangedCreditCategories, unchangedDebitCategories)
   const combinedSummary = combineSummaries(summarize(debits), summarize(credits))
-  
+
   writeTransactionsAsCsv('debits', debits)
   writeTransactionsAsCsv('credits', credits)
   writeSummaryAsCsv('combined.summary', combinedSummary)
 
 }
 
-createFinancialSummary(new Date('12/01/2021'), new Date('01/31/2022'))
+createFinancialSummary(new Date('02/01/2022'), new Date('03/31/2022'))
+
+/*
+Todos
+Some ww payments are for internet or reimbursements, those are definitely trnasfers
+however some are DCFSA or HSA - those should not be ignored and should be treated as income. Do it manually for now. 
+*/

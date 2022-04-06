@@ -37,7 +37,7 @@ const summary =
     value: 0,
     umbrellaCategory: "Fees",
   },
-  "Gift": {
+  "Gift,Gifts & Donations": {
     value: 0,
     umbrellaCategory: "Gift",
   },
@@ -85,13 +85,17 @@ const summary =
     value: 0,
     umbrellaCategory: "Shopping",
   },
-  "Intuit,Meta Insurance,Mobile Phone": {
+  "Intuit,Meta Insurance,Mobile Phone,Taxes": {
     value: 0,
     umbrellaCategory: "Utilities",
   },
   "Vacation": {
     value: 0,
     umbrellaCategory: "Vacation",
+  },
+  "Work,Transfer": {
+    value: 0,
+    umbrellaCategory: "IGNORE",
   },
 }
 
