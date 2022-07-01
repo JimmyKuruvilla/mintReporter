@@ -1,7 +1,7 @@
 #!/usr/bin env node
 const fs = require("fs");
 const { sortBy, partition } = require('lodash');
-const { summary } = require('./summary');
+const { umbrellasToZeroTotalMap, namespaces, umbrellaCategories } = require('./summary');
 const NEW_LINE = '\n';
 const IGNORE = 'IGNORE';
 
@@ -16,9 +16,9 @@ const printDebugOutput = (ignoredCredits, ignoredDebits, unchangedCreditCategori
   console.log(ignoredCredits)
   console.log('############ IGNORED DEBITS ###################')
   console.log(ignoredDebits)
-  console.log('############ UNCHANGED CREDITS ###################')
+  console.log('############ Uncategorizable CREDITS ###################')
   printUnchangedCategories(unchangedCreditCategories)
-  console.log('############ UNCHANGED DEBITS ###################')
+  console.log('############ Uncategorizable DEBITS ###################')
   printUnchangedCategories(unchangedDebitCategories)
 }
 
@@ -45,12 +45,6 @@ const convertCsvToObjs = (csv) => {
 
 const rewriteCategories = (transactions) => {
   const unchangedCategories = {}
-  const namespaces =
-    Object
-      .entries(summary)
-      .map(([namespaceStr, value]) => ([namespaceStr.toLowerCase().split(','), value]))
-
-  const umbrellaCategories = Object.values(summary).map(value => value.umbrellaCategory.toLowerCase())
 
   const rewrittenTransactions = transactions.map(t => {
     if (umbrellaCategories.includes(t.category.toLowerCase())) {
@@ -79,25 +73,25 @@ const rewriteCategories = (transactions) => {
 }
 
 const summarize = (transactions) => {
-  const baseSummary = Object.values(summary).reduce((acc, next) =>
-    ({ ...acc, ...(next.umbrellaCategory === IGNORE ? {} : { [next.umbrellaCategory]: 0 }) }), {})
-
   const summarizedTransactions = transactions.reduce((acc, t) => {
     const currentValue = acc[t.category] ?? 0;
     return { ...acc, ...({ [t.category]: currentValue + t.amount }) }
-  }, baseSummary);
+  }, umbrellasToZeroTotalMap);
 
   const total = Object.values(summarizedTransactions).reduce((acc, v) => acc + v, 0);
-  return { ...summarizedTransactions, Net: total };
+  return { ...summarizedTransactions, total };
 }
 
 const combineSummaries = (debitsSummary, creditsSummary) => {
-  const mergedDebits = {}
-  Object.entries(debitsSummary).forEach(([key, value]) => {
-    mergedDebits[key] = debitsSummary[key] + creditsSummary[key]
+  const mergedCategories = {}
+  Object.entries(debitsSummary).forEach(([category, value]) => {
+    mergedCategories[category] = debitsSummary[category] + creditsSummary[category]
   })
 
-  return { ...mergedDebits, 'Total Expenses': debitsSummary.Net, 'Total Income': creditsSummary.Net }
+  const combinedSummary = { ...mergedCategories, 'Total Expenses': debitsSummary.total, 'Total Income': creditsSummary.total };
+  combinedSummary.Net = combinedSummary.total;
+  delete combinedSummary.total;
+  return combinedSummary
 }
 
 const writeSummaryAsCsv = (filename, summary) => {
@@ -140,10 +134,4 @@ const createFinancialSummary = (startDate, endDate) => {
 
 }
 
-createFinancialSummary(new Date('02/01/2022'), new Date('03/31/2022'))
-
-/*
-Todos
-Some ww payments are for internet or reimbursements, those are definitely trnasfers
-however some are DCFSA or HSA - those should not be ignored and should be treated as income. Do it manually for now. 
-*/
+createFinancialSummary(new Date('04/01/2022'), new Date('06/30/2022'));

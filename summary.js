@@ -1,11 +1,12 @@
 // Keys cannot overlap, otherwise rewrites will not work correctly
-const summary =
+const IGNORE = 'IGNORE';
+const categorySummary =
 {
   "Amusement,Entertainment,Books,Games,Movies & DVDs,Alcohol & Bars,Hobbies": {
     value: 0,
     umbrellaCategory: "Amusements",
   },
-  "Gas & Fuel,Service & Parts,Car Wash": {
+  "Gas & Fuel,Service & Parts,Car Wash,Parking": {
     value: 0,
     umbrellaCategory: "Auto & Transport",
   },
@@ -25,7 +26,7 @@ const summary =
     value: 0,
     umbrellaCategory: "Clothing",
   },
-  "Fast Food,Restaurants,Food & Dining": {
+  "Fast Food,Restaurants,Food & Dining,Coffee Shops": {
     value: 0,
     umbrellaCategory: "Eating Out",
   },
@@ -65,7 +66,7 @@ const summary =
     value: 0,
     umbrellaCategory: "Meta Food",
   },
-  "Cash & ATM,ATM Fee,Business Services,Printing,Shipping": {
+  "Cash & ATM,ATM Fee,Business Services,Printing,Shipping,Fees & Charges,Late Fee,Service Fee": {
     value: 0,
     umbrellaCategory: "Misc",
   },
@@ -89,16 +90,23 @@ const summary =
     value: 0,
     umbrellaCategory: "Utilities",
   },
-  "Vacation": {
+  "Vacation, Breckenridge 2022": {
     value: 0,
     umbrellaCategory: "Vacation",
   },
   "Work,Transfer": {
     value: 0,
     umbrellaCategory: "IGNORE",
-  },
+  }
 }
 
 module.exports = {
-  summary
+  categorySummary,
+  umbrellaCategories: Object.values(categorySummary).map(value => value.umbrellaCategory.toLowerCase()),
+  namespaces: Object
+    .entries(categorySummary)
+    .map(([namespaceStr, value]) =>
+      ([namespaceStr.toLowerCase().split(',').map(category => category.trim()), value])),
+  umbrellasToZeroTotalMap: Object.values(categorySummary).reduce((acc, next) =>
+    ({ ...acc, ...(next.umbrellaCategory === IGNORE ? {} : { [next.umbrellaCategory]: 0 }) }), {}),
 }
