@@ -6,3 +6,5 @@ Means the transaction's category didn't fall into any of the available umbrella 
 
 Uncategorizable credits
 There will be uncategorizable credits in the debug output. That is expected and does not affect total income calculation. There just isn't a need to categorize income categories.
+
+Expense categories are reconciled (debits+credits) and so is the `Net` value. However `Total Outgoing` and `Total Incoming` are unreconciled sums representing the full movement of money. 

@@ -88,10 +88,11 @@ const combineSummaries = (debitsSummary, creditsSummary) => {
     mergedCategories[category] = debitsSummary[category] + creditsSummary[category]
   })
 
-  const combinedSummary = { ...mergedCategories, 'Total Expenses': debitsSummary.total, 'Total Income': creditsSummary.total };
-  combinedSummary.Net = combinedSummary.total;
-  delete combinedSummary.total;
-  return combinedSummary
+  mergedCategories['_Total Outgoing'] = debitsSummary.total
+  mergedCategories['_Total Incoming'] = creditsSummary.total
+  mergedCategories['_Net'] = mergedCategories.total;
+  delete mergedCategories.total;
+  return mergedCategories
 }
 
 const writeSummaryAsCsv = (filename, summary) => {
@@ -134,4 +135,4 @@ const createFinancialSummary = (startDate, endDate) => {
 
 }
 
-createFinancialSummary(new Date('04/01/2022'), new Date('06/30/2022'));
+createFinancialSummary(new Date('07/01/2022'), new Date('07/31/2022'));
