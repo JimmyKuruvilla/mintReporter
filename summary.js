@@ -42,7 +42,7 @@ const categorySummary =
     value: 0,
     umbrellaCategory: "Gift",
   },
-  "Lawn & Garden,Furnishings": {
+  "Lawn & Garden,Furnishings,Home Services": {
     value: 0,
     umbrellaCategory: "Home Improvement",
   },
@@ -78,7 +78,7 @@ const categorySummary =
     value: 0,
     umbrellaCategory: "Personal Care",
   },
-  "Vet,Veterinary,Boarding,Pet Food & Supplies": {
+  "Vet,Veterinary,Boarding,Pet Food & Supplies,Pet Grooming": {
     value: 0,
     umbrellaCategory: "Pet",
   },

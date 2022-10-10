@@ -1,6 +1,6 @@
 IGNORED 
 Means it is a category that shouldn't be considered because it is just moving money from one place to another. Like paying a credit card bill. 
-I typically want to IGNORE work payments for internet because I don't want to be bothered tracking it every month. However for larger reimbursements they should be manually assigned a category. 
+Recurring work payments for internet should be counted as `reimbursements`, and the expense counted as an expense. Larger single purchases should be counted as `work` on the expense and income side so that they don't affect any trends. 
 
 Uncategorizable Debits 
 Means the transaction's category didn't fall into any of the available umbrella categories. They need categorization, otherwise they will not be reflected in the final output. Add additional mappings from the uncategory to an existing umbrella. 
