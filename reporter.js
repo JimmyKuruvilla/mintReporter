@@ -135,4 +135,4 @@ const createFinancialSummary = (startDate, endDate) => {
 
 }
 
-createFinancialSummary(new Date('09/01/2022'), new Date('09/30/2022'));
+createFinancialSummary(new Date('10/01/2022'), new Date('11/30/2022'));

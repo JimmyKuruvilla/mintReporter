@@ -22,7 +22,7 @@ const categorySummary =
     value: 0,
     umbrellaCategory: "Check",
   },
-  "Clothing": {
+  "Clothing, Laundry": {
     value: 0,
     umbrellaCategory: "Clothing",
   },
@@ -38,7 +38,7 @@ const categorySummary =
     value: 0,
     umbrellaCategory: "Fees",
   },
-  "Gift,Gifts & Donations": {
+  "Gift,Gifts & Donations,Birthday": {
     value: 0,
     umbrellaCategory: "Gift",
   },
@@ -46,7 +46,7 @@ const categorySummary =
     value: 0,
     umbrellaCategory: "Home Improvement",
   },
-  "Education,Kid Activities,Kids Activities,Books & Supplies": {
+  "Education,Kid Activities,Kids Activities,Kid Supplies,Books & Supplies": {
     value: 0,
     umbrellaCategory: "Kid",
   },
@@ -74,7 +74,7 @@ const categorySummary =
     value: 0,
     umbrellaCategory: "Mortgage & Rent",
   },
-  "Hair,Spa & Massage,Health & Fitness": {
+  "Hair,Spa & Massage,Health & Fitness, Gym": {
     value: 0,
     umbrellaCategory: "Personal Care",
   },
@@ -86,7 +86,7 @@ const categorySummary =
     value: 0,
     umbrellaCategory: "Shopping",
   },
-  "Intuit,Meta Insurance,Mobile Phone,Taxes": {
+  "Intuit,Meta Insurance,Mobile Phone": {
     value: 0,
     umbrellaCategory: "Utilities",
   },
