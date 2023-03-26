@@ -86,7 +86,7 @@ const categorySummary =
     value: 0,
     umbrellaCategory: "Shopping",
   },
-  "Intuit,Meta Insurance,Mobile Phone": {
+  "Intuit,Meta Insurance,Mobile Phone,Taxes": {
     value: 0,
     umbrellaCategory: "Utilities",
   },
