@@ -5,6 +5,8 @@ const { umbrellasToZeroTotalMap, namespaces, umbrellaCategories } = require('./s
 const NEW_LINE = '\n';
 const IGNORE = 'IGNORE';
 
+const transactionsFileName = process.argv[2] ?? 'transactions.csv';
+
 const printUnchangedCategories = (unchangedCategories) => {
   for (let [k, v] of Object.entries(unchangedCategories)) {
     console.log(k, v.map(_ => [_.date, _.description, _.amount]))
@@ -24,23 +26,28 @@ const printDebugOutput = (ignoredCredits, ignoredDebits, unchangedCreditCategori
 
 const convertCsvToObjs = (csv) => {
   const [headers, ...lines] = csv.split(NEW_LINE);
-  return lines.filter(Boolean).map(line => {
-    const [date, description, originalDescription, amount, transactionType, category, accountName, labels, notes] = line
-      .split(/","/g)
-      .map(_ => _.replace(/"/g, ''));
+  const nonsensePrefixRergex = /,.*x{16}[0-9]{4}/;
+  
+  return lines
+    .map(_ => _.replace(nonsensePrefixRergex, ',truncated,'))
+    .filter(Boolean)
+    .map(line => {
+      const [date, description, originalDescription, amount, transactionType, category, accountName, labels, notes] = line
+        .split(/,/g)
+        .map(_ => _.replace(/"/g, ''));
 
-    return {
-      date: new Date(date),
-      description,
-      originalDescription,
-      amount: parseFloat(amount),
-      transactionType,
-      category,
-      accountName,
-      labels,
-      notes
-    }
-  })
+      return {
+        date: new Date(date),
+        description,
+        originalDescription,
+        amount: parseFloat(amount),
+        transactionType,
+        category,
+        accountName,
+        labels,
+        notes
+      }
+    })
 }
 
 const rewriteCategories = (transactions) => {
@@ -110,7 +117,7 @@ const writeTransactionsAsCsv = (filename, transactions) => {
 
 const createFinancialSummary = (startDate, endDate) => {
   const objWithinDateRange = obj => obj.date >= startDate && obj.date <= endDate
-  const csvTransactions = fs.readFileSync('./transactions.csv', { encoding: "utf8" });
+  const csvTransactions = fs.readFileSync(transactionsFileName, { encoding: "utf8" });
 
   const transactions = convertCsvToObjs(csvTransactions)
   const transactionsWithoutTransfers = transactions.filter(
@@ -135,4 +142,4 @@ const createFinancialSummary = (startDate, endDate) => {
 
 }
 
-createFinancialSummary(new Date('01/31/2023'), new Date('02/28/2023'));
+createFinancialSummary(new Date('03/01/2023'), new Date('03/31/2023'));

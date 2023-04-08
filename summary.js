@@ -6,7 +6,7 @@ const categorySummary =
     value: 0,
     umbrellaCategory: "Amusements",
   },
-  "Gas & Fuel,Service & Parts,Car Wash,Parking": {
+  "Gas & Fuel,Service & Parts,Car Wash,Parking, Auto Insurance": {
     value: 0,
     umbrellaCategory: "Auto & Transport",
   },
@@ -34,7 +34,7 @@ const categorySummary =
     value: 0,
     umbrellaCategory: "Emergency",
   },
-  "Bank Fee": {
+  "Bank Fee, Finance Charge,Fees & Charges,Late Fee,Service Fee": {
     value: 0,
     umbrellaCategory: "Fees",
   },
@@ -58,15 +58,11 @@ const categorySummary =
     value: 0,
     umbrellaCategory: "Medical",
   },
-  "Meta Canada": {
-    value: 0,
-    umbrellaCategory: "Meta Canada",
-  },
   "Groceries": {
     value: 0,
     umbrellaCategory: "Meta Food",
   },
-  "Cash & ATM,ATM Fee,Business Services,Printing,Shipping,Fees & Charges,Late Fee,Service Fee": {
+  "Cash & ATM,ATM Fee,Business Services,Printing,Shipping": {
     value: 0,
     umbrellaCategory: "Misc",
   },
@@ -86,7 +82,7 @@ const categorySummary =
     value: 0,
     umbrellaCategory: "Shopping",
   },
-  "Intuit,Meta Insurance,Mobile Phone,Taxes": {
+  "Intuit,Meta Insurance,Mobile Phone,Taxes,Internet,Television": {
     value: 0,
     umbrellaCategory: "Utilities",
   },
