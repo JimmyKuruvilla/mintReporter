@@ -62,6 +62,10 @@ const categorySummary =
     value: 0,
     umbrellaCategory: "Meta Canada",
   },
+  "Meta Stan": {
+    value: 0,
+    umbrellaCategory: "Meta Stan",
+  },
   "Groceries": {
     value: 0,
     umbrellaCategory: "Meta Food",
@@ -78,7 +82,7 @@ const categorySummary =
     value: 0,
     umbrellaCategory: "Personal Care",
   },
-  "Vet,Veterinary,Boarding,Pet Food & Supplies,Pet Grooming": {
+  "Vet,Veterinary,Boarding,Pet Food & Supplies,Pet Grooming, Pets": {
     value: 0,
     umbrellaCategory: "Pet",
   },
@@ -90,7 +94,7 @@ const categorySummary =
     value: 0,
     umbrellaCategory: "Utilities",
   },
-  "Vacation, Breckenridge 2022": {
+  "Vacation, Breckenridge 2022,Atlanta 2023": {
     value: 0,
     umbrellaCategory: "Vacation",
   },
