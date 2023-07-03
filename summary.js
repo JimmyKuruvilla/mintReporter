@@ -46,7 +46,7 @@ const categorySummary =
     value: 0,
     umbrellaCategory: "Home Improvement",
   },
-  "Education,Kid Activities,Kids Activities,Kid Supplies,Books & Supplies": {
+  "Education,Kid Activities,Kids Activities,Kid Supplies,Books & Supplies, Kids": {
     value: 0,
     umbrellaCategory: "Kid",
   },
@@ -54,7 +54,7 @@ const categorySummary =
     value: 0,
     umbrellaCategory: "Lawyer Fees",
   },
-  "Doctor,Dentist,Pharmacy,Eyecare,Medical Reimbursement,Health Equipment": {
+  "Doctor,Dentist,Pharmacy,Eyecare,Medical Reimbursement,Health Equipment,Counseling": {
     value: 0,
     umbrellaCategory: "Medical",
   },
