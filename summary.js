@@ -86,9 +86,9 @@ const categorySummary =
     value: 0,
     umbrellaCategory: "Utilities",
   },
-  "Vacation, Breckenridge 2022": {
+  "Vacation, Rental Car & Taxi, Public Transportation": {
     value: 0,
-    umbrellaCategory: "Vacation",
+    umbrellaCategory: "Trips",
   },
   "Work,Transfer": {
     value: 0,

@@ -33,7 +33,7 @@ const convertCsvToObjs = (csv) => {
     .filter(Boolean)
     .map(line => {
       const [date, description, originalDescription, amount, transactionType, category, accountName, labels, notes] = line
-        .split(/,/g)
+        .split(/","/g)
         .map(_ => _.replace(/"/g, ''));
 
       return {
@@ -142,4 +142,4 @@ const createFinancialSummary = (startDate, endDate) => {
 
 }
 
-createFinancialSummary(new Date('03/01/2023'), new Date('03/31/2023'));
+createFinancialSummary(new Date('06/01/2023'), new Date('06/30/2023'));
