@@ -46,6 +46,10 @@ const categorySummary =
     value: 0,
     umbrellaCategory: "Home Improvement",
   },
+  "Home Maintenance": {
+    value: 0,
+    umbrellaCategory: "Home Maintenance",
+  },
   "Education,Kid Activities,Kids Activities,Kid Supplies,Books & Supplies, Kids": {
     value: 0,
     umbrellaCategory: "Kid",
@@ -65,6 +69,10 @@ const categorySummary =
   "Meta Stan": {
     value: 0,
     umbrellaCategory: "Meta Stan",
+  },
+  "Meta OneTime": {
+    value: 0,
+    umbrellaCategory: "Meta OneTime",
   },
   "Groceries": {
     value: 0,
