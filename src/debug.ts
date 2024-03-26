@@ -1,4 +1,4 @@
-import { Transaction } from './csv'
+import { Transaction } from './transaction'
 
 const printUnchangedCategories = (unchangedCategories: { [date: string]: Transaction[] }) => {
   for (let [k, v] of Object.entries(unchangedCategories)) {

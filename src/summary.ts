@@ -1,6 +1,6 @@
 import { partition } from 'lodash';
 import { IGNORE } from './constants';
-import { Transaction } from './csv';
+import { Transaction } from './transaction';
 
 // Keys cannot overlap, otherwise rewrites will not work correctly
 export const categorySummary =
@@ -109,10 +109,12 @@ export const categorySummary =
     value: 0,
     umbrellaCategory: "Vacation",
   },
-  "Work,Transfer": {
+  "Work,Transfer,Credit Card Payment, College Savings": {
     value: 0,
     umbrellaCategory: "IGNORE",
   }
+  // handle bank chase types here
+  // handle transfers here 
 }
 
 export type Summary = CategoryValues & { total: number }
@@ -141,7 +143,7 @@ export const combineSummaries = (debitsSummary: Summary, creditsSummary: Summary
 }
 
 export const rewriteCategories = (transactions: Transaction[]) => {
-  const unchangedCategories: { [index: string]: Transaction[] } = {}
+  const unmappable: { [index: string]: Transaction[] } = {}
 
   const rewrittenTransactions = transactions.map(t => {
     if (umbrellaCategories.includes(t.category.toLowerCase())) {
@@ -155,10 +157,10 @@ export const rewriteCategories = (transactions: Transaction[]) => {
       if (matchingEntry) {
         t.category = matchingEntry[1].umbrellaCategory;
       } else {
-        if (unchangedCategories[t.category]) {
-          unchangedCategories[t.category].push(t)
+        if (unmappable[t.category]) {
+          unmappable[t.category].push(t)
         } else {
-          unchangedCategories[t.category] = [t]
+          unmappable[t.category] = [t]
         }
       }
       return t;
@@ -166,7 +168,7 @@ export const rewriteCategories = (transactions: Transaction[]) => {
   })
 
   const [ignored, notIgnored] = partition(rewrittenTransactions, ['category', IGNORE])
-  return { notIgnored, ignored, unchangedCategories, };
+  return { notIgnored, ignored, unmappable, };
 }
 
 export const umbrellaCategories = Object.values(categorySummary).map(value => value.umbrellaCategory.toLowerCase())

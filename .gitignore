@@ -1,5 +1,6 @@
 node_modules
 *.csv
+*.CSV
 .DS_Store
 *.xlsx
 .vscode
