@@ -1,4 +1,8 @@
 node_modules
+chaseIdtoDetails.ts
 *.csv
+*.CSV
 .DS_Store
 *.xlsx
+.vscode
+dist

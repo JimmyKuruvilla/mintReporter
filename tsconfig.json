@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "esModuleInterop": true,
+    "allowJs": false,
+    "target": "ESNext",
+    "noImplicitAny": true,
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "noUnusedLocals": false,
+    "outDir": "dist",
+    "baseUrl": "./",
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/**/*"
+, "src/chaseIdtoDetails.ts"  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

@@ -24,3 +24,5 @@ Reconciled Expenses
 
 Net
 - this is supposed to be pure income - reconciled expenses. In reality it suffers from the same problems when a large medical reimbursement hits. It looks like the Net is actually better than it is. Probably should just ignore this number. 
+
+Override category can be specified in the csv as the last column to one-time alter a category of a transaction.
