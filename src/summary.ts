@@ -30,13 +30,13 @@ const testSummary = {
 
 const categorySummary =
 {
-  "prime video channels, steam games": {
+  "prime video channels, steam games, MORTONARB, Audible, AMAZON PRIME, TONYA RAE": {
     umbrellaCategory: "Amusements",
   },
-  "Reber, shell oil, COSTCO GAS, o'reilly, ILLINOISSECRETARYOFSTATE, IL TOLLWAY-AUTOREPLENISH, BP#, uber trip": {
+  "Reber, shell oil, COSTCO GAS, o'reilly, ILLINOISSECRETARYOFSTATE, IL TOLLWAY-AUTOREPLENISH, BP#, uber trip, ILSOS": {
     umbrellaCategory: "Auto & Transport",
   },
-  "udemy, codecademy": {
+  "udemy, codecademy, WWW.KHANACADEMY.ORG, THRIFT BOOKS": {
     umbrellaCategory: "Education",
   },
   "onlyemergencyonetimes": {
@@ -48,10 +48,10 @@ const categorySummary =
   "check": {
     umbrellaCategory: "Check",
   },
-  "zappos, JJ CLEANERS": {
+  "zappos, JJ CLEANERS, nike, OLD NAVY, GAP": {
     umbrellaCategory: "Clothing",
   },
-  "deli, chick-fil-a, all chocolate kitchen, 7-eleven, dd/br, los cantaritos, loscantaritos, taqueria el sazon, mcdonald, starbucks, egg harbor, panera, indian harvest, panda express, first watch, penrose brewing, copper fox, duck donuts, OBERWEIS, french 75, TELUGURUCHULU, ART HISTORY BREWING, geneva ale house": {
+  "deli, chick-fil-a, all chocolate kitchen, 7-eleven, dd/br, los cantaritos, loscantaritos, taqueria el sazon, mcdonald, starbucks, egg harbor, panera, indian harvest, panda express, first watch, penrose brewing, copper fox, duck donuts, DUNKIN, OBERWEIS, french 75, TELUGURUCHULU, ART HISTORY BREWING, geneva ale house, irish pub, thai corner cuisine, graham's, BATAVIA CREAMERY, DEAR DONUTS, SWEETSTOP, taylor st. pizza, OBSCURITY BREWING, SCHMIDTS TOWNE TAP, BATAVIA SMOKE N LIQUOR, THE SOUTHERN CAFE, ETHIO BEANS, MANCHU WOK, CHEZ GASTON, GROVE ORD, TIE ORDER, JAMBA": {
     umbrellaCategory: "Eating Out",
   },
   "safe deposit": {
@@ -60,13 +60,13 @@ const categorySummary =
   "paramount arts center, party city, sarkis pastry": {
     umbrellaCategory: "Gift",
   },
-  "menards, jc licht, sp igworks, lowes, home depot, at home store, benjamin moore, SAMPLIZE, STENCILREVOLUTION, thrift _and_ dollar, sherwin williams, toto fabrics": {
+  "menards, jc licht, sp igworks, lowes, home depot, at home store, benjamin moore, SAMPLIZE, STENCILREVOLUTION, thrift _and_ dollar, sherwin williams, toto fabrics, vikingsewinggallery, VIKINGSEWINGGALLERY657, DECORATIVE FABRICS DIRECT, HEINZ BROTHERS, HOMEDEPOT.COM": {
     umbrellaCategory: "Home Improvement",
   },
   "Home Maintenance": {
     umbrellaCategory: "Home Maintenance",
   },
-  "music_and_arts.com, sounds like music, genevapark, county of kane school, PTO, VSI GENEVAPARKDISTIB": {
+  "music_and_arts.com, sounds like music, genevapark, county of kane school, PTO, VSI GENEVAPARKDISTIB, GENEVAPARKDISTWEB": {
     umbrellaCategory: "Kid",
   },
   "Lawyer Fees": {
@@ -84,17 +84,17 @@ const categorySummary =
   "Meta Onetime": {
     umbrellaCategory: "Meta OneTime",
   },
-  "meijer, fresh thyme, trader joe, aldi, jewel, COSTCO WHSE, caputo's, caputos, arbico organics": {
+  "meijer, fresh thyme, THE FRESH MARKET, trader joe, aldi, jewel, COSTCO WHSE, caputo's, caputos, arbico organics": {
     umbrellaCategory: "Meta Food",
   },
-  // ATM Withdrawal vs NON-CHASE ATM WITHDRAW caputured by one string
-  "ATM Withdraw": {
+  // ATM Withdrawal vs NON-CHASE ATM WITHDRAW captured by one string
+  "ATM Withdraw, ATM WITHDRAWAL": {
     umbrellaCategory: "Misc",
   },
   "mortgage": {
     umbrellaCategory: "Mortgage & Rent",
   },
-  "colour line, os2 salon": {
+  "colour line, os2 salon, HARE_and_COMB, OMNILUX": {
     umbrellaCategory: "Personal Care",
   },
   "meadowview, petsmart": {
@@ -104,10 +104,10 @@ const categorySummary =
     umbrellaCategory: "Shopping",
   },
   // delight room is alarmy
-  "patreon, netflix.com, chatgpt subscription, google storage, STATE FARM INSURANCE, disney plus, lakeshore recycling, metronet, ting, bitwarden, youtubepremium, lincoln natlife, nicor, geneva IL utility, Amazon web services, joanna pociecha, DelightRoom": {
+  "patreon, netflix.com, chatgpt subscription, OPENAI, google storage, STATE FARM INSURANCE, disney plus, lakeshore recycling, metronet, ting, bitwarden, youtubepremium, lincoln natlife, Lincoln Nationa, nicor, geneva IL utility,GENEVA IL  UTILITY, Amazon web services, joanna pociecha, DelightRoom, Delight Room, garden my home, DAVEY TREE EXPERT COMPANY, PAYPAL  MICROSOFT, NordVPN": {
     umbrellaCategory: "Utilities",
   },
-  "Vacation": {
+  "Vacation, AMERICAN , AIRBNB, Vrbo, EXPEDIA, FOREIGN TRANSACTION FEE": {
     umbrellaCategory: "Vacation",
   },
   /*
@@ -164,9 +164,10 @@ export type CategoryValues = { [index: string]: number }
 export const umbrellasToZeroTotalMap: CategoryValues = Object.values(targetSummary).reduce((acc, next) =>
   ({ ...acc, ...(next.umbrellaCategory === IGNORE ? {} : { [next.umbrellaCategory]: 0 }) }), {})
 
+// overrideCategory must be exactly as it is in the summary
 export const assignCategory = (t: Transaction): Transaction => {
   if (t.metadata?.overrideCategory) {
-    t.category = t.metadata.overrideCategory.toLowerCase()
+    t.category = t.metadata.overrideCategory 
   } else {
     for (const bucket of buckets) {
       const { fragments, categoryData } = bucket
