@@ -40,7 +40,7 @@ chaseTypes
 export const BANK_CREDIT_TYPES = ['ach_credit', 'deposit', 'check_deposit', 'partnerfi_to_chase', 'misc_credit',];
 export const BANK_DEBIT_TYPES = ['ach_debit', 'atm', 'check_paid', 'chase_to_partnerfi', 'fee_transaction', 'debit_card', 'quickpay_debit', 'wire_outgoing'];
 export const BANK_TRANSFER_TYPES = ['acct_xfer', 'loan_pmt'];
-
+const CREDIT_CARD_AUTOPAY = 'CREDIT CRD AUTOPAY'
 export const KNOWN_CHASE_BANK_TYPES = [...BANK_DEBIT_TYPES, ...BANK_CREDIT_TYPES, ...BANK_TRANSFER_TYPES];
 
 export const CREDIT_CREDIT_TYPES = ['return'];
@@ -97,6 +97,16 @@ export const ChaseCreditCSVParser = (accountName: string, csv: string): Transact
     })
 }
 
+const getBankTransactionType = (type: string, description: string): TRANSACTION_TYPES => {
+  if (BANK_TRANSFER_TYPES.includes(type) || description.includes(CREDIT_CARD_AUTOPAY)) {
+    return TRANSACTION_TYPES.TRANSFER
+  } else {
+    return BANK_CREDIT_TYPES.includes(type)
+      ? TRANSACTION_TYPES.CREDIT
+      : TRANSACTION_TYPES.DEBIT
+  }
+}
+
 // headers: Details,Posting Date,Description,Amount,Type,Balance,Check or Slip #
 // Details or transactionType: DEBIT or CREDIT
 export const ChaseBankCSVParser = (accountName: string, csv: string): Transaction[] => {
@@ -111,17 +121,11 @@ export const ChaseBankCSVParser = (accountName: string, csv: string): Transactio
         const type = _type.toLowerCase()
 
         if (KNOWN_CHASE_BANK_TYPES.includes(type)) {
-          let transactionType = BANK_TRANSFER_TYPES.includes(type)
-            ? TRANSACTION_TYPES.TRANSFER
-            : BANK_CREDIT_TYPES.includes(type)
-              ? TRANSACTION_TYPES.CREDIT
-              : TRANSACTION_TYPES.DEBIT
-
           return Transaction(
             postDate,
             formatDescription(description),
             amount,
-            transactionType,
+            getBankTransactionType(type, description),
             { chaseType: type, [ACCOUNTS.BANK]: { checkNumber }, overrideCategory: overrideCategory?.replace(CARRIAGE_RETURN, '') ?? ''},
             accountName,
             ACCOUNTS.BANK,
