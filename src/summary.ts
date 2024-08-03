@@ -3,20 +3,20 @@ import { CostaRica } from './descriptions/costaRica062024';
 import { Transaction } from './transaction';
 
 const Amusements = "prime video channels, steam games, MORTONARB, Audible, AMAZON PRIME, TONYA RAE"
-const Auto = "Reber, shell oil, COSTCO GAS, o'reilly, ILLINOISSECRETARYOFSTATE, IL TOLLWAY-AUTOREPLENISH, BP#, uber trip, ILSOS"
+const Auto = "thorntons, Reber, shell oil, COSTCO GAS, o'reilly, ILLINOISSECRETARYOFSTATE, IL TOLLWAY-AUTOREPLENISH, BP#, uber trip, ILSOS"
 const Education = "udemy, codecademy, WWW.KHANACADEMY.ORG, THRIFT BOOKS, COLLEGEBOARD"
 const Emergency = "onlyemergencyonetimes"
-const Charity = "WBEZ Chi Pub Media, NOILFOODBANK, wikipedia,girl scouts"
+const Charity = "ACTBLUE, WBEZ Chi Pub Media, NOILFOODBANK, wikipedia,girl scouts"
 const Check = "check"
 const Clothing = "zappos, JJ CLEANERS, nike, OLD NAVY, GAP"
-const EatingOut = "deli, chick-fil-a, all chocolate kitchen, 7-eleven, dd/br, los cantaritos, loscantaritos, taqueria el sazon, mcdonald, starbucks, egg harbor, panera, indian harvest, panda express, first watch, penrose brewing, copper fox, duck donuts, DUNKIN, OBERWEIS, french 75, TELUGURUCHULU, ART HISTORY BREWING, geneva ale house, irish pub, thai corner cuisine, graham's, BATAVIA CREAMERY, DEAR DONUTS, SWEETSTOP, taylor st. pizza, OBSCURITY BREWING, SCHMIDTS TOWNE TAP, BATAVIA SMOKE N LIQUOR, THE SOUTHERN CAFE, ETHIO BEANS, MANCHU WOK, CHEZ GASTON, GROVE ORD, TIE ORDER, JAMBA, Hardware Restaurant, WENDY'S"
+const EatingOut = "burger local, alexanders cafe, maple leaf coffee, burrito parrilla, deli, chick-fil-a, all chocolate kitchen, 7-eleven, dd/br, los cantaritos, loscantaritos, taqueria el sazon, mcdonald, starbucks, egg harbor, panera, indian harvest, panda express, first watch, penrose brewing, copper fox, duck donuts, DUNKIN, OBERWEIS, french 75, TELUGURUCHULU, ART HISTORY BREWING, geneva ale house, irish pub, thai corner cuisine, graham's, BATAVIA CREAMERY, DEAR DONUTS, SWEETSTOP, taylor st. pizza, OBSCURITY BREWING, SCHMIDTS TOWNE TAP, BATAVIA SMOKE N LIQUOR, THE SOUTHERN CAFE, ETHIO BEANS, MANCHU WOK, CHEZ GASTON, GROVE ORD, TIE ORDER, JAMBA, Hardware Restaurant, WENDY'S"
 const Fees = "safe deposit"
 const Gift = "paramount arts center, party city, sarkis pastry"
 const HomeImprovement = "menards, jc licht, sp igworks, lowes, home depot, at home store, benjamin moore, SAMPLIZE, STENCILREVOLUTION, thrift _and_ dollar, sherwin williams, toto fabrics, vikingsewinggallery, VIKINGSEWINGGALLERY657, DECORATIVE FABRICS DIRECT, HEINZ BROTHERS, HOMEDEPOT.COM, HARBOR FREIGHT"
 const HomeMaintenance = "Home Maintenance"
-const Kid = "music_and_arts.com, sounds like music, genevapark, county of kane school, PTO, VSI GENEVAPARKDISTIB, GENEVAPARKDISTWEB"
+const Kid = "st charles park district, music_and_arts.com, sounds like music, genevapark, county of kane school, PTO, VSI GENEVAPARKDISTIB, GENEVAPARKDISTWEB"
 const LawyerFees = "Lawyer Fees"
-const Medical = "REMOTE ONLINE DEPOSIT, khanna, caremark, alliance clinical,riverview counseling, prose orthodontics, lawrence l johnson, cvs/pharmacy, atkinsons _and_ associates, northwestern my chart, PERIODONTAL MEDICINE PR, IN STEP BEHAVIORAL, JOHNSON DERMATOLOGY"
+const Medical = "THERASPECS, AMERICA's BEST, REMOTE ONLINE DEPOSIT, khanna, caremark, alliance clinical,riverview counseling, prose orthodontics, lawrence l johnson, cvs/pharmacy, atkinsons _and_ associates, northwestern my chart, PERIODONTAL MEDICINE PR, IN STEP BEHAVIORAL, JOHNSON DERMATOLOGY"
 const MetaCanada = "Meta Canada"
 const MetaStan = "Meta Stan"
 const MetaOneTime = "Meta Onetime"
@@ -27,7 +27,7 @@ const Mortgage = "mortgage"
 const PersonalCare = "colour line, os2 salon, HARE_and_COMB, OMNILUX, ULTA"
 const Pet = "meadowview, petsmart, MEADOWVIEWVET.COM"
 const Shopping = "great estate, homegoods, AMZN Mktp, Amazon.com, etsy, joann stores, fabric wholesale, wal-mart, Michaels, blueland, goodwill retail, josh's frogs, BED BATH _AND_ BEYOND, target, walgreens, WORLD MARKET, WWW COSTCO COM, CASEYS, ONEHOMEBRAN, AMAZON MKTPL"
-const Utilities = "patreon, netflix.com, chatgpt subscription, OPENAI, google storage, STATE FARM INSURANCE, disney plus, lakeshore recycling, metronet, ting, bitwarden, youtubepremium, lincoln natlife, Lincoln Nationa, nicor, geneva IL utility,GENEVA IL  UTILITY, Amazon web services, joanna pociecha, DelightRoom, Delight Room, garden my home, DAVEY TREE EXPERT COMPANY, PAYPAL  MICROSOFT, NordVPN" // delight room is alarmy
+const Utilities = "google one, patreon, netflix.com, chatgpt subscription, OPENAI, google storage, STATE FARM INSURANCE, disney plus, lakeshore recycling, metronet, ting, bitwarden, youtubepremium, lincoln natlife, Lincoln Nationa, nicor, geneva IL utility,GENEVA IL  UTILITY, Amazon web services, joanna pociecha, DelightRoom, Delight Room, garden my home, DAVEY TREE EXPERT COMPANY, PAYPAL  MICROSOFT, NordVPN" // delight room is alarmy
 const Vacation = `${CostaRica}, Vacation, AMERICAN, AIRBNB, Vrbo, EXPEDIA, FOREIGN TRANSACTION FEE, FOREIGN EXCHANGE RATE ADJUSTMENT FEE`
 
 /*

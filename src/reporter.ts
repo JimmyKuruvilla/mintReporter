@@ -9,7 +9,7 @@ import { recursiveTraverse } from './utils';
 import { getChaseAccountId } from './chase';
 import { Transaction } from './transaction';
 
-import { ChaseIdToDetails } from "./chaseIdtoDetails";
+import { ChaseIdToDetails } from "./chaseIdtoDetails"; 
 
 const START_DATE = process.env.START_DATE!
 const END_DATE = process.env.END_DATE!
