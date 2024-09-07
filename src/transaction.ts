@@ -3,7 +3,8 @@ import { TRANSACTION_TYPES } from './constants'
 
 interface Metadata {
   chaseType: string,
-  overrideCategory?: string
+  oneTimeCategory: string
+  umbrellaCategory: string
   [ACCOUNTS.BANK]?: {
     checkNumber?: string
   }
@@ -29,15 +30,15 @@ export const Transaction = (
   accountName: string,
   accountType: ACCOUNTS,
   notes?: string,
-  ): Transaction => ({
-    date: new Date(date),
-    description,
-    amount: parseFloat(amount),
-    transactionType,
-    metadata,
-    accountName,
-    accountType,
-    category: '',
-    notes
-  })
+): Transaction => ({
+  date: new Date(date),
+  description,
+  amount: parseFloat(amount),
+  transactionType,
+  metadata: { ...metadata, oneTimeCategory: '', umbrellaCategory: '' },
+  accountName,
+  accountType,
+  category: '',
+  notes
+})
 

@@ -9,7 +9,8 @@ const getFields = (t: Transaction) => [
   `amount: ${t.amount}`,
   `accountName: ${t.accountName}`,
   `chaseType: ${t.metadata.chaseType}`,
-  `overrideCategory: ${t.metadata.overrideCategory}`
+  `oneTimeCategory: ${t.metadata.oneTimeCategory}`,
+  `umbrellaCategory: ${t.metadata.umbrellaCategory}`
 ]
 
 export const logDebugOutput = (originalDebits: Transaction[], originalCredits: Transaction[], debits: Transaction[], credits: Transaction[]) => {
@@ -34,6 +35,3 @@ export const logDebugOutput = (originalDebits: Transaction[], originalCredits: T
   console.log(uncategorizableDebits.map(getFields))
   fs.writeFileSync(debugOutputFilePath('debits.uncategorizable'), JSON.stringify(uncategorizableDebits, null, 2))
 }
-
-
-// data all set, make a commit for formotting, now just categoryize. 

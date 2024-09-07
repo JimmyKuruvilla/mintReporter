@@ -67,7 +67,7 @@ export const ChaseCreditCSVParser = (accountName: string, csv: string): Transact
       const matches = getLineMatches(line);
 
       if (matches) {
-        const [transactionDate, postDate, description, category, _type, amount, memo, overrideCategory] = matches;
+        const [transactionDate, postDate, description, category, _type, amount, memo] = matches;
         const type = _type.toLowerCase()
 
         if (KNOWN_CHASE_CREDIT_TYPES.includes(type)) {
@@ -82,7 +82,7 @@ export const ChaseCreditCSVParser = (accountName: string, csv: string): Transact
             formatDescription(description),
             amount,
             transactionType,
-            { chaseType: type, overrideCategory: overrideCategory?.replace(CARRIAGE_RETURN, '') ?? '' },
+            { chaseType: type },
             accountName,
             ACCOUNTS.CREDIT,
             memo
@@ -117,7 +117,7 @@ export const ChaseBankCSVParser = (accountName: string, csv: string): Transactio
       const matches = getLineMatches(line);
 
       if (matches) {
-        const [chaseTransactionType, postDate, description, amount, _type, balance, checkNumber, overrideCategory] = matches;
+        const [chaseTransactionType, postDate, description, amount, _type, balance, checkNumber] = matches;
         const type = _type.toLowerCase()
 
         if (KNOWN_CHASE_BANK_TYPES.includes(type)) {
@@ -126,7 +126,7 @@ export const ChaseBankCSVParser = (accountName: string, csv: string): Transactio
             formatDescription(description),
             amount,
             getBankTransactionType(type, description),
-            { chaseType: type, [ACCOUNTS.BANK]: { checkNumber }, overrideCategory: overrideCategory?.replace(CARRIAGE_RETURN, '') ?? ''},
+            { chaseType: type, [ACCOUNTS.BANK]: { checkNumber }},
             accountName,
             ACCOUNTS.BANK,
             ''

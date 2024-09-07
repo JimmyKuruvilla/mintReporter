@@ -99,10 +99,10 @@ export type CategoryValues = { [index: string]: number }
 export const umbrellasToZeroTotalMap: CategoryValues = Object.values(targetSummary).reduce((acc, next) =>
   ({ ...acc, ...(next.umbrellaCategory === IGNORE ? {} : { [next.umbrellaCategory]: 0 }) }), {})
 
-// overrideCategory must be exactly as it is in the summary
+
 export const assignCategory = (t: Transaction): Transaction => {
-  if (t.metadata?.overrideCategory) {
-    t.category = t.metadata.overrideCategory
+  if (t.metadata?.oneTimeCategory) {
+    t.category = t.metadata.oneTimeCategory
   } else {
     for (const bucket of buckets) {
       const { fragments, categoryData } = bucket
