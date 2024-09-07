@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { sortBy } from 'lodash';
-import { NEW_LINE, outputFilePath } from './constants';
+import { NEW_LINE, csvOutputFilePath } from './constants';
 import { CombinedSummary } from './summary';
 import { Transaction } from './transaction';
 
@@ -9,7 +9,7 @@ export const writeSummaryAsCsv = (filename: string, summary: CombinedSummary) =>
     .map(([key, value]) => `${key}, ${parseFloat(value.toFixed(2))}`)
     .join(NEW_LINE);
 
-  fs.writeFileSync(outputFilePath(filename), output)
+  fs.writeFileSync(csvOutputFilePath(filename), output)
 }
 
 export const writeTransactionsAsCsv = (filename: string, transactions: Transaction[]) => {
@@ -17,5 +17,5 @@ export const writeTransactionsAsCsv = (filename: string, transactions: Transacti
     .map(_ => `${_.date.toLocaleDateString()}, ${_.description.replace(/ +/g, ' ')}, ${_.amount}, ${_.category}, ${_.accountName}`)
     .join(NEW_LINE);
 
-  fs.writeFileSync(outputFilePath(filename), output)
+  fs.writeFileSync(csvOutputFilePath(filename), output)
 }

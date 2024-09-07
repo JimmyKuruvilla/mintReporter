@@ -4,7 +4,7 @@ import { sortBy, partition, uniq } from 'lodash';
 import { COMMA, SUMMARY, TRANSACTION_TYPES, UTF8 } from './constants';
 import { writeSummaryAsCsv, writeTransactionsAsCsv } from './csv';
 import { combineSummaries, assignCategory, summarize, isNotTransfer, isNotIgnore } from './summary';
-import { printDebugOutput } from './debug';
+import { logDebugOutput } from './debug';
 import { recursiveTraverse } from './utils';
 import { getChaseAccountId } from './chase';
 import { Transaction } from './transaction';
@@ -45,7 +45,7 @@ const createFinancialSummary = async (startDate: Date, endDate: Date) => {
   const debits = sortBy(_debits.filter(objWithinDateRange).filter(isNotTransfer).map(assignCategory).filter(isNotIgnore), 'date')
   const credits = sortBy(_credits.filter(objWithinDateRange).filter(isNotTransfer).map(assignCategory).filter(isNotIgnore), 'date')
 
-  printDebugOutput(_debits, _credits, debits, credits)
+  logDebugOutput(_debits, _credits, debits, credits)
 
   const combinedSummary = combineSummaries(summarize(debits), summarize(credits))
 

@@ -11,5 +11,6 @@ export enum TRANSACTION_TYPES {
 }
 export const SUMMARY = 'summary';
 export const CATEGORY = 'category';
-export const outputFilePath = (filename: string) => `csvs/outputs/${filename}.csv`
+export const csvOutputFilePath = (filename: string, ext = 'csv') => `csvs/outputs/${filename}.${ext}`
+export const debugOutputFilePath = (filename: string, ext = 'json') => `debug/${filename}.${ext}`
 export const isTest = process.env.FILE_EXTS === '.test'

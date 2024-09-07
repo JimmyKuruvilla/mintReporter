@@ -1,29 +1,38 @@
-import { IGNORE } from './constants'
+import fs from 'fs';
+import { debugOutputFilePath, IGNORE } from './constants'
 import { Transaction } from './transaction'
 
 const getFields = (t: Transaction) => [
-  `date: ${t.date}`, 
-  `description: ${t.description}`, 
-  `category: ${t.category}`, 
-  `amount: ${t.amount}`, 
-  `accountName: ${t.accountName}`, 
+  `date: ${t.date}`,
+  `description: ${t.description}`,
+  `category: ${t.category}`,
+  `amount: ${t.amount}`,
+  `accountName: ${t.accountName}`,
   `chaseType: ${t.metadata.chaseType}`,
   `overrideCategory: ${t.metadata.overrideCategory}`
 ]
 
-export const printDebugOutput = (originalDebits: Transaction[], originalCredits: Transaction[], debits: Transaction[], credits: Transaction[]) => {
+export const logDebugOutput = (originalDebits: Transaction[], originalCredits: Transaction[], debits: Transaction[], credits: Transaction[]) => {
 
   console.log('############ IGNORED CREDITS ###################')
-  console.log(originalCredits.filter(i => i.category === IGNORE).map(getFields))
+  const ignoredCredits = originalCredits.filter(i => i.category === IGNORE)
+  console.log(ignoredCredits.map(getFields))
+  fs.writeFileSync(debugOutputFilePath('credits.ignored.json'), JSON.stringify(ignoredCredits, null, 2))
 
   console.log('############ IGNORED DEBITS ###################')
-  console.log(originalDebits.filter(i => i.category === IGNORE).map(getFields))
+  const ignoredDebits = originalDebits.filter(i => i.category === IGNORE)
+  console.log(ignoredDebits.map(getFields))
+  fs.writeFileSync(debugOutputFilePath('debits.ignored.json'), JSON.stringify(ignoredDebits, null, 2))
 
   console.log('############ Uncategorizable CREDITS ###################')
-  console.log(credits.filter(i => !i.category).map(getFields))
+  const uncategorizableCredits = credits.filter(i => !i.category)
+  console.log(uncategorizableCredits.map(getFields))
+  fs.writeFileSync(debugOutputFilePath('credits.uncategorizable.json'), JSON.stringify(uncategorizableCredits, null, 2))
 
   console.log('############ Uncategorizable DEBITS ###################')
-  console.log(debits.filter(i => !i.category).map(getFields))
+  const uncategorizableDebits = debits.filter(i => !i.category)
+  console.log(uncategorizableDebits.map(getFields))
+  fs.writeFileSync(debugOutputFilePath('debits.uncategorizable.json'), JSON.stringify(uncategorizableDebits, null, 2))
 }
 
 
