@@ -104,6 +104,8 @@ export const assignCategories = (_t: Transaction | CategorizedTransaction): Cate
   const t = _t as CategorizedTransaction
   t.oneTimeCategory = t.oneTimeCategory ?? ''
   t.permanentCategory = t.permanentCategory ?? ''
+  t.permanentCategoryQuery = t.permanentCategoryQuery ?? ''
+
 
   if (t.oneTimeCategory) {
     t.category = t.oneTimeCategory

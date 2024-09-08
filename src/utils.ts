@@ -43,6 +43,22 @@ export const writeTransactionsAsCsv = (filename: string, transactions: Categoriz
   fs.writeFileSync(csvOutputFilePath(filename), output)
 }
 
+export const updatePermanentQueries = async (uncategorizableDebits: CategorizedTransaction[]) => {
+  const baseSummaryJson = await readJsonFile('./src/categories/base.json')
+
+  uncategorizableDebits.forEach((t => {
+    if (t.permanentCategory) {
+      if (!baseSummaryJson[t.permanentCategory]) {
+        throw new Error(`Base Summary json does not include ${t.permanentCategory}`)
+      } else {
+        baseSummaryJson[t.permanentCategory] = `${baseSummaryJson[t.permanentCategory]}, ${t.permanentCategoryQuery}`
+      }
+    }
+  }))
+
+  fs.writeFileSync('./src/categories/modifiedBaseForReview.json', JSON.stringify(baseSummaryJson, null, 2))
+}
+
 export const clearInitialData = async () => {
   await recursiveTraverse('data/initial', ['.json'], console, (path: string) => {
     fs.unlinkSync(path)

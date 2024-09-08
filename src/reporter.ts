@@ -4,7 +4,7 @@ import { chain } from 'lodash';
 import { COMMA, SUMMARY, TRANSACTION_TYPES, UNCATEGORIZABLE, UTF8 } from './constants';
 import { combineSummaries, assignCategories, summarize, isNotTransfer, isNotIgnore } from './summary';
 import { writeInitialData } from './writeInitialData';
-import { clearInitialData, readJsonFile, recursiveTraverse, writeSummaryAsCsv, writeTransactionsAsCsv } from './utils';
+import { clearInitialData, readJsonFile, recursiveTraverse, updatePermanentQueries, writeSummaryAsCsv, writeTransactionsAsCsv } from './utils';
 import { getChaseAccountId } from './chase';
 import { CategorizedTransaction, CategorizedTransactionJson, Transaction, hydrateCategorizedTransaction } from './transaction';
 
@@ -72,6 +72,8 @@ const createFinalSummary = async () => {
   writeTransactionsAsCsv(TRANSACTION_TYPES.DEBIT, processedDebits)
   writeTransactionsAsCsv(TRANSACTION_TYPES.CREDIT, allCredits)
   writeSummaryAsCsv(SUMMARY, combinedSummary)
+  
+  await updatePermanentQueries(uncategorizableDebits)
 }
 
 (async () => {
