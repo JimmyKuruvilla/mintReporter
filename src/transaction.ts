@@ -3,7 +3,6 @@ import { TRANSACTION_TYPES } from './constants'
 
 interface Metadata {
   chaseType: string,
-  oneTimeCategory?: string
   [ACCOUNTS.BANK]?: {
     checkNumber?: string
   }
@@ -22,6 +21,8 @@ export interface Transaction {
 
 export interface CategorizedTransaction extends Transaction {
   category: string
+  oneTimeCategory: string,
+  permanentCategory: string
 }
 
 export type TransactionJson = { [Property in keyof Transaction]: any }
@@ -31,7 +32,7 @@ export const Transaction = (data: TransactionJson): Transaction => {
   return {
     date: new Date(data.date),
     amount: parseFloat(data.amount),
-    metadata: { oneTimeCategory: '', ...data.metadata },
+    metadata: data.metadata,
     description: data.description,
     transactionType: data.transactionType,
     accountName: data.accountName,
@@ -43,6 +44,8 @@ export const Transaction = (data: TransactionJson): Transaction => {
 export const hydrateCategorizedTransaction = (data: CategorizedTransactionJson): CategorizedTransaction => {
   return {
     ...Transaction(data),
-    category: data.category
+    category: data.category,
+    oneTimeCategory: data.oneTimeCategory,
+    permanentCategory: data.permanentCategory
   }
 }

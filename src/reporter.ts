@@ -2,7 +2,7 @@
 import fs from "fs";
 import { chain } from 'lodash';
 import { COMMA, SUMMARY, TRANSACTION_TYPES, UNCATEGORIZABLE, UTF8 } from './constants';
-import { combineSummaries, assignCategory, summarize, isNotTransfer, isNotIgnore } from './summary';
+import { combineSummaries, assignCategories, summarize, isNotTransfer, isNotIgnore } from './summary';
 import { writeInitialData } from './writeInitialData';
 import { clearInitialData, readJsonFile, recursiveTraverse, writeSummaryAsCsv, writeTransactionsAsCsv } from './utils';
 import { getChaseAccountId } from './chase';
@@ -45,7 +45,7 @@ const createInitialData = async (startDate: Date, endDate: Date) => {
   const [allDebits, allCredits] = chain(allTransactions)
     .filter(t => objWithinDateRange(t) && isNotTransfer(t))
     .sortBy('date')
-    .map(assignCategory)
+    .map(assignCategories)
     .partition(['transactionType', TRANSACTION_TYPES.DEBIT])
     .value()
 
@@ -59,7 +59,7 @@ const createFinalSummary = async () => {
     .map(hydrateCategorizedTransaction)
   const uncategorizableDebits = (await readJsonFile('./data/initial/debits.uncategorizable.json'))
     .map(hydrateCategorizedTransaction)
-    .map(assignCategory)
+    .map(assignCategories)
 
   const debitsWithoutUncategorizable = allDebits.filter((t: CategorizedTransaction) => t.category !== UNCATEGORIZABLE)
   const processedDebits = [...debitsWithoutUncategorizable, ...uncategorizableDebits]
