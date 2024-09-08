@@ -6,4 +6,4 @@ chaseIdtoDetails.ts
 *.xlsx
 .vscode
 dist
-debug
+data

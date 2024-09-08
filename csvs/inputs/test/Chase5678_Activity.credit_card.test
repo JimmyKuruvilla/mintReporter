@@ -1,9 +1,0 @@
-Transaction Date,Post Date,Description,Category,Type,Amount,Memo
-03/26/24,03/27/24,credit-Has-dash,chase-category,Sale,-1,
-01/30/24,01/31/24,credit-website.com,chase-category,Return,1,
-03/28/24,03/29/24,credit-Has Number Sign#1234567890,chase-category,Sale,-1,
-03/11/24,03/13/24,credit-Some&amp;Company.COM,chase-category,Sale,-1,
-01/16/24,01/17/24,credit-SOME*COMPANY.COM,chase-category,Sale,-1,
-01/16/24,01/17/24,credit-override-category,chase-category,Sale,-1,empty-memo,website
-01/16/24,01/17/24,credit-ignore-test,chase-category,Sale,-99,
-12/31/23,01/01/24,credit-Has Star US*1234567890,chase-category,Payment,-1,

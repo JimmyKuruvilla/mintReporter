@@ -1,9 +1,0 @@
-Details,Posting Date,Description,Amount,Type,Balance,Check or Slip #
-DEBIT,03/27/24,bank-Has-dash,-1,ACH_DEBIT,10,
-CREDIT,01/31/24,bank-website.com,1,ACH_CREDIT,10,
-DEBIT,03/13/24,bank-Some&amp;Company.COM,-1,ATM,10,
-DEBIT,01/17/24,bank-SOME*COMPANY.COM,-1,FEE_TRANSACTION,10,
-DEBIT,01/17/24,bank-override-category,1,CHECK_DEPOSIT,10,empty-check-number,website
-DEBIT,01/17/24,bank-ignore-test,-99,CHECK_DEPOSIT,10,
-DEBIT,01/01/24,bank-Has Star US*1234567890,-1,ACCT_XFER,10,
-DEBIT,03/29/24,bank-Has Number Sign#1234567890,-1,LOAN_PMT,10,

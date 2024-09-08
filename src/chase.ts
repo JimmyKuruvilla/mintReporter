@@ -77,16 +77,16 @@ export const ChaseCreditCSVParser = (accountName: string, csv: string): Transact
               ? TRANSACTION_TYPES.CREDIT
               : TRANSACTION_TYPES.DEBIT
 
-          return Transaction(
-            transactionDate,
-            formatDescription(description),
+          return Transaction({
+            date: transactionDate,
+            description: formatDescription(description),
             amount,
             transactionType,
-            { chaseType: type },
+            metadata: { chaseType: type },
             accountName,
-            ACCOUNTS.CREDIT,
-            memo
-          )
+            accountType: ACCOUNTS.CREDIT,
+            notes: memo
+          })
         }
         else {
           throw new Error(`Found credit transaction with unknown type: ${type}`)
@@ -121,16 +121,16 @@ export const ChaseBankCSVParser = (accountName: string, csv: string): Transactio
         const type = _type.toLowerCase()
 
         if (KNOWN_CHASE_BANK_TYPES.includes(type)) {
-          return Transaction(
-            postDate,
-            formatDescription(description),
+          return Transaction({
+            date: postDate,
+            description: formatDescription(description),
             amount,
-            getBankTransactionType(type, description),
-            { chaseType: type, [ACCOUNTS.BANK]: { checkNumber }},
+            transactionType: getBankTransactionType(type, description),
+            metadata: { chaseType: type, [ACCOUNTS.BANK]: { checkNumber } },
             accountName,
-            ACCOUNTS.BANK,
-            ''
-          )
+            accountType: ACCOUNTS.BANK,
+            notes: null
+          })
         }
         else {
           throw new Error(`Found bank transaction with unknown type: ${type}`)

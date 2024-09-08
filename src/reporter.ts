@@ -2,36 +2,37 @@
 import fs from "fs";
 import { sortBy, partition, uniq } from 'lodash';
 import { COMMA, SUMMARY, TRANSACTION_TYPES, UTF8 } from './constants';
-import { writeSummaryAsCsv, writeTransactionsAsCsv } from './csv';
 import { combineSummaries, assignCategory, summarize, isNotTransfer, isNotIgnore } from './summary';
-import { logDebugOutput } from './debug';
-import { recursiveTraverse } from './utils';
+import { writeInitialData } from './writeInitialData';
+import { clearInitialData, readJsonFile, recursiveTraverse, writeSummaryAsCsv, writeTransactionsAsCsv } from './utils';
 import { getChaseAccountId } from './chase';
-import { Transaction } from './transaction';
+import { CategorizedTransaction, Transaction } from './transaction';
 
-import { ChaseIdToDetails } from "./chaseIdtoDetails"; 
+import { ChaseIdToDetails } from "./chaseIdtoDetails";
 
-const START_DATE = process.env.START_DATE!
-const END_DATE = process.env.END_DATE!
-const FILE_EXTS = process.env.FILE_EXTS ? process.env.FILE_EXTS.split(COMMA) : ['.CSV']
+const STAGE = process.env.STAGE!
 
-if (!START_DATE ?? !END_DATE) {
-  throw new Error('missing required config: start date, end date')
-}
+const createInitialData = async (startDate: Date, endDate: Date) => {
+  const START_DATE = process.env.START_DATE!
+  const END_DATE = process.env.END_DATE!
+  const FILE_EXTS = process.env.FILE_EXTS ? process.env.FILE_EXTS.split(COMMA) : ['.CSV']
 
-console.log(`Running reports using ${FILE_EXTS}`)
-const createFinancialSummary = async (startDate: Date, endDate: Date) => {
+  if (!START_DATE ?? !END_DATE) {
+    throw new Error('missing required config: start date, end date')
+  }
+  console.log(`Running reports using ${FILE_EXTS}`)
+
+
   const objWithinDateRange = (obj: { date: Date }) => obj.date >= startDate && obj.date <= endDate
-
 
   const allTransactions: Transaction[] = []
 
-  await recursiveTraverse('csvs/inputs', FILE_EXTS, console, (path: string) => {
+  await recursiveTraverse('data/inputs', FILE_EXTS, console, (path: string) => {
     const id = getChaseAccountId(path)
     if (id) {
       const csvTransactions = fs.readFileSync(path, { encoding: UTF8 });
       const account = ChaseIdToDetails[id]
-      
+
       console.log(`Processing ${path}`)
       const transactions = account.parser(account.name, csvTransactions)
 
@@ -41,19 +42,48 @@ const createFinancialSummary = async (startDate: Date, endDate: Date) => {
     }
   })
 
-  const [_debits, _credits] = partition(allTransactions, ['transactionType', TRANSACTION_TYPES.DEBIT])
-  const debits = sortBy(_debits.filter(objWithinDateRange).filter(isNotTransfer).map(assignCategory).filter(isNotIgnore), 'date')
-  const credits = sortBy(_credits.filter(objWithinDateRange).filter(isNotTransfer).map(assignCategory).filter(isNotIgnore), 'date')
+  const [allDebits, allCredits] = partition(allTransactions, ['transactionType', TRANSACTION_TYPES.DEBIT])
+  const allDebitsWithCategory = allDebits.filter(objWithinDateRange).filter(isNotTransfer).map(assignCategory)
+  const allCreditsWithCategory = allCredits.filter(objWithinDateRange).filter(isNotTransfer).map(assignCategory)
+  const debits = sortBy(allDebitsWithCategory.filter(isNotIgnore), 'date')
+  const credits = sortBy(allCreditsWithCategory.filter(isNotIgnore), 'date')
 
-  logDebugOutput(_debits, _credits, debits, credits)
+  writeInitialData(allDebitsWithCategory, allCreditsWithCategory, debits, credits)
+}
 
-  const combinedSummary = combineSummaries(summarize(debits), summarize(credits))
+const createFinalSummary = async () => {
+  const allDebits = (await readJsonFile('./data/initial/debits.all.json')).map(CategorizedTransaction)
+  const uncategorizableDebits = (await readJsonFile('./data/initial/debits.uncategorizable.json')).map(CategorizedTransaction)
 
-  writeTransactionsAsCsv(TRANSACTION_TYPES.DEBIT, debits)
-  writeTransactionsAsCsv(TRANSACTION_TYPES.CREDIT, credits)
+  const allCredits = (await readJsonFile('./data/initial/credits.all.json')).map(CategorizedTransaction)
+  const uncategorizableCredits = (await readJsonFile('./data/initial/credits.uncategorizable.json')).map(CategorizedTransaction)
+  const combinedSummary = combineSummaries(summarize(allDebits), summarize(allCredits))
+// read and update categories and overrides here
+  writeTransactionsAsCsv(TRANSACTION_TYPES.DEBIT, allDebits)
+  writeTransactionsAsCsv(TRANSACTION_TYPES.CREDIT, allCredits)
   writeSummaryAsCsv(SUMMARY, combinedSummary)
 }
 
 (async () => {
-  await createFinancialSummary(new Date(START_DATE), new Date(END_DATE));
+  switch (STAGE) {
+    case 'writeInitialData':
+      const START_DATE = process.env.START_DATE!
+      const END_DATE = process.env.END_DATE!
+      const FILE_EXTS = process.env.FILE_EXTS ? process.env.FILE_EXTS.split(COMMA) : ['.CSV']
+
+      if (!START_DATE ?? !END_DATE) {
+        throw new Error('missing required config: start date, end date')
+      }
+      console.log(`Running reports using ${FILE_EXTS}`)
+
+      await clearInitialData()
+      await createInitialData(new Date(START_DATE), new Date(END_DATE));
+      break;
+    case 'writeFinalSummary':
+      await createFinalSummary()
+      break;
+    default:
+      console.log('NO STAGE PROVIDED')
+      return
+  }
 })()
