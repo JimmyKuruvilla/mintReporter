@@ -24,7 +24,8 @@ export interface CategorizedTransaction extends Transaction {
   category: string
 }
 
-type TransactionJson = { [Property in keyof Transaction]: any }
+export type TransactionJson = { [Property in keyof Transaction]: any }
+export type CategorizedTransactionJson = { [Property in keyof CategorizedTransaction]: any }
 
 export const Transaction = (data: TransactionJson): Transaction => {
   return {
@@ -39,7 +40,7 @@ export const Transaction = (data: TransactionJson): Transaction => {
   }
 }
 
-export const CategorizedTransaction = (data: TransactionJson & { category: string }): CategorizedTransaction => {
+export const hydrateCategorizedTransaction = (data: CategorizedTransactionJson): CategorizedTransaction => {
   return {
     ...Transaction(data),
     category: data.category

@@ -43,7 +43,7 @@ const categorySummary =
 
   [Vacation]: { umbrellaCategory: 'Vacation', },
 
-  [Ignore]: { umbrellaCategory: IGNORE, }
+  [Ignore]: { umbrellaCategory: IGNORE, },
 }
 
 const testSummary = {
@@ -61,13 +61,18 @@ const targetSummary = isTest ? testSummary : categorySummary
 export const isNotTransfer = (transaction: Transaction) => transaction.transactionType !== TRANSACTION_TYPES.TRANSFER
 export const isNotIgnore = (transaction: CategorizedTransaction) => transaction.category !== IGNORE
 
+type CategoryValues = { [index: string]: number }
+const umbrellaCategoryAcc: CategoryValues = Object.values(targetSummary).reduce((acc, next) =>
+  ({ ...acc, ... { [next.umbrellaCategory]: 0 } }), {})
+umbrellaCategoryAcc[UNCATEGORIZABLE] = 0
+
 export type Summary = CategoryValues & { total: number }
 export const summarize = (transactions: CategorizedTransaction[]): Summary => {
   const summarizedTransactions = transactions.reduce((acc, t) => {
     const currentValue = acc[t.category] ?? 0;
 
     return { ...acc, ...({ [t.category]: currentValue + t.amount }) }
-  }, umbrellasToZeroTotalMap);
+  }, umbrellaCategoryAcc);
 
   const total = Object.values(summarizedTransactions).reduce((acc, v) => acc + v, 0);
   return { ...summarizedTransactions, total };
@@ -94,11 +99,6 @@ export const buckets: Bucket[] = Object.entries(targetSummary)
     fragments: namespace.toLowerCase().split(COMMA).map(fragment => fragment.trim()).filter(Boolean),
     categoryData: data
   }))
-
-export type CategoryValues = { [index: string]: number }
-export const umbrellasToZeroTotalMap: CategoryValues = Object.values(targetSummary).reduce((acc, next) =>
-  ({ ...acc, ...(next.umbrellaCategory === IGNORE ? {} : { [next.umbrellaCategory]: 0 }) }), {})
-
 
 export const assignCategory = (_t: Transaction): CategorizedTransaction => {
   const t = _t as CategorizedTransaction

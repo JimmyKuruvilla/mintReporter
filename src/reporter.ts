@@ -1,12 +1,12 @@
 #!/usr/bin env node
 import fs from "fs";
-import { sortBy, partition, uniq, chain } from 'lodash';
-import { COMMA, SUMMARY, TRANSACTION_TYPES, UTF8 } from './constants';
+import { chain } from 'lodash';
+import { COMMA, SUMMARY, TRANSACTION_TYPES, UNCATEGORIZABLE, UTF8 } from './constants';
 import { combineSummaries, assignCategory, summarize, isNotTransfer, isNotIgnore } from './summary';
 import { writeInitialData } from './writeInitialData';
 import { clearInitialData, readJsonFile, recursiveTraverse, writeSummaryAsCsv, writeTransactionsAsCsv } from './utils';
 import { getChaseAccountId } from './chase';
-import { CategorizedTransaction, Transaction } from './transaction';
+import { CategorizedTransaction, CategorizedTransactionJson, Transaction, hydrateCategorizedTransaction } from './transaction';
 
 import { ChaseIdToDetails } from "./chaseIdtoDetails";
 
@@ -53,14 +53,23 @@ const createInitialData = async (startDate: Date, endDate: Date) => {
 }
 
 const createFinalSummary = async () => {
-  const allDebits = (await readJsonFile('./data/initial/debits.all.json')).map(CategorizedTransaction)
-  const uncategorizableDebits = (await readJsonFile('./data/initial/debits.uncategorizable.json')).map(CategorizedTransaction)
+  const allDebits = (await readJsonFile('./data/initial/debits.all.json'))
+    .map(hydrateCategorizedTransaction)
+  const allCredits = (await readJsonFile('./data/initial/credits.all.json'))
+    .map(hydrateCategorizedTransaction)
+  const uncategorizableDebits = (await readJsonFile('./data/initial/debits.uncategorizable.json'))
+    .map(hydrateCategorizedTransaction)
+    .map(assignCategory)
 
-  const allCredits = (await readJsonFile('./data/initial/credits.all.json')).map(CategorizedTransaction)
-  const uncategorizableCredits = (await readJsonFile('./data/initial/credits.uncategorizable.json')).map(CategorizedTransaction)
-  const combinedSummary = combineSummaries(summarize(allDebits), summarize(allCredits))
+  const debitsWithoutUncategorizable = allDebits.filter((t: CategorizedTransaction) => t.category !== UNCATEGORIZABLE)
+  const processedDebits = [...debitsWithoutUncategorizable, ...uncategorizableDebits]
 
-  writeTransactionsAsCsv(TRANSACTION_TYPES.DEBIT, allDebits)
+  const combinedSummary = combineSummaries(
+    summarize(processedDebits),
+    summarize(allCredits)
+  )
+
+  writeTransactionsAsCsv(TRANSACTION_TYPES.DEBIT, processedDebits)
   writeTransactionsAsCsv(TRANSACTION_TYPES.CREDIT, allCredits)
   writeSummaryAsCsv(SUMMARY, combinedSummary)
 }
