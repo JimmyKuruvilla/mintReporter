@@ -6,7 +6,6 @@ const getFields = (t: CategorizedTransaction) => [
   `date: ${t.date}`,
   `description: ${t.description}`,
   `category: ${t.category}`,
-  `oneTimeCategory: ${t.oneTimeCategory}`,
   `permanentCategory: ${t.permanentCategory}`,
   `amount: ${t.amount}`,
   `accountName: ${t.accountName}`,

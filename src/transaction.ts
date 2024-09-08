@@ -21,7 +21,6 @@ export interface Transaction {
 
 export interface CategorizedTransaction extends Transaction {
   category: string
-  oneTimeCategory: string,
   permanentCategory: string
   permanentCategoryQuery: string
 }
@@ -46,7 +45,6 @@ export const hydrateCategorizedTransaction = (data: CategorizedTransactionJson):
   return {
     ...Transaction(data),
     category: data.category,
-    oneTimeCategory: data.oneTimeCategory,
     permanentCategory: data.permanentCategory,
     permanentCategoryQuery: data.permanentCategoryQuery
   }

@@ -102,13 +102,11 @@ export const buckets: Bucket[] = Object.entries(targetSummary)
 
 export const assignCategories = (_t: Transaction | CategorizedTransaction): CategorizedTransaction => {
   const t = _t as CategorizedTransaction
-  t.oneTimeCategory = t.oneTimeCategory ?? ''
   t.permanentCategory = t.permanentCategory ?? ''
   t.permanentCategoryQuery = t.permanentCategoryQuery ?? ''
 
-
-  if (t.oneTimeCategory) {
-    t.category = t.oneTimeCategory
+  if (t.permanentCategory) {
+    t.category = t.permanentCategory
   } else {
     for (const bucket of buckets) {
       const { fragments, categoryData } = bucket
