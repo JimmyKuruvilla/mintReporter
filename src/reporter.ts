@@ -1,6 +1,6 @@
 #!/usr/bin env node
 import fs from "fs";
-import { chain } from 'lodash';
+import { chain, sortBy } from 'lodash';
 import { COMMA, SUMMARY, TRANSACTION_TYPES, UNCATEGORIZABLE, UTF8 } from './constants';
 import { combineSummaries, assignCategories, summarize, isNotTransfer, isNotIgnore } from './summary';
 import { writeInitialData } from './writeInitialData';
@@ -69,10 +69,10 @@ const createFinalSummary = async () => {
     summarize(allCredits)
   )
 
-  writeTransactionsAsCsv(TRANSACTION_TYPES.DEBIT, processedDebits)
-  writeTransactionsAsCsv(TRANSACTION_TYPES.CREDIT, allCredits)
+  writeTransactionsAsCsv(TRANSACTION_TYPES.DEBIT, sortBy(processedDebits, 'category'))
+  writeTransactionsAsCsv(TRANSACTION_TYPES.CREDIT, sortBy(allCredits, 'description'))
   writeSummaryAsCsv(SUMMARY, combinedSummary)
-  
+
   await updatePermanentQueries(uncategorizableDebits)
 }
 
