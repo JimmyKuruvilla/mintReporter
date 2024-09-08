@@ -4,6 +4,11 @@ Recurring work payments for internet should be counted as `reimbursements`, and 
 
 Uncategorizable Debits 
 Means the transaction's category didn't fall into any of the available umbrella categories. They need categorization, otherwise they will not be reflected in the final output. Add additional mappings from the uncategory to an existing umbrella. 
+- run stage 1
+- run stage 2 to get all uncategorizable
+- - update all permanent and one time categories
+- - run stage 2 to write csvs with modified categories
+- - review new categorization and overwrite base.json with it
 
 Uncategorizable credits
 There will be uncategorizable credits in the debug output. That is expected and does not affect total income calculation. There just isn't a need to categorize income categories.
