@@ -1,6 +1,6 @@
 #!/usr/bin env node
 import fs from "fs";
-import { sortBy, partition, uniq } from 'lodash';
+import { sortBy, partition, uniq, chain } from 'lodash';
 import { COMMA, SUMMARY, TRANSACTION_TYPES, UTF8 } from './constants';
 import { combineSummaries, assignCategory, summarize, isNotTransfer, isNotIgnore } from './summary';
 import { writeInitialData } from './writeInitialData';
@@ -42,13 +42,14 @@ const createInitialData = async (startDate: Date, endDate: Date) => {
     }
   })
 
-  const [allDebits, allCredits] = partition(allTransactions, ['transactionType', TRANSACTION_TYPES.DEBIT])
-  const allDebitsWithCategory = allDebits.filter(objWithinDateRange).filter(isNotTransfer).map(assignCategory)
-  const allCreditsWithCategory = allCredits.filter(objWithinDateRange).filter(isNotTransfer).map(assignCategory)
-  const debits = sortBy(allDebitsWithCategory.filter(isNotIgnore), 'date')
-  const credits = sortBy(allCreditsWithCategory.filter(isNotIgnore), 'date')
+  const [allDebits, allCredits] = chain(allTransactions)
+    .filter(t => objWithinDateRange(t) && isNotTransfer(t))
+    .sortBy('date')
+    .map(assignCategory)
+    .partition(['transactionType', TRANSACTION_TYPES.DEBIT])
+    .value()
 
-  writeInitialData(allDebitsWithCategory, allCreditsWithCategory, debits, credits)
+  writeInitialData(allDebits, allCredits)
 }
 
 const createFinalSummary = async () => {
@@ -58,7 +59,7 @@ const createFinalSummary = async () => {
   const allCredits = (await readJsonFile('./data/initial/credits.all.json')).map(CategorizedTransaction)
   const uncategorizableCredits = (await readJsonFile('./data/initial/credits.uncategorizable.json')).map(CategorizedTransaction)
   const combinedSummary = combineSummaries(summarize(allDebits), summarize(allCredits))
-// read and update categories and overrides here
+
   writeTransactionsAsCsv(TRANSACTION_TYPES.DEBIT, allDebits)
   writeTransactionsAsCsv(TRANSACTION_TYPES.CREDIT, allCredits)
   writeSummaryAsCsv(SUMMARY, combinedSummary)

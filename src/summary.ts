@@ -2,7 +2,6 @@ import { COMMA, IGNORE, TRANSACTION_TYPES, UNCATEGORIZABLE, isTest } from './con
 import { costaRica062024 } from './categories/vacations.json';
 import { CategorizedTransaction, Transaction } from './transaction';
 import BaseCategories from './categories/base.json'
-import { cloneDeep } from 'lodash';
 /*
   WW CCD is reimbursement and should be zeroed with some purchase, so tagged for manual changes
   WW PPD is salary and FSAs and should be counted as income
@@ -102,7 +101,7 @@ export const umbrellasToZeroTotalMap: CategoryValues = Object.values(targetSumma
 
 
 export const assignCategory = (_t: Transaction): CategorizedTransaction => {
-  const t = cloneDeep(_t) as CategorizedTransaction
+  const t = _t as CategorizedTransaction
 
   if (t.metadata?.oneTimeCategory) {
     t.category = t.metadata.oneTimeCategory
@@ -126,7 +125,7 @@ export const assignCategory = (_t: Transaction): CategorizedTransaction => {
   }
 
   if (!t.category) {
-    t.category = UNCATEGORIZABLE
+    t.category = t.transactionType === TRANSACTION_TYPES.DEBIT ? UNCATEGORIZABLE : IGNORE
   }
 
   return t;
