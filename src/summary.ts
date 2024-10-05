@@ -2,6 +2,7 @@ import { COMMA, IGNORE, TRANSACTION_TYPES, UNCATEGORIZABLE, isTest } from './con
 import { costaRica062024 } from './categories/vacations.json';
 import { CategorizedTransaction, Transaction } from './transaction';
 import BaseCategories from './categories/base.json'
+import { chain } from 'lodash';
 /*
   WW CCD is reimbursement and should be zeroed with some purchase, so tagged for manual changes
   WW PPD is salary and FSAs and should be counted as income
@@ -59,7 +60,9 @@ const testSummary = {
 
 const targetSummary = isTest ? testSummary : categorySummary
 export const isNotTransfer = (transaction: Transaction) => transaction.transactionType !== TRANSACTION_TYPES.TRANSFER
-export const isNotIgnore = (transaction: CategorizedTransaction) => transaction.category !== IGNORE
+export const isDebit = (transaction: Transaction) => transaction.transactionType === TRANSACTION_TYPES.DEBIT
+export const isIgnore = (transaction: CategorizedTransaction) => transaction.category === IGNORE
+export const isNotIgnore = (transaction: CategorizedTransaction) => !isIgnore(transaction)
 
 type CategoryValues = { [index: string]: number }
 const umbrellaCategoryAcc: CategoryValues = Object.values(targetSummary).reduce((acc, next) =>
@@ -74,7 +77,14 @@ export const summarize = (transactions: CategorizedTransaction[]): Summary => {
     return { ...acc, ...({ [t.category]: currentValue + t.amount }) }
   }, umbrellaCategoryAcc);
 
-  const total = Object.values(summarizedTransactions).reduce((acc, v) => acc + v, 0);
+  const [firstTransaction] = transactions
+  let total;
+  
+  if (isDebit(firstTransaction)) {
+    total = chain(summarizedTransactions).omit(IGNORE).reduce((acc, v) => acc + v, 0).value();
+  } else {
+    total = chain(summarizedTransactions).reduce((acc, v) => acc + v, 0).value();
+  }
   return { ...summarizedTransactions, total };
 }
 
