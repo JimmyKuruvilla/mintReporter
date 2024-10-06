@@ -1,7 +1,7 @@
 #!/usr/bin env node
 import fs from "fs";
 import { chain, sortBy } from 'lodash';
-import { COMMA, SUMMARY, TRANSACTION_TYPES, UNCATEGORIZABLE, UTF8 } from './constants';
+import { CHECK, COMMA, SUMMARY, TRANSACTION_TYPES, UNCATEGORIZABLE, UTF8 } from './constants';
 import { combineSummaries, assignCategories, summarize, isNotTransfer, isNotIgnore } from './summary';
 import { writeInitialData } from './writeInitialData';
 import { clearInitialData, readJsonFile, recursiveTraverse, updatePermanentQueries, writeSummaryAsCsv, writeTransactionsAsCsv } from './utils';
@@ -74,6 +74,11 @@ const createFinalSummary = async () => {
   writeSummaryAsCsv(SUMMARY, combinedSummary)
 
   await updatePermanentQueries(uncategorizableDebits)
+
+  console.log('############ REMAINING UNCATEGORIZABLE DEBITS ###################')
+  console.log(processedDebits.filter(i => i.category === UNCATEGORIZABLE))
+  console.log('############ CHECKS ###################')
+  console.log(processedDebits.filter(i => i.category === CHECK))
 }
 
 (async () => {

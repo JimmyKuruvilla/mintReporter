@@ -2,8 +2,11 @@ export const COMMA = ',';
 export const NEW_LINE = '\n';
 export const CARRIAGE_RETURN = '\r';
 export const UTF8 = 'utf8';
+
 export const IGNORE = 'ignore';
 export const UNCATEGORIZABLE = 'uncategorizable';
+export const CHECK = 'Check';
+
 export const EMPTY_FIELD = ',,';
 export enum TRANSACTION_TYPES {
   DEBIT = 'debit',

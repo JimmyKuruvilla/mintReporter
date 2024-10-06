@@ -31,3 +31,14 @@ Net
 - this is supposed to be pure income - reconciled expenses. In reality it suffers from the same problems when a large medical reimbursement hits. It looks like the Net is actually better than it is. Probably should just ignore this number. 
 
 Override category can be specified in the csv as the last column to one-time alter a category of a transaction.
+
+
+Usage
+- update dates in package.json
+- run stage 1 to get partial output
+- edit the uncategorizable to add a one time category or a permanent category with a query
+- any category changes will be overwritten by rerunning stage 1!
+- run stage 2 to 
+ 1. see which transactions are still uncategorizable after edits
+ 2. generate the final summaries and the modified base with updated permanent categories
+- review the modifiedBase and copy it over to base to make changes permanent.
