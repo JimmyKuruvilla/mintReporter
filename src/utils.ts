@@ -51,7 +51,7 @@ export const updatePermanentQueries = async (uncategorizableDebits: CategorizedT
       if (!baseSummaryJson[t.permanentCategory]) {
         throw new Error(`Base Summary json does not include ${t.permanentCategory}`)
       } else {
-        baseSummaryJson[t.permanentCategory] = `${baseSummaryJson[t.permanentCategory]}, ${t.permanentCategoryQuery}`
+        baseSummaryJson[t.permanentCategory] = `${t.permanentCategoryQuery}, ${baseSummaryJson[t.permanentCategory]}`
       }
     }
   }))
