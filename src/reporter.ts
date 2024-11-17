@@ -1,10 +1,10 @@
 #!/usr/bin env node
 import fs from "fs";
 import { chain, sortBy } from 'lodash';
-import { CHECK, COMMA, SUMMARY, TRANSACTION_TYPES, UNCATEGORIZABLE, UTF8 } from './constants';
+import { CHECK, COMMA, FILE_NAMES, initialDataFilePath, SUMMARY, TRANSACTION_TYPES, UNCATEGORIZABLE, UTF8 } from './constants';
 import { combineSummaries, assignCategories, summarize, isNotTransfer, isNotIgnore } from './summary';
 import { writeInitialData } from './writeInitialData';
-import { clearInitialData, readJsonFile, recursiveTraverse, updatePermanentQueries, writeSummaryAsCsv, writeTransactionsAsCsv } from './utils';
+import { clearInitialData, filterUncategorizable, readJsonFile, recursiveTraverse, updatePermanentQueries, writeSummaryAsCsv, writeTransactionsAsCsv } from './utils';
 import { getChaseAccountId } from './chase';
 import { CategorizedTransaction, CategorizedTransactionJson, Transaction, hydrateCategorizedTransaction } from './transaction';
 
@@ -53,15 +53,15 @@ const createInitialData = async (startDate: Date, endDate: Date) => {
 }
 
 const createFinalSummary = async () => {
-  const allDebits = (await readJsonFile('./data/initial/debits.all.json'))
+  const allDebits = (await readJsonFile(initialDataFilePath(FILE_NAMES.ALL_DEBITS)))
     .map(hydrateCategorizedTransaction)
-  const allCredits = (await readJsonFile('./data/initial/credits.all.json'))
+  const allCredits = (await readJsonFile(initialDataFilePath(FILE_NAMES.ALL_CREDITS)))
     .map(hydrateCategorizedTransaction)
-  const uncategorizableDebits = (await readJsonFile('./data/initial/debits.uncategorizable.json'))
+  const uncategorizableDebits = (await readJsonFile(initialDataFilePath(FILE_NAMES.UNCATEGORIZABLE_DEBITS)))
     .map(hydrateCategorizedTransaction)
     .map(assignCategories)
 
-  const debitsWithoutUncategorizable = allDebits.filter((t: CategorizedTransaction) => t.category !== UNCATEGORIZABLE)
+  const debitsWithoutUncategorizable = allDebits.filter((t: CategorizedTransaction) => !filterUncategorizable(t))
   const processedDebits = [...debitsWithoutUncategorizable, ...uncategorizableDebits]
 
   const combinedSummary = combineSummaries(
@@ -72,13 +72,13 @@ const createFinalSummary = async () => {
   writeTransactionsAsCsv(TRANSACTION_TYPES.DEBIT, sortBy(processedDebits, 'category'))
   writeTransactionsAsCsv(TRANSACTION_TYPES.CREDIT, sortBy(allCredits, 'description'))
   writeSummaryAsCsv(SUMMARY, combinedSummary)
-
+  // REDO ! the uncategorizable and others are messed up. 
+// looks ok, debits.all, debits.uncategorizable. 
+// IGNORED has 16k in it!!!? why. 
   await updatePermanentQueries(uncategorizableDebits)
 
-  console.log('############ REMAINING UNCATEGORIZABLE DEBITS ###################')
-  console.log(processedDebits.filter(i => i.category === UNCATEGORIZABLE))
-  console.log('############ CHECKS ###################')
-  console.log(processedDebits.filter(i => i.category === CHECK))
+  console.log('############ REMAINING UNCATEGORIZABLE DEBITS/CHECKS ###################')
+  console.log(processedDebits.filter(filterUncategorizable))
 }
 
 (async () => {

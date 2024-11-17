@@ -42,3 +42,5 @@ Usage
  1. see which transactions are still uncategorizable after edits
  2. generate the final summaries and the modified base with updated permanent categories
 - review the modifiedBase and copy it over to base to make changes permanent.
+- stage2 will also report any Checks found. Update debits.all.json with categories to categorize the checks
+- Ignore only works when updated in summary.ts because we don't want it in the final summary csv. 

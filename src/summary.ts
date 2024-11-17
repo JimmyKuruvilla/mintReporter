@@ -10,7 +10,7 @@ import { chain } from 'lodash';
 
   College Savings ACH is a bank ACH_DEBIT and not a transfer-type, but ignored here because it is just moving money to college funds, not actually an expense that was incurred
 */
-const Ignore = 'WW INTERNATIONAL PAYMENT CCD, College Savings ACH, peloton'
+const Ignore = 'WW INTERNATIONAL PAYMENT CCD, College Savings ACH, ILD529, peloton'
 const Vacation = `${costaRica062024}, ${BaseCategories.Vacation}`
 
 const categorySummary =

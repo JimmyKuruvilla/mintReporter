@@ -2,7 +2,7 @@ import { readdir, stat } from 'node:fs/promises'
 import path from 'path'
 import fs from 'fs';
 import { sortBy } from 'lodash';
-import { NEW_LINE, csvOutputFilePath } from './constants';
+import { IGNORE, UNCATEGORIZABLE, NEW_LINE, csvOutputFilePath, CHECK } from './constants';
 import { CombinedSummary } from './summary';
 import { CategorizedTransaction, Transaction } from './transaction';
 
@@ -28,7 +28,15 @@ export const recursiveTraverse = async (rootPath: string, ALLOWED_EXTENSIONS: st
 }
 
 export const writeSummaryAsCsv = (filename: string, summary: CombinedSummary) => {
-  const output = sortBy(Object.entries(summary), [([key, value]) => key])
+  const ignoreTotal = summary[IGNORE]
+  const uncategorizableTotal = summary[UNCATEGORIZABLE]
+  const cleanList = Object.fromEntries(
+    Object.entries(summary)
+      .filter(([key, value]) => key !== IGNORE && key !== UNCATEGORIZABLE)
+  )
+
+  const output = sortBy(Object.entries(cleanList), [([key, value]) => key])
+    .concat([[IGNORE, ignoreTotal], [UNCATEGORIZABLE, uncategorizableTotal]])
     .map(([key, value]) => `${key}, ${parseFloat(value.toFixed(2))}`)
     .join(NEW_LINE);
 
@@ -68,3 +76,5 @@ export const clearInitialData = async () => {
 export const readJsonFile = async (filepath: string) => {
   return JSON.parse(await fs.readFileSync(filepath, { encoding: 'utf8' }))
 }
+
+export const filterUncategorizable = (i: { category: string }) => i.category === UNCATEGORIZABLE || i.category === CHECK

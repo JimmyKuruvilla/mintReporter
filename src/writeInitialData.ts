@@ -1,6 +1,7 @@
 import fs from 'fs';
-import { initialDataFilePath, IGNORE, UNCATEGORIZABLE } from './constants'
+import { initialDataFilePath, IGNORE, UNCATEGORIZABLE, FILE_NAMES, CHECK } from './constants'
 import { CategorizedTransaction } from './transaction'
+import { filterUncategorizable } from './utils';
 
 const getFields = (t: CategorizedTransaction) => [
   `date: ${t.date}`,
@@ -14,19 +15,21 @@ const getFields = (t: CategorizedTransaction) => [
 
 export const writeInitialData = (debits: CategorizedTransaction[], credits: CategorizedTransaction[]) => {
 
+  const uncategorizableDebits = debits.filter(filterUncategorizable)
+  const categorizableDebits = debits.filter(i => !filterUncategorizable(i))
+  const ignoredDebits = debits.filter(i => i.category === IGNORE)
+
   console.log('############ WRITING ALL DATA ###################')
-  fs.writeFileSync(initialDataFilePath('credits.all'), JSON.stringify(credits, null, 2))
-  fs.writeFileSync(initialDataFilePath('debits.all'), JSON.stringify(debits, null, 2))
+  fs.writeFileSync(initialDataFilePath(FILE_NAMES.ALL_CREDITS), JSON.stringify(credits, null, 2))
+  fs.writeFileSync(initialDataFilePath(FILE_NAMES.ALL_DEBITS), JSON.stringify(categorizableDebits, null, 2))
 
   console.log('############ KNOWN IGNORED DEBITS ###################')
-  const ignoredDebits = debits.filter(i => i.category === IGNORE)
   console.log(ignoredDebits.map(getFields))
-  fs.writeFileSync(initialDataFilePath('debits.ignored'), JSON.stringify(ignoredDebits, null, 2))
+  fs.writeFileSync(initialDataFilePath(FILE_NAMES.IGNORED_DEBITS), JSON.stringify(ignoredDebits, null, 2))
 
   console.log('############ UNCATEGORIZABLE DEBITS ###################')
-  const uncategorizableDebits = debits.filter(i => i.category === UNCATEGORIZABLE)
   console.log(uncategorizableDebits.map(getFields))
-  fs.writeFileSync(initialDataFilePath('debits.uncategorizable'), JSON.stringify(uncategorizableDebits, null, 2))
+  fs.writeFileSync(initialDataFilePath(FILE_NAMES.UNCATEGORIZABLE_DEBITS), JSON.stringify(uncategorizableDebits, null, 2))
 
   console.log('############ ALL CREDITS IGNORED / ARE CATEGORIZED AS IGNORE ###################')
 }

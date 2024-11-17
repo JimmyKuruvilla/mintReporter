@@ -3,8 +3,8 @@ export const NEW_LINE = '\n';
 export const CARRIAGE_RETURN = '\r';
 export const UTF8 = 'utf8';
 
-export const IGNORE = 'ignore';
-export const UNCATEGORIZABLE = 'uncategorizable';
+export const IGNORE = 'Ignore';
+export const UNCATEGORIZABLE = 'Uncategorizable';
 export const CHECK = 'Check';
 
 export const EMPTY_FIELD = ',,';
@@ -12,6 +12,13 @@ export enum TRANSACTION_TYPES {
   DEBIT = 'debit',
   CREDIT = 'credit',
   TRANSFER = 'transfer',
+}
+
+export const FILE_NAMES = {
+  ALL_DEBITS: 'debits.all',
+  ALL_CREDITS: 'credits.all',
+  UNCATEGORIZABLE_DEBITS: 'debits.uncategorizable',
+  IGNORED_DEBITS: 'debits.ignored'
 }
 export const SUMMARY = 'summary';
 export const CATEGORY = 'category';
