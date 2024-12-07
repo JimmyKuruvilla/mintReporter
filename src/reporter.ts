@@ -4,7 +4,7 @@ import { chain, sortBy } from 'lodash';
 import { CHECK, COMMA, FILE_NAMES, initialDataFilePath, SUMMARY, TRANSACTION_TYPES, UNCATEGORIZABLE, UTF8 } from './constants';
 import { combineSummaries, assignCategories, summarize, isNotTransfer, isNotIgnore } from './summary';
 import { writeInitialData } from './writeInitialData';
-import { clearInitialData, filterUncategorizable, readJsonFile, recursiveTraverse, updatePermanentQueries, writeSummaryAsCsv, writeTransactionsAsCsv } from './utils';
+import { clearInitialData, isUncategorizable, readJsonFile, recursiveTraverse, updatePermanentQueries, writeSummaryAsCsv, writeTransactionsAsCsv } from './utils';
 import { getChaseAccountId } from './chase';
 import { CategorizedTransaction, CategorizedTransactionJson, Transaction, hydrateCategorizedTransaction } from './transaction';
 
@@ -61,8 +61,8 @@ const createFinalSummary = async () => {
     .map(hydrateCategorizedTransaction)
     .map(assignCategories)
 
-  const debitsWithoutUncategorizable = allDebits.filter((t: CategorizedTransaction) => !filterUncategorizable(t))
-  const processedDebits = [...debitsWithoutUncategorizable, ...uncategorizableDebits]
+  const categorizableDebits = allDebits.filter((t: CategorizedTransaction) => !isUncategorizable(t))
+  const processedDebits = [...categorizableDebits, ...uncategorizableDebits]
 
   const combinedSummary = combineSummaries(
     summarize(processedDebits),
@@ -72,13 +72,11 @@ const createFinalSummary = async () => {
   writeTransactionsAsCsv(TRANSACTION_TYPES.DEBIT, sortBy(processedDebits, 'category'))
   writeTransactionsAsCsv(TRANSACTION_TYPES.CREDIT, sortBy(allCredits, 'description'))
   writeSummaryAsCsv(SUMMARY, combinedSummary)
-  // REDO ! the uncategorizable and others are messed up. 
-// looks ok, debits.all, debits.uncategorizable. 
-// IGNORED has 16k in it!!!? why. 
+
   await updatePermanentQueries(uncategorizableDebits)
 
   console.log('############ REMAINING UNCATEGORIZABLE DEBITS/CHECKS ###################')
-  console.log(processedDebits.filter(filterUncategorizable))
+  console.log(processedDebits.filter(isUncategorizable))
 }
 
 (async () => {

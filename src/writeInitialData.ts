@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { initialDataFilePath, IGNORE, UNCATEGORIZABLE, FILE_NAMES, CHECK } from './constants'
 import { CategorizedTransaction } from './transaction'
-import { filterUncategorizable } from './utils';
+import { isUncategorizable } from './utils';
 
 const getFields = (t: CategorizedTransaction) => [
   `date: ${t.date}`,
@@ -15,8 +15,8 @@ const getFields = (t: CategorizedTransaction) => [
 
 export const writeInitialData = (debits: CategorizedTransaction[], credits: CategorizedTransaction[]) => {
 
-  const uncategorizableDebits = debits.filter(filterUncategorizable)
-  const categorizableDebits = debits.filter(i => !filterUncategorizable(i))
+  const uncategorizableDebits = debits.filter(isUncategorizable)
+  const categorizableDebits = debits.filter(i => !isUncategorizable(i))
   const ignoredDebits = debits.filter(i => i.category === IGNORE)
 
   console.log('############ WRITING ALL DATA ###################')

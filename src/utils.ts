@@ -77,4 +77,4 @@ export const readJsonFile = async (filepath: string) => {
   return JSON.parse(await fs.readFileSync(filepath, { encoding: 'utf8' }))
 }
 
-export const filterUncategorizable = (i: { category: string }) => i.category === UNCATEGORIZABLE || i.category === CHECK
+export const isUncategorizable = (i: { category: string }) => i.category === UNCATEGORIZABLE || i.category === CHECK
