@@ -37,8 +37,9 @@ chaseTypes
     - MISC_CREDIT are interest payments
     - DEPOSIT are usually credit card point redemption
 */
+
 export const BANK_CREDIT_TYPES = ['ach_credit', 'deposit', 'check_deposit', 'partnerfi_to_chase', 'misc_credit',];
-export const BANK_DEBIT_TYPES = ['ach_debit', 'atm', 'check_paid', 'chase_to_partnerfi', 'fee_transaction', 'debit_card', 'quickpay_debit', 'wire_outgoing'];
+export const BANK_DEBIT_TYPES = ['ach_debit', 'deposit_return', 'atm', 'check_paid', 'chase_to_partnerfi', 'fee_transaction', 'debit_card', 'quickpay_debit', 'wire_outgoing'];
 export const BANK_TRANSFER_TYPES = ['acct_xfer', 'loan_pmt'];
 const CREDIT_CARD_AUTOPAY = 'CREDIT CRD AUTOPAY'
 export const KNOWN_CHASE_BANK_TYPES = [...BANK_DEBIT_TYPES, ...BANK_CREDIT_TYPES, ...BANK_TRANSFER_TYPES];
