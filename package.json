@@ -5,7 +5,7 @@
   "main": "reporter.js",
   "scripts": {
     "tsc": "tsc",
-    "stage1": "npm run tsc && STAGE=writeInitialData START_DATE=03/01/2025 END_DATE=03/31/2025 node dist/reporter.js",
+    "stage1": "npm run tsc && STAGE=writeInitialData START_DATE=04/01/2025 END_DATE=04/30/2025 node dist/reporter.js",
     "stage2": "npm run tsc && STAGE=writeFinalSummary node dist/reporter.js",
     "dev": "npm run tsc && FILE_EXTS=.CSV START_DATE=01/01/2024 END_DATE=01/31/2024 nodemon dist/reporter.js",
     "test:stage1": "npm run tsc && STAGE=writeInitialData FILE_EXTS=.test START_DATE=01/01/2000 END_DATE=01/01/3000 node dist/reporter.js",

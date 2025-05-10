@@ -12,22 +12,14 @@ import { ChaseIdToDetails } from "./chaseIdtoDetails";
 
 const STAGE = process.env.STAGE!
 
-const createInitialData = async (startDate: Date, endDate: Date) => {
-  const START_DATE = process.env.START_DATE!
-  const END_DATE = process.env.END_DATE!
-  const FILE_EXTS = process.env.FILE_EXTS ? process.env.FILE_EXTS.split(COMMA) : ['.CSV']
-
-  if (!START_DATE ?? !END_DATE) {
-    throw new Error('missing required config: start date, end date')
-  }
-  console.log(`Running reports using ${FILE_EXTS}`)
-
+const createInitialData = async (startDate: Date, endDate: Date, fileExts: string[]) => {
+  console.log(`Running reports from ${startDate} to ${endDate} using ${fileExts}`)
 
   const objWithinDateRange = (obj: { date: Date }) => obj.date >= startDate && obj.date <= endDate
 
   const allTransactions: Transaction[] = []
 
-  await recursiveTraverse('data/inputs', FILE_EXTS, console, (path: string) => {
+  await recursiveTraverse('data/inputs', fileExts, console, (path: string) => {
     const id = getChaseAccountId(path)
     if (id) {
       const csvTransactions = fs.readFileSync(path, { encoding: UTF8 });
@@ -86,13 +78,13 @@ const createFinalSummary = async () => {
       const END_DATE = process.env.END_DATE!
       const FILE_EXTS = process.env.FILE_EXTS ? process.env.FILE_EXTS.split(COMMA) : ['.CSV']
 
-      if (!START_DATE ?? !END_DATE) {
+      if (!START_DATE || !END_DATE) {
         throw new Error('missing required config: start date, end date')
       }
       console.log(`Running reports using ${FILE_EXTS}`)
 
       await clearInitialData()
-      await createInitialData(new Date(START_DATE), new Date(END_DATE));
+      await createInitialData(new Date(START_DATE), new Date(END_DATE), FILE_EXTS);
       break;
     case 'writeFinalSummary':
       await createFinalSummary()

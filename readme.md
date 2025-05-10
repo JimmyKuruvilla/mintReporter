@@ -44,3 +44,7 @@ Usage
 - review the modifiedBase and copy it over to base to make changes permanent.
 - stage2 will also report any Checks found. Update debits.all.json with categories to categorize the checks
 - Ignore only works when updated in summary.ts because we don't want it in the final summary csv. 
+
+
+Bugs:
+fragment: american (american airlines) matches t.description: American Meadows. Fixed as a one time update. Solution is American airlines needs to be more specific. 
