@@ -48,3 +48,8 @@ Usage
 
 Bugs:
 fragment: american (american airlines) matches t.description: American Meadows. Fixed as a one time update. Solution is American airlines needs to be more specific. 
+
+
+TODO
+1. instead of dumping into initial - copy to a date named folder and keep all the docs for a given set in the same place. Overwriting if the same name exists, group by month it's broad. 
+2. After stage 1, stage 2 to should create new files with the perma categories and the one time categories separated so I can easily upadte all then merge them.
