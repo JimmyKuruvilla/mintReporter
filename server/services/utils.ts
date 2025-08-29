@@ -3,11 +3,12 @@ import path from 'path'
 import fs from 'fs';
 import { sortBy } from 'lodash';
 import { IGNORE, UNCATEGORIZABLE, NEW_LINE, CHECK } from '../constants';
-import { csvOutputFilePath, initialDataFolder, categoriesFolder } from '../config'
+import { csvOutputFilePath, initialDataFolder, categoriesFolder, uploadsFolder } from '../config'
 import { CombinedSummary } from './summary';
 import { CategorizedTransaction, Transaction } from './transaction';
 
-export const recursiveTraverse = async (rootPath: string, ALLOWED_EXTENSIONS: string[], logger: any, operationFn: (fullPath: string) => void) => {
+export const recursiveTraverse = async (rootPath: string, allowedExtensions: string[], logger: any, operationFn: (fullPath: string) => void) => {
+  const allowedExts = allowedExtensions.length === 1 && allowedExtensions[0] === 'ALL' ? [] : allowedExtensions.map(ext => ext.toLowerCase())
   const filenames = await readdir(rootPath)
 
   for (const filename of filenames) {
@@ -16,9 +17,11 @@ export const recursiveTraverse = async (rootPath: string, ALLOWED_EXTENSIONS: st
 
     try {
       if (stats.isDirectory()) {
-        await recursiveTraverse(fullPath, ALLOWED_EXTENSIONS, logger, operationFn)
+        await recursiveTraverse(fullPath, allowedExts, logger, operationFn)
       } else {
-        if (ALLOWED_EXTENSIONS.includes(path.extname(filename))) {
+        if (allowedExts.length === 0) {
+          await operationFn(fullPath)
+        } else if (allowedExts.includes(path.extname(filename).toLowerCase())) {
           await operationFn(fullPath)
         }
       }
@@ -68,11 +71,14 @@ export const updatePermanentQueries = async (uncategorizableDebits: CategorizedT
   fs.writeFileSync(`${categoriesFolder}/modifiedBaseForReview.json`, JSON.stringify(baseSummaryJson, null, 2))
 }
 
-export const clearInitialData = async () => {
-  await recursiveTraverse(initialDataFolder, ['.json'], console, (path: string) => {
-    fs.unlinkSync(path)
-  })
-}
+export const clearInitialData = async () => recursiveTraverse(initialDataFolder, ['.json'], console, (path: string) => {
+  fs.unlinkSync(path)
+})
+
+
+export const clearUploadsFolder = async () => recursiveTraverse(uploadsFolder, ['ALL'], console, (path: string) => {
+  fs.unlinkSync(path)
+})
 
 export const readJsonFile = async (filepath: string) => {
   return JSON.parse(await fs.readFileSync(filepath, { encoding: 'utf8' }))

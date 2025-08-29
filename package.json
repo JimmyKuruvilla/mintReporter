@@ -10,7 +10,7 @@
     "dev": "FILE_EXTS=.CSV START_DATE=01/01/2024 END_DATE=01/31/2024 STAGE=writeInitialData nodemon",
     "test:stage1": "STAGE=writeInitialData FILE_EXTS=.test START_DATE=01/01/2000 END_DATE=01/01/3000 tsx server/scripts/reporter.ts",
     "test:stage2": "STAGE=writeFinalSummary FILE_EXTS=.test START_DATE=01/01/2000 END_DATE=01/01/3000 tsx server/scripts/reporter.ts",
-    "dev:server": "tsx server/index.ts",
+    "dev:server": "nodemon",
     "dev:client": "cd client; vite",
     "stack:dev": "concurrently -n server,client -c blue,green \"npm:dev:server\" \"npm:dev:client\""
   },
@@ -22,7 +22,8 @@
     "lodash": "^4.17.21",
     "multer": "^1.4.5-lts.1",
     "tsx": "^4.20.5",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "zod": "^4.1.5"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

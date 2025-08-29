@@ -12,6 +12,6 @@ export const csvOutputFilePath = (filename: string, ext = 'csv') => `${path.join
 export const initialDataFolder = path.join(process.cwd(), 'server', 'data', 'initial')
 export const initialDataFilePath = (filename: string, ext = 'json') => `${path.join(initialDataFolder, filename)}.${ext}`
 
-export const uploadsFolder = path.join(process.cwd(), 'server', 'uploads');
+export const uploadsFolder = path.join(process.cwd(), 'server', 'data', 'uploads');
 
 export const isTest = process.env.FILE_EXTS === '.test'

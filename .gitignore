@@ -8,5 +8,4 @@ dist
 modifiedBaseForReview.json
 
 config/chaseIdtoDetails.ts
-server/uploads
 server/data
