@@ -8,3 +8,5 @@ chaseIdtoDetails.ts
 dist
 data
 modifiedBaseForReview.json
+
+server/uploads
