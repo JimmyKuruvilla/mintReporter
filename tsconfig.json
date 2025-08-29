@@ -15,8 +15,9 @@
     "skipLibCheck": true
   },
   "include": [
-    "src/**/*"
-, "src/chaseIdtoDetails.ts"  ],
+    "src/**/*",
+    "src/chaseIdtoDetails.ts"
+  ],
   "exclude": [
     "node_modules"
   ]

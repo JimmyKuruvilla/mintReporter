@@ -2,20 +2,20 @@
   "name": "reporter",
   "version": "1.0.0",
   "description": "Transform mint transactions into summary csvs for use in a tracking sheet",
-  "main": "reporter.js",
+  "main": "reporter.ts",
   "scripts": {
     "tsc": "tsc",
-    "stage1": "npm run tsc && STAGE=writeInitialData START_DATE=07/01/2025 END_DATE=07/31/2025 node dist/reporter.js",
-    "stage2": "npm run tsc && STAGE=writeFinalSummary node dist/reporter.js",
-    "dev": "npm run tsc && FILE_EXTS=.CSV START_DATE=01/01/2024 END_DATE=01/31/2024 nodemon dist/reporter.js",
-    "test:stage1": "npm run tsc && STAGE=writeInitialData FILE_EXTS=.test START_DATE=01/01/2000 END_DATE=01/01/3000 node dist/reporter.js",
-    "test:stage2": "npm run tsc && STAGE=writeFinalSummary FILE_EXTS=.test START_DATE=01/01/2000 END_DATE=01/01/3000 node dist/reporter.js"
+    "stage1": "STAGE=writeInitialData START_DATE=07/01/2025 END_DATE=07/31/2025 tsx src/reporter.ts",
+    "stage2": "STAGE=writeFinalSummary tsx src/reporter.ts",
+    "dev": "FILE_EXTS=.CSV START_DATE=01/01/2024 END_DATE=01/31/2024 STAGE=writeInitialData nodemon",
+    "test:stage1": "STAGE=writeInitialData FILE_EXTS=.test START_DATE=01/01/2000 END_DATE=01/01/3000 tsx src/reporter.ts",
+    "test:stage2": "STAGE=writeFinalSummary FILE_EXTS=.test START_DATE=01/01/2000 END_DATE=01/01/3000 tsx src/reporter.ts"
   },
   "author": "Jimmy Kuruvilla",
   "license": "ISC",
   "dependencies": {
     "lodash": "^4.17.21",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.20.5",
     "typescript": "^5.9.2"
   },
   "devDependencies": {
