@@ -1,7 +1,7 @@
-import { COMMA, IGNORE, TRANSACTION_TYPES, UNCATEGORIZABLE, isTest } from './constants';
-import { costaRica062024, santeFe062025 } from './categories/vacations.json';
+import { COMMA, IGNORE, TRANSACTION_TYPES, UNCATEGORIZABLE, isTest } from '../constants';
+import { costaRica062024, santeFe062025 } from '../categories/vacations.json';
 import { CategorizedTransaction, Transaction } from './transaction';
-import BaseCategories from './categories/base.json'
+import BaseCategories from '../categories/base.json'
 import { chain } from 'lodash';
 /*
   WW CCD is reimbursement and should be zeroed with some purchase, so tagged for manual changes

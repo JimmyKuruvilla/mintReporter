@@ -1,5 +1,5 @@
-import { ACCOUNTS } from './accounts'
-import { TRANSACTION_TYPES } from './constants'
+import { ACCOUNTS } from './account'
+import { TRANSACTION_TYPES } from '../constants'
 
 interface Metadata {
   chaseType: string,

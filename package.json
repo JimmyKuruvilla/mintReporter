@@ -5,11 +5,11 @@
   "main": "reporter.ts",
   "scripts": {
     "tsc": "tsc",
-    "stage1": "STAGE=writeInitialData START_DATE=07/01/2025 END_DATE=07/31/2025 tsx src/reporter.ts",
-    "stage2": "STAGE=writeFinalSummary tsx src/reporter.ts",
+    "stage1": "STAGE=writeInitialData START_DATE=07/01/2025 END_DATE=07/31/2025 tsx server/scripts/reporter.ts",
+    "stage2": "STAGE=writeFinalSummary tsx server/scripts/reporter.ts",
     "dev": "FILE_EXTS=.CSV START_DATE=01/01/2024 END_DATE=01/31/2024 STAGE=writeInitialData nodemon",
-    "test:stage1": "STAGE=writeInitialData FILE_EXTS=.test START_DATE=01/01/2000 END_DATE=01/01/3000 tsx src/reporter.ts",
-    "test:stage2": "STAGE=writeFinalSummary FILE_EXTS=.test START_DATE=01/01/2000 END_DATE=01/01/3000 tsx src/reporter.ts",
+    "test:stage1": "STAGE=writeInitialData FILE_EXTS=.test START_DATE=01/01/2000 END_DATE=01/01/3000 tsx server/scripts/reporter.ts",
+    "test:stage2": "STAGE=writeFinalSummary FILE_EXTS=.test START_DATE=01/01/2000 END_DATE=01/01/3000 tsx server/scripts/reporter.ts",
     "dev:server": "tsx server/index.ts",
     "dev:client": "cd client; vite",
     "stack:dev": "concurrently -n server,client -c blue,green \"npm:dev:server\" \"npm:dev:client\""
@@ -25,8 +25,9 @@
     "typescript": "^5.9.2"
   },
   "devDependencies": {
-    "@types/multer": "^2.0.0",
+    "@types/cors": "^2.8.19",
     "@types/lodash": "^4.17.0",
+    "@types/multer": "^2.0.0",
     "@types/node": "^20.11.30",
     "@vitejs/plugin-react": "^4.3.1",
     "concurrently": "^8.2.2",

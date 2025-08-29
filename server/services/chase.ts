@@ -1,7 +1,7 @@
 import path from 'path';
-import { ACCOUNTS } from './accounts';
+import { ACCOUNTS } from './account';
 import { Transaction } from './transaction';
-import { CARRIAGE_RETURN, EMPTY_FIELD, NEW_LINE, TRANSACTION_TYPES } from './constants';
+import { CARRIAGE_RETURN, EMPTY_FIELD, NEW_LINE, TRANSACTION_TYPES } from '../constants';
 
 /*
   problem1: 

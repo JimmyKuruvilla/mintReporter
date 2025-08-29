@@ -22,6 +22,3 @@ export const FILE_NAMES = {
 }
 export const SUMMARY = 'summary';
 export const CATEGORY = 'category';
-export const csvOutputFilePath = (filename: string, ext = 'csv') => `data/outputs/${filename}.${ext}`
-export const initialDataFilePath = (filename: string, ext = 'json') => `data/initial/${filename}.${ext}`
-export const isTest = process.env.FILE_EXTS === '.test'

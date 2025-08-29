@@ -2,7 +2,8 @@ import { readdir, stat } from 'node:fs/promises'
 import path from 'path'
 import fs from 'fs';
 import { sortBy } from 'lodash';
-import { IGNORE, UNCATEGORIZABLE, NEW_LINE, csvOutputFilePath, CHECK } from './constants';
+import { IGNORE, UNCATEGORIZABLE, NEW_LINE, CHECK } from '../constants';
+import { csvOutputFilePath, initialDataFolder, categoriesFolder } from '../config'
 import { CombinedSummary } from './summary';
 import { CategorizedTransaction, Transaction } from './transaction';
 
@@ -52,7 +53,7 @@ export const writeTransactionsAsCsv = (filename: string, transactions: Categoriz
 }
 
 export const updatePermanentQueries = async (uncategorizableDebits: CategorizedTransaction[]) => {
-  const baseSummaryJson = await readJsonFile('./src/categories/base.json')
+  const baseSummaryJson = await readJsonFile(`${categoriesFolder}/base.json`)
 
   uncategorizableDebits.forEach((t => {
     if (t.permanentCategory) {
@@ -64,11 +65,11 @@ export const updatePermanentQueries = async (uncategorizableDebits: CategorizedT
     }
   }))
 
-  fs.writeFileSync('./src/categories/modifiedBaseForReview.json', JSON.stringify(baseSummaryJson, null, 2))
+  fs.writeFileSync(`${categoriesFolder}/modifiedBaseForReview.json`, JSON.stringify(baseSummaryJson, null, 2))
 }
 
 export const clearInitialData = async () => {
-  await recursiveTraverse('data/initial', ['.json'], console, (path: string) => {
+  await recursiveTraverse(initialDataFolder, ['.json'], console, (path: string) => {
     fs.unlinkSync(path)
   })
 }
