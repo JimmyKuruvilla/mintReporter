@@ -3,9 +3,10 @@ import path from 'path'
 import fs from 'fs';
 import { sortBy } from 'lodash';
 import { IGNORE, UNCATEGORIZABLE, NEW_LINE, CHECK } from '../constants';
-import { csvOutputFilePath, initialDataFolder, categoriesFolder, uploadsFolder } from '../config'
+import { csvOutputFilePath, categoriesFolder } from '../config'
 import { CombinedSummary } from './summary';
-import { CategorizedTransaction, Transaction } from './transaction';
+import { ICategorizedTransaction } from './transaction';
+import { readJsonFile } from './file';
 
 export const recursiveTraverse = async (rootPath: string, allowedExtensions: string[], logger: any, operationFn: (fullPath: string) => void) => {
   const allowedExts = allowedExtensions.length === 1 && allowedExtensions[0] === 'ALL' ? [] : allowedExtensions.map(ext => ext.toLowerCase())
@@ -47,7 +48,7 @@ export const writeSummaryAsCsv = (filename: string, summary: CombinedSummary) =>
   fs.writeFileSync(csvOutputFilePath(filename), output)
 }
 
-export const writeTransactionsAsCsv = (filename: string, transactions: CategorizedTransaction[]) => {
+export const writeTransactionsAsCsv = (filename: string, transactions: ICategorizedTransaction[]) => {
   const output = transactions
     .map(_ => `${_.date.toLocaleDateString()}, ${_.description.replace(/ +/g, ' ')}, ${_.amount}, ${_.category}, ${_.accountName}`)
     .join(NEW_LINE);
@@ -55,8 +56,8 @@ export const writeTransactionsAsCsv = (filename: string, transactions: Categoriz
   fs.writeFileSync(csvOutputFilePath(filename), output)
 }
 
-export const updatePermanentQueries = async (uncategorizableDebits: CategorizedTransaction[]) => {
-  const baseSummaryJson = await readJsonFile(`${categoriesFolder}/base.json`)
+export const updatePermanentQueries = async (uncategorizableDebits: ICategorizedTransaction[]) => {
+  const baseSummaryJson = await readJsonFile<{ [category: string]: string }>(`${categoriesFolder}/base.json`)
 
   uncategorizableDebits.forEach((t => {
     if (t.permanentCategory) {
@@ -69,19 +70,6 @@ export const updatePermanentQueries = async (uncategorizableDebits: CategorizedT
   }))
 
   fs.writeFileSync(`${categoriesFolder}/modifiedBaseForReview.json`, JSON.stringify(baseSummaryJson, null, 2))
-}
-
-export const clearInitialData = async () => recursiveTraverse(initialDataFolder, ['.json'], console, (path: string) => {
-  fs.unlinkSync(path)
-})
-
-
-export const clearUploadsFolder = async () => recursiveTraverse(uploadsFolder, ['ALL'], console, (path: string) => {
-  fs.unlinkSync(path)
-})
-
-export const readJsonFile = async (filepath: string) => {
-  return JSON.parse(await fs.readFileSync(filepath, { encoding: 'utf8' }))
 }
 
 export const isUncategorizable = (i: { category: string }) => i.category === UNCATEGORIZABLE || i.category === CHECK

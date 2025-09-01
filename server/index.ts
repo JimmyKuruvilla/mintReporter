@@ -3,12 +3,15 @@ import cors from 'cors'
 import { uploadRouter } from './web/upload'
 import { uploadsFolder } from './config'
 import { errorMiddleware } from './middleware'
+import { dataRouter } from './web/data'
 
 const app = express()
 app.use(cors())
+app.use(express.json())
 const PORT = process.env.PORT || 4000
 
 app.use(uploadRouter)
+app.use(dataRouter)
 app.use(errorMiddleware)
 
 app.listen(PORT, () => {

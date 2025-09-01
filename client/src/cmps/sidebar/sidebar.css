@@ -1,0 +1,5 @@
+.sidebar {
+  padding: 20px;
+  border-right: 1px solid purple;
+  min-width: 200px;
+}

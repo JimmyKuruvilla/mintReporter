@@ -1,4 +1,4 @@
-import { Transaction } from './transaction';
+import { ITransaction } from './transaction';
 
 export enum ACCOUNTS {
   BANK = 'bank_account',
@@ -7,6 +7,6 @@ export enum ACCOUNTS {
 
 export interface AccountDetails {
   name: string,
-  parser: (accountName: string, csv: string) => Transaction[],
+  parser: (accountName: string, csv: string) => ITransaction[],
   type: ACCOUNTS
 }

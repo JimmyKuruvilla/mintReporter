@@ -1,11 +1,9 @@
 import express, { NextFunction, Request, Response } from 'express'
-import multer from 'multer';
-import fs from 'fs';
 import * as z from "zod";
-import { uploadsFolder } from '../config';
-import { clearInitialData, clearUploadsFolder } from '../services/utils';
-import { createInitialData } from '../services/data';
+
 import { csvUploadMiddleware, validateMiddleware } from 'server/middleware';
+import { createInitialData } from '../services/stages';
+import { clearInitialData, clearUploadsFolder } from '../services/file';
 
 export const uploadRouter = express.Router()
 const UploadParamsSchema = z.object({

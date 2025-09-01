@@ -1,6 +1,6 @@
 import { COMMA, IGNORE, TRANSACTION_TYPES, UNCATEGORIZABLE, isTest } from '../constants';
 import { costaRica062024, santeFe062025 } from '../categories/vacations.json';
-import { CategorizedTransaction, Transaction } from './transaction';
+import { ICategorizedTransaction, ITransaction } from './transaction';
 import BaseCategories from '../categories/base.json'
 import { chain } from 'lodash';
 /*
@@ -59,10 +59,10 @@ const testSummary = {
 }
 
 const targetSummary = isTest ? testSummary : categorySummary
-export const isNotTransfer = (transaction: Transaction) => transaction.transactionType !== TRANSACTION_TYPES.TRANSFER
-export const isDebit = (transaction: Transaction) => transaction.transactionType === TRANSACTION_TYPES.DEBIT
-export const isIgnore = (transaction: CategorizedTransaction) => transaction.category === IGNORE
-export const isNotIgnore = (transaction: CategorizedTransaction) => !isIgnore(transaction)
+export const isNotTransfer = (transaction: ITransaction) => transaction.transactionType !== TRANSACTION_TYPES.TRANSFER
+export const isDebit = (transaction: ITransaction) => transaction.transactionType === TRANSACTION_TYPES.DEBIT
+export const isIgnore = (transaction: ICategorizedTransaction) => transaction.category === IGNORE
+export const isNotIgnore = (transaction: ICategorizedTransaction) => !isIgnore(transaction)
 
 type CategoryValues = { [index: string]: number }
 const umbrellaCategoryAcc: CategoryValues = Object.values(targetSummary).reduce((acc, next) =>
@@ -70,7 +70,7 @@ const umbrellaCategoryAcc: CategoryValues = Object.values(targetSummary).reduce(
 umbrellaCategoryAcc[UNCATEGORIZABLE] = 0
 
 export type Summary = CategoryValues & { total: number }
-export const summarize = (transactions: CategorizedTransaction[]): Summary => {
+export const summarize = (transactions: ICategorizedTransaction[]): Summary => {
   const summarizedTransactions = transactions.reduce((acc, t) => {
     const currentValue = acc[t.category] ?? 0;
 
@@ -79,7 +79,7 @@ export const summarize = (transactions: CategorizedTransaction[]): Summary => {
 
   const [firstTransaction] = transactions
   let total;
-  
+
   if (isDebit(firstTransaction)) {
     total = chain(summarizedTransactions).omit(IGNORE).reduce((acc, v) => acc + v, 0).value();
   } else {
@@ -110,11 +110,10 @@ export const buckets: Bucket[] = Object.entries(targetSummary)
     categoryData: data
   }))
 
-export const assignCategories = (_t: Transaction | CategorizedTransaction): CategorizedTransaction => {
-  const t = _t as CategorizedTransaction
-  t.permanentCategory = t.permanentCategory ?? ''
-  t.permanentCategoryQuery = t.permanentCategoryQuery ?? ''
-
+/**
+ * Used with ITransaction | ICategorizedTransaction inputs
+ */
+export const assignCategories = (t: any): ICategorizedTransaction => {
   if (t.permanentCategory) {
     t.category = t.permanentCategory
   } else {
@@ -142,3 +141,5 @@ export const assignCategories = (_t: Transaction | CategorizedTransaction): Cate
 
   return t;
 }
+
+export const Categories = Object.keys(umbrellaCategoryAcc)

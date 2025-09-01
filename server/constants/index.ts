@@ -14,11 +14,5 @@ export enum TRANSACTION_TYPES {
   TRANSFER = 'transfer',
 }
 
-export const FILE_NAMES = {
-  ALL_DEBITS: 'debits.all',
-  ALL_CREDITS: 'credits.all',
-  UNCATEGORIZABLE_DEBITS: 'debits.uncategorizable',
-  IGNORED_DEBITS: 'debits.ignored'
-}
 export const SUMMARY = 'summary';
 export const CATEGORY = 'category';

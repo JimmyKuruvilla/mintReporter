@@ -1,6 +1,6 @@
 import path from 'path';
 import { ACCOUNTS } from './account';
-import { Transaction } from './transaction';
+import { ITransaction, Transaction } from './transaction';
 import { CARRIAGE_RETURN, EMPTY_FIELD, NEW_LINE, TRANSACTION_TYPES } from '../constants';
 
 /*
@@ -60,7 +60,7 @@ export const getChaseAccountId = (filename: string) => {
 }
 
 // headers: Transaction Date,Post Date,Description,Category,Type,Amount,Memo
-export const ChaseCreditCSVParser = (accountName: string, csv: string): Transaction[] => {
+export const ChaseCreditCSVParser = (accountName: string, csv: string): ITransaction[] => {
   const [headers, ...lines] = csv.split(NEW_LINE);
   return lines
     .filter(Boolean)
@@ -110,7 +110,7 @@ const getBankTransactionType = (type: string, description: string): TRANSACTION_
 
 // headers: Details,Posting Date,Description,Amount,Type,Balance,Check or Slip #
 // Details or transactionType: DEBIT or CREDIT
-export const ChaseBankCSVParser = (accountName: string, csv: string): Transaction[] => {
+export const ChaseBankCSVParser = (accountName: string, csv: string): ITransaction[] => {
   const [headers, ...lines] = csv.split(NEW_LINE);
   return lines
     .filter(Boolean)
