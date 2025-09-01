@@ -1,4 +1,4 @@
-export * from './accounts'
+export * from './account'
 export * from './chase'
 export * from './data'
 export * from './summary'
