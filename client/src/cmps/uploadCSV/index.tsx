@@ -2,6 +2,7 @@ import { useContext, useState } from 'react'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { GlobalContext } from '../../contexts/global';
 import Button from '@mui/material/Button';
+import { fatch } from '../../utils/fatch';
 
 export const UploadCSV = () => {
   const { ctx, setCtx } = useContext(GlobalContext)
@@ -22,12 +23,14 @@ export const UploadCSV = () => {
     Array.from(files).forEach(f => form.append('files', f))
 
     try {
-      const res = await fetch('http://localhost:4000/upload', {
-        method: 'POST',
+      const res = await fatch({
+        path: 'upload',
+        method: 'postRaw',
         body: form,
+        headers: {}
       })
-      const json = await res.json()
-      setStatus(`Uploaded ${json.count} files`)
+      
+      setStatus(`Uploaded ${res.count} files`)
     } catch (err: any) {
       setStatus('Upload failed')
       console.error(err)

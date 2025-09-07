@@ -21,8 +21,7 @@ const debit = {
 */
 export type APIIngestedData = {
   debits: ICategorizedTransaction[],
-  credits: ICategorizedTransaction[],
-  uncategorizableDebits: ICategorizedTransaction[]
+  credits: ICategorizedTransaction[]
 }
 
 export type CTX = {
@@ -36,8 +35,7 @@ export const initialCtx: CTX = {
   uploadEndDate: dayjs(new Date()).endOf('month'),
   ingestedData: {
     debits: [],
-    credits: [],
-    uncategorizableDebits: []
+    credits: []
   }
 }
 

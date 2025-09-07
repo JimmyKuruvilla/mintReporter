@@ -1,5 +1,6 @@
 #!/usr/bin env node
 import { COMMA } from '../constants';
+import { Read, CategorizedTransaction, assignCategories } from '../services';
 import { clearInitialData } from '../services/file';
 import { createInitialData, createFinalSummary } from '../services/stages';
 
@@ -21,7 +22,8 @@ const STAGE = (process.env as any).STAGE;
       await createInitialData(new Date(START_DATE), new Date(END_DATE), FILE_EXTS);
       break;
     case 'writeFinalSummary':
-      await createFinalSummary()
+      const changedDebits = await Read.uncategorizableDebits()
+      await createFinalSummary({ changedDebits })
       break;
     default:
       console.log('NO STAGE PROVIDED')

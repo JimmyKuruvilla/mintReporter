@@ -1,9 +1,11 @@
 import { useContext, useEffect, useMemo, useState } from 'react'
 import './ingestedData.css'
-import { AppBar, Box, Paper, Tab, Tabs } from '@mui/material'
+import { AppBar, Box, Button, Paper, Tab, Tabs } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { TabPanel } from '../tabPanel';
 import { ICategorizedTransaction } from '@/server/services/transaction'
+import { fatch } from '../../utils/fatch';
+import { TRANSACTION_TYPES } from '../../../../server/constants';
 
 type Row = Omit<ICategorizedTransaction, 'metadata' | 'date'> & {
   id: number,
@@ -12,7 +14,25 @@ type Row = Omit<ICategorizedTransaction, 'metadata' | 'date'> & {
   bankType?: string
 }
 
-const createRows = (i: any, index: number): Row => ({
+const getRowId = (row: ICategorizedTransaction | Row) => `${row.date?.toISOString?.() ?? row.date}-${row.amount}-${row.description}-${row.category}`
+
+const createTransaction = (row: Row): ICategorizedTransaction => {
+  const t: any = structuredClone(row)
+
+  delete t.id
+  delete t.checkNum
+  delete t.bankType
+  t.date = t.date.toISOString()
+
+  t.metadata = {
+    bank_account: { checkNumber: row.checkNum },
+    chaseType: row.bankType,
+  }
+
+  return t
+}
+
+const createRow = (i: ICategorizedTransaction, index: number): Row => ({
   id: index,
   category: i.category,
   amount: i.amount,
@@ -30,22 +50,30 @@ const createRows = (i: any, index: number): Row => ({
 type IngestedDataProps = {
   debits: ICategorizedTransaction[],
   credits: ICategorizedTransaction[],
-  uncategorizableDebits: ICategorizedTransaction[],
   categories: string[]
 }
 
-export const IngestedData = ({ categories, debits, credits, uncategorizableDebits }: IngestedDataProps) => {
+export const IngestedData = ({ categories, debits, credits }: IngestedDataProps) => {
   const [tabValue, setTabValue] = useState(0);
   const [columns, setColumns] = useState<GridColDef[]>([]);
   const [debitRows, setDebitRows] = useState<Row[]>([]);
   const [creditRows, setCreditRows] = useState<Row[]>([]);
-  const [uncategorizableDebitRows, setUncategorizableDebitRows] = useState<Row[]>([]);
+  const [editedDebits, setEditedDebits] = useState<ICategorizedTransaction[]>([]);
+  const [editedCredits, setEditedCredits] = useState<ICategorizedTransaction[]>([]);
 
   console.count('ingestedata')
+
   useEffect(() => {
     setColumns([
       {
         field: 'category', headerName: 'Category',
+        type: 'singleSelect',
+        valueOptions: categories,
+        editable: true,
+        width: 200
+      },
+      {
+        field: 'permanentCategory', headerName: 'PermanentCategory',
         type: 'singleSelect',
         valueOptions: categories,
         editable: true,
@@ -59,29 +87,49 @@ export const IngestedData = ({ categories, debits, credits, uncategorizableDebit
       { field: 'accountName', headerName: 'AccountName', width: 100 },
       { field: 'accountType', headerName: 'AccountType' },
       { field: 'checkNum', headerName: 'Check' },
-      {
-        field: 'permanentCategory', headerName: 'PermanentCategory',
-        type: 'singleSelect',
-        valueFormatter: (value, row) => row.category,
-        valueOptions: categories,
-        editable: true,
-        width: 200
-      },
       // { field: 'permanentCategoryQuery', headerName: 'PermanentCategoryQuery' },
     ])
 
-    setDebitRows(debits.map(createRows));
-    setCreditRows(credits.map(createRows));
-    setUncategorizableDebitRows(uncategorizableDebits.map(createRows));
+    setDebitRows(debits.map(createRow));
+    setCreditRows(credits.map(createRow));
 
-  }, [categories, credits, debits, uncategorizableDebits])
-
-  // need to be able to do category and then permanentCategory. 
+  }, [categories, credits, debits])
 
   const paginationModel = { page: 0, pageSize: 100 };
 
+  const handleCreditRowUpdate = (updatedRow: Row, originalRow: Row) => {
+    setEditedCredits([
+      ...(editedCredits.filter(d => getRowId(d) !== getRowId(originalRow))),
+      createTransaction(updatedRow)
+    ])
+    return updatedRow
+  }
+
+  const handleDebitRowUpdate = (updatedRow: Row, originalRow: Row) => {
+    setEditedDebits([
+      ...(editedDebits.filter(d => getRowId(d) !== getRowId(originalRow))),
+      createTransaction(updatedRow)
+    ])
+    return updatedRow
+  }
+
+  const handleProcessRowUpdateError = (error: any) => {
+    console.log(error)
+  }
+
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+  };
+
+  const handleSaveEdits = () => {
+    fatch(
+      { path: 'edits', method: 'post', body: { editedDebits, editedCredits } }
+    ).then(data => {
+      setEditedCredits([])
+      setEditedDebits([])
+      setDebitRows(data.debits.map(createRow))
+      setCreditRows(data.credits.map(createRow))
+    })
   };
 
   return (
@@ -95,39 +143,31 @@ export const IngestedData = ({ categories, debits, credits, uncategorizableDebit
       >
         <Tab label="Debits" />
         <Tab label="Credits" />
-        <Tab label="Uncategorizable" />
       </Tabs>
 
       <TabPanel value={tabValue} index={0}>
+        <Button variant="contained" onClick={handleSaveEdits}>Save</Button>
         <DataGrid
           rows={debitRows}
           columns={columns}
+          processRowUpdate={handleDebitRowUpdate}
+          onProcessRowUpdateError={handleProcessRowUpdateError}
           initialState={{ pagination: { paginationModel } }}
-          pageSizeOptions={[5, 10]}
+          pageSizeOptions={[50, 100]}
           density="compact"
-          checkboxSelection
         />
       </TabPanel>
 
       <TabPanel value={tabValue} index={1}>
+        <Button variant="contained" onClick={handleSaveEdits}>Save</Button>
         <DataGrid
           rows={creditRows}
           columns={columns}
+          processRowUpdate={handleCreditRowUpdate}
+          onProcessRowUpdateError={handleProcessRowUpdateError}
           initialState={{ pagination: { paginationModel } }}
-          pageSizeOptions={[5, 10]}
+          pageSizeOptions={[50, 100]}
           density="compact"
-          checkboxSelection
-        />
-      </TabPanel>
-
-      <TabPanel value={tabValue} index={2}>
-        <DataGrid
-          rows={uncategorizableDebitRows}
-          columns={columns}
-          initialState={{ pagination: { paginationModel } }}
-          pageSizeOptions={[5, 10]}
-          density="compact"
-          checkboxSelection
         />
       </TabPanel>
     </>

@@ -22,16 +22,15 @@ const App = () => {
   const [categories, setCategories] = useState<string[]>([])
   const [ingestedData, setIngestedData] = useState<APIIngestedData>({
     debits: [],
-    credits: [],
-    uncategorizableDebits: [],
+    credits: []
   })
 
 
   useEffect(() => {
     console.count('app useeffect')
     Promise.all([
-      fatch('inputs'),
-      fatch('categories')
+      fatch({ path: 'inputs' }),
+      fatch({ path: 'categories' })
     ]).then((data: [APIIngestedData, string[]]) => {
       const [ingestedData, categories] = data;
       setIngestedData(ingestedData)
@@ -53,8 +52,7 @@ const App = () => {
                 return <IngestedData
                   categories={categories}
                   debits={ingestedData.debits}
-                  credits={ingestedData.credits}
-                  uncategorizableDebits={ingestedData.uncategorizableDebits} >
+                  credits={ingestedData.credits}>
                 </IngestedData>
               case 'UploadCSV':
                 return <UploadCSV></UploadCSV>
