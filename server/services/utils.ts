@@ -7,6 +7,7 @@ import { csvOutputFilePath, categoriesFolder } from '../config'
 import { CombinedSummary } from './summary';
 import { ICategorizedTransaction } from './transaction';
 import { readJsonFile } from './file';
+import { Write } from './data';
 
 export const recursiveTraverse = async (rootPath: string, allowedExtensions: string[], logger: any, operationFn: (fullPath: string) => void) => {
   const allowedExts = allowedExtensions.length === 1 && allowedExtensions[0] === 'ALL' ? [] : allowedExtensions.map(ext => ext.toLowerCase())
@@ -32,7 +33,13 @@ export const recursiveTraverse = async (rootPath: string, allowedExtensions: str
   }
 }
 
-export const writeSummaryAsCsv = (filename: string, summary: CombinedSummary) => {
+export const prepareTransactionCsv = (transactions: ICategorizedTransaction[]) => {
+  return transactions
+    .map(_ => `${_.date.toLocaleDateString()}, ${_.description.replace(/ +/g, ' ')}, ${_.amount}, ${_.category}, ${_.accountName}`)
+    .join(NEW_LINE)
+}
+
+export const prepareSummaryCsv = (summary: CombinedSummary) => {
   const ignoreTotal = summary[IGNORE]
   const uncategorizableTotal = summary[UNCATEGORIZABLE]
   const cleanList = Object.fromEntries(
@@ -40,20 +47,12 @@ export const writeSummaryAsCsv = (filename: string, summary: CombinedSummary) =>
       .filter(([key, value]) => key !== IGNORE && key !== UNCATEGORIZABLE)
   )
 
-  const output = sortBy(Object.entries(cleanList), [([key, value]) => key])
+  const csv = sortBy(Object.entries(cleanList), [([key, value]) => key])
     .concat([[IGNORE, ignoreTotal], [UNCATEGORIZABLE, uncategorizableTotal]])
     .map(([key, value]) => `${key}, ${parseFloat(value.toFixed(2))}`)
     .join(NEW_LINE);
 
-  fs.writeFileSync(csvOutputFilePath(filename), output)
-}
-
-export const writeTransactionsAsCsv = (filename: string, transactions: ICategorizedTransaction[]) => {
-  const output = transactions
-    .map(_ => `${_.date.toLocaleDateString()}, ${_.description.replace(/ +/g, ' ')}, ${_.amount}, ${_.category}, ${_.accountName}`)
-    .join(NEW_LINE);
-
-  fs.writeFileSync(csvOutputFilePath(filename), output)
+  return csv
 }
 
 export const updatePermanentQueries = async (uncategorizableDebits: ICategorizedTransaction[]) => {

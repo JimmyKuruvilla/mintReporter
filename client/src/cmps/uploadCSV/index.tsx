@@ -1,4 +1,5 @@
 import { useContext, useState } from 'react'
+import './styles.css'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { GlobalContext } from '../../contexts/global';
 import Button from '@mui/material/Button';
@@ -29,7 +30,7 @@ export const UploadCSV = () => {
         body: form,
         headers: {}
       })
-      
+
       setStatus(`Uploaded ${res.count} files`)
     } catch (err: any) {
       setStatus('Upload failed')
@@ -50,12 +51,24 @@ export const UploadCSV = () => {
   return (
     <div className='uploadCSV'>
       <form onSubmit={handleUpload} encType="multipart/form-data">
-        <input type="file" multiple onChange={(e) => setFiles(e.target.files)} />
-        <DatePicker defaultValue={ctx.uploadStartDate} onChange={handleSetStartDate}></DatePicker>
-        <DatePicker defaultValue={ctx.uploadEndDate} onChange={handleSetEndDate}></DatePicker>
-        <Button variant="contained" type="submit">Upload</Button>
+        <div>
+          <DatePicker defaultValue={ctx.uploadStartDate} onChange={handleSetStartDate}></DatePicker>
+        </div>
+        <div>
+          <DatePicker defaultValue={ctx.uploadEndDate} onChange={handleSetEndDate}></DatePicker>
+        </div>
+
+        <div>
+          <input type="file" multiple onChange={(e) => setFiles(e.target.files)} />
+          <p>{status}</p>
+        </div>
+
+        <div>
+          <Button variant="contained" type="submit">Upload</Button>
+        </div>
+
       </form>
-      <p>{status}</p>
+
     </div>
   )
 }

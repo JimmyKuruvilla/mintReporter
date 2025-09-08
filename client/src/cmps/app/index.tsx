@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import './app.css'
+import './styles.css'
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
@@ -15,6 +15,7 @@ import { IngestedData } from '../ingestedData';
 import { UploadCSV } from '../uploadCSV';
 import { Box, Paper, Container } from '@mui/material';
 import { fatch } from '../../utils/fatch';
+import { DisplayCSV } from '../displayCSV';
 
 
 const App = () => {
@@ -48,14 +49,16 @@ const App = () => {
         <Container className='mainPanel' maxWidth={false}>
           {(() => {
             switch (mainPanelCmp) {
+              case 'UploadCSV':
+                return <UploadCSV></UploadCSV>
               case 'IngestedData':
                 return <IngestedData
                   categories={categories}
                   debits={ingestedData.debits}
                   credits={ingestedData.credits}>
                 </IngestedData>
-              case 'UploadCSV':
-                return <UploadCSV></UploadCSV>
+              case 'DisplayCSV':
+                return <DisplayCSV></DisplayCSV>
               default:
                 return <UploadCSV></UploadCSV>
             }

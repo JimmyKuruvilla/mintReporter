@@ -1,8 +1,8 @@
 import fs from 'fs';
-import { IGNORE, UNCATEGORIZABLE, CHECK, SUMMARY, TRANSACTION_TYPES, UTF8 } from '../constants'
+import { IGNORE, UNCATEGORIZABLE, CHECK, TRANSACTION_TYPES, UTF8, NEW_LINE } from '../constants'
 import { initialDataFilePath, inputsFolder, FILE_NAMES } from '../config'
 import { CategorizedTransaction, ICategorizedTransaction, ITransaction } from './transaction'
-import { isUncategorizable, recursiveTraverse, updatePermanentQueries, writeSummaryAsCsv, writeTransactionsAsCsv } from './utils';
+import { isUncategorizable, prepareSummaryCsv, prepareTransactionCsv, recursiveTraverse, updatePermanentQueries, writeSummaryAsCsv, writeTransactionsAsCsv } from './utils';
 import { chain, sortBy } from 'lodash';
 import { ChaseIdToDetails } from '../config';
 import { getChaseAccountId } from './chase';
@@ -21,13 +21,14 @@ const getFields = (t: ICategorizedTransaction) => [
 
 const writeInitialData = (
   credits: ICategorizedTransaction[],
-  categorizableDebits: ICategorizedTransaction[],
-  uncategorizableDebits: ICategorizedTransaction[],
-  ignoredDebits: ICategorizedTransaction[]) => {
+  debits: ICategorizedTransaction[],
+) => {
+  const uncategorizableDebits = debits.filter(isUncategorizable)
+  const ignoredDebits = debits.filter(i => i.category === IGNORE)
 
   console.log('############ WRITING ALL DATA ###################')
   Write.allCredits(credits)
-  Write.allDebits(categorizableDebits)
+  Write.allDebits(debits)
 
   console.log('############ KNOWN IGNORED DEBITS ###################')
   console.log(ignoredDebits.map(getFields))
@@ -69,12 +70,8 @@ export const createInitialData = async (startDate: Date, endDate: Date, fileExts
     .partition(['transactionType', TRANSACTION_TYPES.DEBIT])
     .value()
 
-  const uncategorizableDebits = debits.filter(isUncategorizable)
-  const categorizableDebits = debits.filter(i => !isUncategorizable(i))
-  const ignoredDebits = debits.filter(i => i.category === IGNORE)
-
-  writeInitialData(credits, categorizableDebits, uncategorizableDebits, ignoredDebits)
-  return { credits, categorizableDebits, uncategorizableDebits, ignoredDebits }
+  writeInitialData(credits, debits)
+  return { credits, debits }
 }
 
 export const createFinalSummary = async ({ changedDebits }: { changedDebits: ICategorizedTransaction[] }) => {
@@ -93,12 +90,17 @@ export const createFinalSummary = async ({ changedDebits }: { changedDebits: ICa
     summarize(credits)
   )
 
-  writeTransactionsAsCsv(TRANSACTION_TYPES.DEBIT, sortBy(processedDebits, 'category'))
-  writeTransactionsAsCsv(TRANSACTION_TYPES.CREDIT, sortBy(credits, 'description'))
-  writeSummaryAsCsv(SUMMARY, combinedSummary)
+  const debitsCSV = prepareTransactionCsv(sortBy(processedDebits, 'category'))
+  const creditsCSV = prepareTransactionCsv(sortBy(credits, 'description'))
+  const summaryCSV = prepareSummaryCsv(combinedSummary)
 
+  await Write.outputDebits(debitsCSV)
+  await Write.outputCredits(creditsCSV)
+  await Write.outputSummary(summaryCSV)
   await updatePermanentQueries(maybeCategorizableDebits)
 
   console.log('############ REMAINING UNCATEGORIZABLE DEBITS/CHECKS ###################')
   console.log(processedDebits.filter(isUncategorizable))
+
+  return { debitsCSV, creditsCSV, summaryCSV }
 }
