@@ -5,10 +5,11 @@ export * from './chaseIdtoDetails'
 export const FILE_NAMES = {
   ALL_DEBITS: 'debits.all',
   ALL_CREDITS: 'credits.all',
-  UNCATEGORIZABLE_DEBITS: 'debits.uncategorizable',
   EDITED_DEBITS: 'debits.edited',
   EDITED_CREDITS: 'credits.edited',
-  IGNORED_DEBITS: 'debits.ignored'
+  SUMMARY: 'summary',
+  UNCATEGORIZABLE_DEBITS: 'debug__debits.uncategorizable',
+  IGNORED_DEBITS: 'debug__debits.ignored'
 }
 
 export const categoriesFolder = path.join(process.cwd(), 'server', 'categories')

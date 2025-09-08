@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo, useState } from 'react'
-import './ingestedData.css'
+import './styles.css'
 import { AppBar, Box, Button, Paper, Tab, Tabs } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { TabPanel } from '../tabPanel';
@@ -139,14 +139,14 @@ export const IngestedData = ({ categories, debits, credits }: IngestedDataProps)
         onChange={handleTabChange}
         indicatorColor="secondary"
         textColor="inherit"
-        aria-label="full width tabs example"
       >
         <Tab label="Debits" />
         <Tab label="Credits" />
       </Tabs>
 
+      <Button variant="contained" sx={{ margin: '10px 10px 10px 0' }} onClick={handleSaveEdits}>Save</Button>
+
       <TabPanel value={tabValue} index={0}>
-        <Button variant="contained" onClick={handleSaveEdits}>Save</Button>
         <DataGrid
           rows={debitRows}
           columns={columns}
@@ -159,7 +159,6 @@ export const IngestedData = ({ categories, debits, credits }: IngestedDataProps)
       </TabPanel>
 
       <TabPanel value={tabValue} index={1}>
-        <Button variant="contained" onClick={handleSaveEdits}>Save</Button>
         <DataGrid
           rows={creditRows}
           columns={columns}

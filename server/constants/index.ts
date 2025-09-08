@@ -14,5 +14,4 @@ export enum TRANSACTION_TYPES {
   TRANSFER = 'transfer',
 }
 
-export const SUMMARY = 'summary';
 export const CATEGORY = 'category';

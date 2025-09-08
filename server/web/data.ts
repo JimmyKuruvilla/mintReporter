@@ -1,5 +1,4 @@
 import express, { NextFunction, Request, Response } from 'express'
-import { uniqBy } from 'lodash';
 import * as z from "zod";
 import { getIdWithoutCategory, Read, Write } from '../services/data';
 import { Categories } from '../services/summary';
@@ -7,15 +6,14 @@ import { clearEditingFolder } from '../services/file';
 import { CategorizedTransaction, ICategorizedTransaction } from '../services';
 import { createFinalSummary } from '../services/stages';
 import { validateMiddleware } from '../middleware';
+import { csvOutputFilePath, FILE_NAMES } from '../config';
 
 export const dataRouter = express.Router()
 
 const readInputData = async () => {
   const debits = (await Read.allDebits()).map(CategorizedTransaction)
   const credits = (await Read.allCredits()).map(CategorizedTransaction)
-  const uncategorizableDebits = (await Read.uncategorizableDebits()).map(CategorizedTransaction)
-  const editedDebits = (await Read.editedDebits()).map(CategorizedTransaction)
-  return { debits, credits, uncategorizableDebits, editedDebits }
+  return { debits, credits }
 }
 
 dataRouter.get(
@@ -41,7 +39,7 @@ dataRouter.get(
 
 const EditParamsSchema = z.object({
   editedDebits: z.array(z.any()),
-  editedCredits:  z.array(z.any()),
+  editedCredits: z.array(z.any()),
 });
 dataRouter.post(
   '/edits',
@@ -63,7 +61,7 @@ dataRouter.post(
       // TODO: ignoring uncategorizedCredits because it isn't part of the flow right now. Meaning credit updates will not propogate. 
       const modifiedUncategorizableDebits = uncategorizableDebits.filter(u => !editedDebitIds.includes(getIdWithoutCategory(u)))
       await Write.uncategorizableDebits(modifiedUncategorizableDebits)
-      
+
       const modifiedAllDebits = [...allDebits.filter(u => !editedDebitIds.includes(getIdWithoutCategory(u))), ...editedDebits]
       await Write.allDebits(modifiedAllDebits)
 
@@ -77,10 +75,30 @@ dataRouter.post(
   '/outputs',
   async (req, res, next) => {
     try {
-      await createFinalSummary({ changedDebits:[] })
-
-      res.json({}); // fix me
+      const { creditsCSV, debitsCSV, summaryCSV } = await createFinalSummary({ changedDebits: [] })
+      res.json({ creditsCSV, debitsCSV, summaryCSV });
     } catch (error: any) {
       next(error)
     }
+  });
+
+dataRouter.get('/download/:filename',
+  (req, res) => {
+    let filename;
+
+    switch (req.params.filename) {
+      case 'debit':
+        filename = FILE_NAMES.ALL_DEBITS
+        break
+      case 'credit':
+        filename = FILE_NAMES.ALL_CREDITS
+        break
+      case 'summary':
+        filename = FILE_NAMES.SUMMARY
+        break
+      default:
+        filename = FILE_NAMES.SUMMARY
+    }
+
+    res.download(csvOutputFilePath(filename));
   });

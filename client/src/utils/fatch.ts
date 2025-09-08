@@ -21,7 +21,7 @@ const del = (url: string, headers: any) => {
   });
 };
 
-const baseUrl = 'http://localhost:4000'
+export const baseUrl = 'http://localhost:4000'
 
 type FatchOptions = {
   path: string,
