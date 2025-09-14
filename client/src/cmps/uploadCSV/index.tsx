@@ -1,16 +1,11 @@
-import { useContext, useState } from 'react'
+import { useState } from 'react'
 import './styles.css'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { GlobalContext } from '../../contexts/global';
 import Button from '@mui/material/Button';
 import { fatch } from '../../utils/fatch';
 
 export const UploadCSV = () => {
-  const { ctx, setCtx } = useContext(GlobalContext)
   const [files, setFiles] = useState<FileList | null>(null)
   const [status, setStatus] = useState('')
-  const [startDate, setStartDate] = useState(ctx.uploadStartDate)
-  const [endDate, setEndDate] = useState(ctx.uploadEndDate)
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -19,8 +14,6 @@ export const UploadCSV = () => {
     setStatus('Uploading...')
 
     const form = new FormData()
-    form.append('startDate', startDate.format('YYYY-MM-DD'))
-    form.append('endDate', endDate.format('YYYY-MM-DD'))
     Array.from(files).forEach(f => form.append('files', f))
 
     try {
@@ -38,26 +31,16 @@ export const UploadCSV = () => {
     }
   }
 
-  const handleSetStartDate = (pickedDate: any) => {
-    setStartDate(pickedDate)
-    setCtx({ ...ctx, uploadStartDate: pickedDate })
-  }
-
-  const handleSetEndDate = (pickedDate: any) => {
-    setEndDate(pickedDate)
-    setCtx({ ...ctx, uploadEndDate: pickedDate })
+  const handleDeleteCsvs = async () => {
+    setFiles(null)
+    fatch({ path: 'inputs', method: 'delete', }).then((status200) => {
+      console.warn('add reactivity and error handling')
+    })
   }
 
   return (
     <div className='uploadCSV'>
       <form onSubmit={handleUpload} encType="multipart/form-data">
-        <div>
-          <DatePicker defaultValue={ctx.uploadStartDate} onChange={handleSetStartDate}></DatePicker>
-        </div>
-        <div>
-          <DatePicker defaultValue={ctx.uploadEndDate} onChange={handleSetEndDate}></DatePicker>
-        </div>
-
         <div>
           <input type="file" multiple onChange={(e) => setFiles(e.target.files)} />
           <p>{status}</p>
@@ -68,6 +51,8 @@ export const UploadCSV = () => {
         </div>
 
       </form>
+
+      <Button variant="contained" onClick={handleDeleteCsvs}>Delete All</Button>
 
     </div>
   )

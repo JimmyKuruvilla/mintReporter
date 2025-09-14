@@ -1,25 +1,39 @@
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import './styles.css'
+import { useContext } from 'react';
+import { GlobalContext } from '../../contexts/global';
 
 export const Sidebar = ({ setMainPanelCmp }: any) => {
-  const handleUploadCSVs = async () => {
+  const { ctx, setCtx } = useContext(GlobalContext)
+
+  const showUploadCSVs = async () => {
     setMainPanelCmp('UploadCSV')
   }
-  
-  const handleShowIngestedData = async () => {
+
+  const showShowIngestedData = async () => {
     setMainPanelCmp('IngestedData')
   }
 
-  const handleGenerateCSVs = async () => {
+  const showInputs = async () => {
+    setMainPanelCmp('Inputs')
+  }
+
+  const showGenerateCSVs = async () => {
     setMainPanelCmp('DisplayCSV')
+  }
+
+  const showCategories = async () => {
+    setMainPanelCmp('Categories')
   }
 
   return (
     <Stack spacing={2} className='sidebar' direction="column">
-      <Button variant="contained" onClick={handleUploadCSVs}>Upload CSVs</Button>
-      <Button variant="contained" onClick={handleShowIngestedData}>Edit Data</Button>
-      <Button variant="contained" onClick={handleGenerateCSVs}>Output CSVs</Button>
+      <Button variant="contained" onClick={showUploadCSVs}>Uploads</Button>
+      <Button variant="contained" onClick={showInputs}>Inputs</Button>
+      <Button variant="contained" onClick={showCategories}>Categories</Button>
+      <Button variant="contained" onClick={showShowIngestedData}>Data</Button>
+      <Button variant="contained" onClick={showGenerateCSVs}>Outputs</Button>
     </Stack>
   )
 }

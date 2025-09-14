@@ -16,6 +16,7 @@ import { UploadCSV } from '../uploadCSV';
 import { Box, Paper, Container } from '@mui/material';
 import { fatch } from '../../utils/fatch';
 import { DisplayCSV } from '../displayCSV';
+import { Inputs } from '../inputs';
 
 
 const App = () => {
@@ -30,11 +31,9 @@ const App = () => {
   useEffect(() => {
     console.count('app useeffect')
     Promise.all([
-      fatch({ path: 'inputs' }),
       fatch({ path: 'categories' })
-    ]).then((data: [APIIngestedData, string[]]) => {
-      const [ingestedData, categories] = data;
-      setIngestedData(ingestedData)
+    ]).then((data: [string[]]) => {
+      const [categories] = data;
       setCategories(categories)
     })
   }, [])
@@ -51,6 +50,8 @@ const App = () => {
             switch (mainPanelCmp) {
               case 'UploadCSV':
                 return <UploadCSV></UploadCSV>
+              case 'Inputs':
+                return <Inputs setIngestedData={setIngestedData}></Inputs>
               case 'IngestedData':
                 return <IngestedData
                   categories={categories}

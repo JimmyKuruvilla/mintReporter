@@ -85,7 +85,6 @@ export const IngestedData = ({ categories, debits, credits }: IngestedDataProps)
         editable: true,
         width: 150
       },
-      // turn this into a text input field. 
       { field: 'amount', headerName: 'Amount' },
       { field: 'date', headerName: 'Date', type: 'date' },
       { field: 'description', headerName: 'Description', width: 400 },
@@ -128,15 +127,26 @@ export const IngestedData = ({ categories, debits, credits }: IngestedDataProps)
   };
 
   const handleSaveEdits = () => {
-    fatch(
-      { path: 'edits', method: 'post', body: { editedDebits, editedCredits } }
-    ).then(data => {
-      setEditedCredits([])
-      setEditedDebits([])
-      setDebitRows(data.debits.map(createRow))
-      setCreditRows(data.credits.map(createRow))
+    const hasValidationError = [...editedCredits, ...editedDebits].some(row => {
+      if (row.permanentCategory || row.permanentCategoryQuery) {
+        return !(row.permanentCategory && row.permanentCategoryQuery)
+      }
+      return false
     })
-  };
+
+    if (hasValidationError) {
+      console.error('One row missing perma category or perma query')
+    } else {
+      fatch(
+        { path: 'edits', method: 'post', body: { editedDebits, editedCredits } }
+      ).then(data => {
+        setEditedCredits([])
+        setEditedDebits([])
+        setDebitRows(data.debits.map(createRow))
+        setCreditRows(data.credits.map(createRow))
+      })
+    }
+  }
 
   return (
     <>
@@ -150,7 +160,13 @@ export const IngestedData = ({ categories, debits, credits }: IngestedDataProps)
         <Tab label="Credits" />
       </Tabs>
 
-      <Button variant="contained" sx={{ margin: '10px 10px 10px 0' }} onClick={handleSaveEdits}>Save</Button>
+      <Button
+        variant="contained"
+        sx={{ margin: '10px 10px 10px 0' }}
+        onClick={handleSaveEdits}
+      >
+        Save
+      </Button>
 
       <TabPanel value={tabValue} index={0}>
         <DataGrid

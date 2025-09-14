@@ -2,9 +2,9 @@ import express, { NextFunction, Request, Response } from 'express'
 import * as z from "zod";
 import { getIdWithoutCategory, Read, Write } from '../services/data';
 import { Categories } from '../services/summary';
-import { clearEditingFolder } from '../services/file';
+import { clearEditingFolder, clearInitialData, clearUploadsFolder } from '../services/file';
 import { CategorizedTransaction, ICategorizedTransaction } from '../services';
-import { createFinalSummary } from '../services/stages';
+import { createFinalSummary, createInitialData } from '../services/stages';
 import { validateMiddleware } from '../middleware';
 import { csvOutputFilePath, FILE_NAMES } from '../config';
 
@@ -27,6 +27,38 @@ dataRouter.get(
     }
   });
 
+dataRouter.delete(
+  '/inputs',
+  async (req, res, next) => {
+    try {
+      await clearUploadsFolder()
+      console.log('CLEARED_UPLOADS_FOLDER')
+      res.status(200).send({ credits: [], debits: [] });
+    } catch (error: any) {
+      next(error)
+    }
+  });
+
+const InputsBodySchema = z.object({
+  startDate: z.string(),
+  endDate: z.string(),
+});
+dataRouter.post(
+  '/inputs',
+  validateMiddleware(InputsBodySchema, 'body'),
+  async (req, res, next) => {
+    try {
+      const startDate = req.body.startDate
+      const endDate = req.body.endDate
+      await clearInitialData()
+      await createInitialData(new Date(startDate), new Date(endDate), ['.csv'])
+
+      res.json((await readInputData()));
+    } catch (error: any) {
+      next(error)
+    }
+  });
+
 dataRouter.get(
   '/categories',
   async (req, res, next) => {
@@ -37,13 +69,13 @@ dataRouter.get(
     }
   });
 
-const EditParamsSchema = z.object({
+const EditsBodySchema = z.object({
   editedDebits: z.array(z.any()),
   editedCredits: z.array(z.any()),
 });
 dataRouter.post(
   '/edits',
-  validateMiddleware(EditParamsSchema, 'body'),
+  validateMiddleware(EditsBodySchema, 'body'),
   async (req, res, next) => {
     try {
       await clearEditingFolder()
