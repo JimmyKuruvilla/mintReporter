@@ -1,9 +1,10 @@
 
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import './styles.css'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { GlobalContext } from '../../contexts/global';
 import Button from '@mui/material/Button';
+import { IUiMatchers } from '@/server/services/summary'
 import { fatch } from '../../utils/fatch';
 
 type CategoriesProps = {
@@ -12,36 +13,27 @@ type CategoriesProps = {
 
 export const Categories = ({ setCategories }: CategoriesProps) => {
   const { ctx, setCtx } = useContext(GlobalContext)
-  const [startDate, setStartDate] = useState(ctx.uploadStartDate)
-  const [endDate, setEndDate] = useState(ctx.uploadEndDate)
+  const [localCategories, setLocalCategories] = useState([])
+  const [matchers, setMatchers] = useState<IUiMatchers>({})
 
-  // use eeffect to set categories intially globally
-  // display categories as data grid and allow edits. 
-  const handleSetStartDate = (pickedDate: any) => {
-    setStartDate(pickedDate)
-    setCtx({ ...ctx, uploadStartDate: pickedDate })
-  }
-
-  const handleSetEndDate = (pickedDate: any) => {
-    setEndDate(pickedDate)
-    setCtx({ ...ctx, uploadEndDate: pickedDate })
-  }
-
-  const handleCreateInputs = async () => {
-    fatch({
-      path: 'inputs', method: 'post',
-      body: {
-        startDate: startDate.format('YYYY-MM-DD'),
-        endDate: endDate.format('YYYY-MM-DD')
-      }
-    }).then((data) => {
-      setCategories(data)
+  useEffect(() => {
+    fatch({ path: 'categories/matchers', }).then((data) => {
+      console.log('setting categories')
+      setCategories(data.categories)
+      setLocalCategories(data.categories)
+      setMatchers(data.matchers)
     })
-  }
+  }, [])
 
   return (
-    <div className='inputs'>
+    <div className='categories'>
+      {Object.keys(matchers).map((category) => <div key={category}>
+        <h3>{category}</h3>
+        <ol>
+          {matchers[category].map(query => <li>{query}</li>)}
 
+        </ol>
+      </div>)}
       {/* <Button variant="contained" onClick={handleCreateInputs}>Save</Button>
       <Button variant="contained" onClick={handleDeleteInputs}>Delete All</Button> */}
     </div>

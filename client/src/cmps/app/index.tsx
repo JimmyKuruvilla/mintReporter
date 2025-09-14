@@ -17,6 +17,7 @@ import { Box, Paper, Container } from '@mui/material';
 import { fatch } from '../../utils/fatch';
 import { DisplayCSV } from '../displayCSV';
 import { Inputs } from '../inputs';
+import { Categories } from '../categories';
 
 
 const App = () => {
@@ -52,6 +53,8 @@ const App = () => {
                 return <UploadCSV></UploadCSV>
               case 'Inputs':
                 return <Inputs setIngestedData={setIngestedData}></Inputs>
+              case 'Categories':
+                return <Categories setCategories={setCategories}></Categories>
               case 'IngestedData':
                 return <IngestedData
                   categories={categories}

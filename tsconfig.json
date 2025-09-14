@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "CommonJS",
+    "module": "es2022",
     "esModuleInterop": true,
     "allowJs": false,
     "target": "ESNext",

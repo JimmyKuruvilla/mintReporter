@@ -1,11 +1,16 @@
 import fs from 'fs';
-import { initialDataFilePath, FILE_NAMES, editingFilePath, csvOutputFilePath } from '../config'
+import { initialDataFilePath, FILE_NAMES, editingFilePath, csvOutputFilePath, modifiedMatchersFilePath, matchersFilePath } from '../config'
 import { ICategorizedTransaction } from './transaction'
 import { readJsonFile } from './file';
+import { IDbMatchers, IInvertedDbMatchers, IUiMatchers } from './summary';
 
 const json = (data: any) => JSON.stringify(data, null, 2)
 
 export const Read = {
+  matchers: () =>
+    readJsonFile<IDbMatchers>(matchersFilePath()),
+  modifiedMatchers: () =>
+    readJsonFile<IDbMatchers>(modifiedMatchersFilePath()),
   allDebits: () =>
     readJsonFile<ICategorizedTransaction[]>(initialDataFilePath(FILE_NAMES.ALL_DEBITS)),
   allCredits: () =>
@@ -19,6 +24,8 @@ export const Read = {
 }
 
 export const Write = {
+  modifiedMatchers: (data: any) =>
+    fs.writeFileSync(modifiedMatchersFilePath(), json(data)),
   ignoredDebits: (data: any) =>
     fs.writeFileSync(initialDataFilePath(FILE_NAMES.IGNORED_DEBITS), json(data)),
   allDebits: (data: any) =>
