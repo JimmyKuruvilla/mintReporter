@@ -1,7 +1,7 @@
 import express, { NextFunction, Request, Response } from 'express'
 import * as z from "zod";
 import { getIdWithoutCategory, Read, Write } from '../services/data';
-import { invertedDbMatchers, getUmbrellaCategories, serviceMatchersToUiMatchers } from '../services/summary';
+import { serviceMatchers, getUmbrellaCategories, serviceMatchersToUiMatchers, uiMatchersToDbMatchers } from '../services/summary';
 import { clearEditingFolder, clearInitialData, clearUploadsFolder } from '../services/file';
 import { CategorizedTransaction, ICategorizedTransaction } from '../services';
 import { createFinalSummary, createInitialData } from '../services/stages';
@@ -73,21 +73,26 @@ dataRouter.get(
   '/categories/matchers',
   async (req, res, next) => {
     try {
-      res.json({ categories: (await getUmbrellaCategories()), matchers: serviceMatchersToUiMatchers(invertedDbMatchers) }
-      );
+      res.json({
+        categories: (await getUmbrellaCategories()),
+        matchers: serviceMatchersToUiMatchers(serviceMatchers)
+      });
     } catch (error: any) {
       next(error)
     }
   });
 
-dataRouter.patch(
+/**
+ * this is a single post because we don't have a db.
+ * everything is written to a file all at once and then merged
+ * when a db is ready a single category added and removed in separate calls
+ */
+dataRouter.post(
   '/categories/matchers',
   async (req, res, next) => {
     try {
-      await Write.modifiedMatchers(req.body)
+      await Write.modifiedMatchers(uiMatchersToDbMatchers(req.body))
       const modifiedMatchers = await Read.modifiedMatchers()
-      // need to do some validation on merging of modified and the base matchers. 
-      // can just have another button to save the mdoifed as the final matchers. 
       res.json(modifiedMatchers);
     } catch (error: any) {
       next(error)

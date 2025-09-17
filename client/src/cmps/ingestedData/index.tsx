@@ -7,7 +7,7 @@ import { ICategorizedTransaction } from '@/server/services/transaction'
 import { fatch } from '../../utils/fatch';
 import { TRANSACTION_TYPES } from '../../../../server/constants';
 
-type Row = Omit<ICategorizedTransaction, 'metadata' | 'date'> & {
+type Row = Omit<ICategorizedTransaction, 'permanentCategory' | 'permanentCategoryQuery' | 'metadata' | 'date'> & {
   id: number,
   date: Date,
   checkNum?: string,
@@ -42,9 +42,7 @@ const createRow = (i: ICategorizedTransaction, index: number): Row => ({
   bankType: i.metadata?.chaseType,
   transactionType: i.transactionType,
   accountName: i.accountName,
-  accountType: i.accountType,
-  permanentCategory: i.permanentCategory,
-  permanentCategoryQuery: i.permanentCategoryQuery,
+  accountType: i.accountType
 })
 
 type IngestedDataProps = {
@@ -69,19 +67,6 @@ export const IngestedData = ({ categories, debits, credits }: IngestedDataProps)
         field: 'category', headerName: 'Category',
         type: 'singleSelect',
         valueOptions: categories,
-        editable: true,
-        width: 150
-      },
-      {
-        field: 'permanentCategory', headerName: 'PermaCategory',
-        type: 'singleSelect',
-        valueOptions: categories,
-        editable: true,
-        width: 150
-      },
-      {
-        field: 'permanentCategoryQuery',
-        headerName: 'PermaQuery',
         editable: true,
         width: 150
       },

@@ -50,7 +50,7 @@ import { isTest } from '../config';
 //   [Ignore]: { umbrellaCategory: IGNORE, },
 // }
 
-export let invertedDbMatchers: IInvertedDbMatchers = {};
+export let serviceMatchers: IInvertedDbMatchers = {};
 
 export type IDbMatchers = { [umbrellaCategory: string]: string }
 export type IInvertedDbMatchers = { [csvQueries: string]: { umbrellaCategory: string } }
@@ -61,21 +61,30 @@ export const dbMatchersToServiceMatchers = (dbMatchers: IDbMatchers) => {
   }, {})
 }
 
-/**
- * returns{[umbrellaCategory]: [matcherStr, matcherStr]}
-*/
-export type IUiMatchers = { [umbrellaCategory: string]: string[] }
+export type IUiMatcher = { id?: number, category: string, query: string }
 export const serviceMatchersToUiMatchers = (invertedDbMatchers: IInvertedDbMatchers) =>
-  Object.entries(invertedDbMatchers).reduce<IUiMatchers>((acc, [queries, value]) => {
-    acc[value.umbrellaCategory] = queries.split(',').map(m => m.trim())
+  Object.entries(invertedDbMatchers).reduce<IUiMatcher[]>((acc, [queries, value]) => {
+    queries.split(',').map(m => m.trim()).forEach(query => {
+      acc.push({
+        category: value.umbrellaCategory,
+        query
+      })
+    })
     return acc
-  }, {})
+  }, [])
 
-export const uiMatchersToDbMatchers = (uiMatchers: IUiMatchers) => {
-  return Object.entries(uiMatchers).reduce<IDbMatchers>((acc, [umbrellaCategory, queries]) => {
-    acc[umbrellaCategory] = queries.join(',')
+export const uiMatchersToDbMatchers = (uiMatchers: IUiMatcher[]) => {
+  const arrayMatchers = uiMatchers.reduce((acc, matcher: IUiMatcher) => {
+    acc[matcher.category] = (acc[matcher.category] ?? []).concat(matcher.query)
     return acc
-  }, {})
+  }, {} as { [key: string]: string[] })
+
+  const dbMatchers = Object.entries(arrayMatchers).reduce((acc, [category, queries]) => {
+    acc[category] = queries.join(',')
+    return acc
+  }, {} as IDbMatchers)
+
+  return dbMatchers
 }
 
 const testSummary = {
@@ -93,7 +102,7 @@ const testSummary = {
 (async () => {
   const props = dbMatchersToServiceMatchers(await Read.matchers())
   Object.keys(props).forEach(key => {
-    invertedDbMatchers[key] = props[key]
+    serviceMatchers[key] = props[key]
   })
 })()
 
@@ -102,7 +111,7 @@ export const isDebit = (transaction: ITransaction) => transaction.transactionTyp
 export const isIgnore = (transaction: ICategorizedTransaction) => transaction.category === IGNORE
 export const isNotIgnore = (transaction: ICategorizedTransaction) => !isIgnore(transaction)
 
-const targetSummary = isTest ? testSummary : invertedDbMatchers
+const targetSummary = isTest ? testSummary : serviceMatchers
 
 type UmbrellaCategoryAcc = { [index: string]: number }
 const getUmbrellaCategoryAcc: () => UmbrellaCategoryAcc = () => {

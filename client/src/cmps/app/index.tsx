@@ -22,7 +22,7 @@ import { Categories } from '../categories';
 
 const App = () => {
   const [mainPanelCmp, setMainPanelCmp] = useState('UploadCSV')
-  const [categories, setCategories] = useState<string[]>([])
+  const [umbrellaCategories, setUmbrellaCategories] = useState<string[]>([])
   const [ingestedData, setIngestedData] = useState<APIIngestedData>({
     debits: [],
     credits: []
@@ -34,8 +34,8 @@ const App = () => {
     Promise.all([
       fatch({ path: 'categories' })
     ]).then((data: [string[]]) => {
-      const [categories] = data;
-      setCategories(categories)
+      const [umbrellaCategories] = data;
+      setUmbrellaCategories(umbrellaCategories)
     })
   }, [])
 
@@ -54,10 +54,10 @@ const App = () => {
               case 'Inputs':
                 return <Inputs setIngestedData={setIngestedData}></Inputs>
               case 'Categories':
-                return <Categories setCategories={setCategories}></Categories>
+                return <Categories setUmbrellaCategories={setUmbrellaCategories}></Categories>
               case 'IngestedData':
                 return <IngestedData
-                  categories={categories}
+                  categories={umbrellaCategories}
                   debits={ingestedData.debits}
                   credits={ingestedData.credits}>
                 </IngestedData>

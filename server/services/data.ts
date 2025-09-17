@@ -2,7 +2,7 @@ import fs from 'fs';
 import { initialDataFilePath, FILE_NAMES, editingFilePath, csvOutputFilePath, modifiedMatchersFilePath, matchersFilePath } from '../config'
 import { ICategorizedTransaction } from './transaction'
 import { readJsonFile } from './file';
-import { IDbMatchers, IInvertedDbMatchers, IUiMatchers } from './summary';
+import { IDbMatchers, IInvertedDbMatchers, IUiMatcher } from './summary';
 
 const json = (data: any) => JSON.stringify(data, null, 2)
 

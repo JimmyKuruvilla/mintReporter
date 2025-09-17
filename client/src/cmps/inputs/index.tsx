@@ -51,7 +51,7 @@ export const Inputs = ({ setIngestedData }: InputProps) => {
       <div>
         <DatePicker defaultValue={endDate} onChange={handleSetEndDate}></DatePicker>
       </div>
-      <Button variant="contained" onClick={handleCreateInputs}>Save</Button>
+      <Button variant="contained" onClick={handleCreateInputs}>Create Inputs for Date Range</Button>
       <Button variant="contained" onClick={handleDeleteInputs}>Delete All</Button>
     </div>
   )

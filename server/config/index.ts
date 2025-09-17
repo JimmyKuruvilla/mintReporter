@@ -7,6 +7,10 @@ export const FILE_NAMES = {
     SUMMARY: 'base',
     MODIFIED_SUMMARY: 'base.modified'
   },
+  MATCHERS: {
+    FINAL: 'final',
+    MODIFIED: 'modified'
+  },
   ALL_DEBITS: 'debits.all',
   ALL_CREDITS: 'credits.all',
   EDITED_DEBITS: 'debits.edited',
@@ -16,10 +20,11 @@ export const FILE_NAMES = {
   IGNORED_DEBITS: 'debug__debits.ignored'
 }
 
-// rename this to matchers from categories
 export const categoriesFolder = path.join(process.cwd(), 'server', 'categories')
-export const matchersFilePath = () => `${path.join(categoriesFolder, FILE_NAMES.CATEGORIES.SUMMARY)}.json`
-export const modifiedMatchersFilePath = () => `${path.join(categoriesFolder, FILE_NAMES.CATEGORIES.MODIFIED_SUMMARY)}.json`
+
+export const matchersFolder = path.join(process.cwd(), 'server', 'matchers')
+export const matchersFilePath = () => `${path.join(matchersFolder, FILE_NAMES.MATCHERS.FINAL)}.json`
+export const modifiedMatchersFilePath = () => `${path.join(matchersFolder, FILE_NAMES.MATCHERS.MODIFIED)}.json`
 
 export const inputsFolder = path.join(process.cwd(), 'server', 'data', 'inputs')
 export const uploadsFolder = path.join(process.cwd(), 'server', 'data', 'uploads');
