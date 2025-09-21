@@ -9,6 +9,7 @@ import { fatch } from '../../utils/fatch';
 import { DataGrid, GridColDef, useGridApiRef } from '@mui/x-data-grid';
 import { IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ControlPointIcon from '@mui/icons-material/ControlPoint';
 
 type CategoriesProps = {
   umbrellaCategories: string[],
@@ -53,7 +54,7 @@ export const Categories = ({ umbrellaCategories, setUmbrellaCategories }: Catego
             };
 
             return (
-              <IconButton onClick={handleButtonClick}>
+              <IconButton onClick={handleButtonClick} color="primary">
                 <DeleteIcon />
               </IconButton>
             );
@@ -132,12 +133,14 @@ export const Categories = ({ umbrellaCategories, setUmbrellaCategories }: Catego
     <div className='categories'>
       <span className='buttons'>
         <span className='left'>
-          <Button variant="contained" onClick={handleAddRow}>Add Row</Button>
+          <IconButton onClick={handleAddRow} color="primary" >
+            <ControlPointIcon />
+          </IconButton>
         </span>
         <span className='right'>
           <Button variant="contained" onClick={handleAbandonTempChanges}>Abandon Temp Changes</Button>
           <Button variant="contained" onClick={handleSaveTempChanges}>Save Temp Changes</Button>
-          <Button variant="contained" onClick={handleSavePermanently}>Save Changes Permanently</Button>
+          <Button variant="contained" onClick={handleSavePermanently} color="error">Save Changes Permanently</Button>
         </span>
       </span>
 

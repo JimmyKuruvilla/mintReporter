@@ -132,6 +132,7 @@ export const getUmbrellaCategoryAcc = async () => {
   const cats: UmbrellaCategoryAcc = Object.values(matchers).reduce((acc, next) =>
     ({ ...acc, ... { [next.umbrellaCategory]: 0 } }), {})
   cats[UNCATEGORIZABLE] = 0
+  cats[IGNORE] = 0
   return cats;
 }
 

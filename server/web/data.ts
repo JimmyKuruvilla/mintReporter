@@ -82,12 +82,15 @@ dataRouter.get(
     }
   });
 
+const MatchersParamsSchema = z.object({
+  type: z.enum(['final', 'modified'])
+});
 dataRouter.post(
   '/categories/matchers/:type',
+  validateMiddleware(MatchersParamsSchema, 'params'),
   async (req, res, next) => {
     try {
       if (req.params.type === 'final') {
-        console.log('final')
         await Write.finalMatchers(uiMatchersToDbMatchers(req.body))
       } else {
         await Write.modifiedMatchers(uiMatchersToDbMatchers(req.body))
