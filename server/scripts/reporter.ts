@@ -1,6 +1,6 @@
 #!/usr/bin env node
 import { COMMA } from '../constants';
-import { Read, CategorizedTransaction, assignCategories } from '../services';
+import { Read, } from '../services';
 import { clearInitialData } from '../services/file';
 import { createInitialData, createFinalSummary } from '../services/stages';
 

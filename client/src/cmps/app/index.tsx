@@ -32,9 +32,11 @@ const App = () => {
   useEffect(() => {
     console.count('app useeffect')
     Promise.all([
-      fatch({ path: 'categories' })
-    ]).then((data: [string[]]) => {
-      const [umbrellaCategories] = data;
+      fatch({ path: 'categories' }),
+      fatch({ path: 'inputs' })
+    ]).then((data: [string[], APIIngestedData]) => {
+      const [umbrellaCategories, apiIngestedData] = data;
+      setIngestedData(apiIngestedData)
       setUmbrellaCategories(umbrellaCategories)
     })
   }, [])
@@ -49,18 +51,21 @@ const App = () => {
         <Container className='mainPanel' maxWidth={false}>
           {(() => {
             switch (mainPanelCmp) {
+              case 'Categories':
+                return <Categories
+                  umbrellaCategories={umbrellaCategories}
+                  setUmbrellaCategories={setUmbrellaCategories}>
+                </Categories>
               case 'UploadCSV':
                 return <UploadCSV></UploadCSV>
-              case 'Inputs':
-                return <Inputs setIngestedData={setIngestedData}></Inputs>
-              case 'Categories':
-                return <Categories setUmbrellaCategories={setUmbrellaCategories}></Categories>
               case 'IngestedData':
                 return <IngestedData
+                  setIngestedData={setIngestedData}
                   categories={umbrellaCategories}
                   debits={ingestedData.debits}
                   credits={ingestedData.credits}>
                 </IngestedData>
+
               case 'DisplayCSV':
                 return <DisplayCSV></DisplayCSV>
               default:

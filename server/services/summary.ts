@@ -50,7 +50,30 @@ import { isTest } from '../config';
 //   [Ignore]: { umbrellaCategory: IGNORE, },
 // }
 
-export let serviceMatchers: IInvertedDbMatchers = {};
+export const getDbMatchers = async (): Promise<IDbMatchers> => {
+  let matchers;
+
+  try {
+    matchers = await Read.modifiedMatchers()
+  } catch (error: any) {
+    if (error.code = 'ENOENT') {
+      console.warn(`NO_MODIFIED_MATCHERS_USING_FINAL_MATCHERS`)
+      matchers = await Read.finalMatchers()
+    } else {
+      throw error
+    }
+  }
+
+  return matchers
+}
+
+export const getServiceMatchers = async (): Promise<IInvertedDbMatchers> => {
+  return isTest ? testSummary : dbMatchersToServiceMatchers(await getDbMatchers())
+}
+
+export const getUiMatchers = async () => {
+  return serviceMatchersToUiMatchers(await getServiceMatchers())
+}
 
 export type IDbMatchers = { [umbrellaCategory: string]: string }
 export type IInvertedDbMatchers = { [csvQueries: string]: { umbrellaCategory: string } }
@@ -98,49 +121,43 @@ const testSummary = {
   'ignore-test': { umbrellaCategory: IGNORE, }
 };
 
-// this is really dumb - but it works. Just get top level await working. Just copying to keep the object reference in the export
-(async () => {
-  const props = dbMatchersToServiceMatchers(await Read.matchers())
-  Object.keys(props).forEach(key => {
-    serviceMatchers[key] = props[key]
-  })
-})()
-
 export const isNotTransfer = (transaction: ITransaction) => transaction.transactionType !== TRANSACTION_TYPES.TRANSFER
 export const isDebit = (transaction: ITransaction) => transaction.transactionType === TRANSACTION_TYPES.DEBIT
 export const isIgnore = (transaction: ICategorizedTransaction) => transaction.category === IGNORE
 export const isNotIgnore = (transaction: ICategorizedTransaction) => !isIgnore(transaction)
 
-const targetSummary = isTest ? testSummary : serviceMatchers
-
-type UmbrellaCategoryAcc = { [index: string]: number }
-const getUmbrellaCategoryAcc: () => UmbrellaCategoryAcc = () => {
-  const cats: UmbrellaCategoryAcc = Object.values(targetSummary).reduce((acc, next) =>
+type UmbrellaCategoryAcc = { [umbrellaCategory: string]: number }
+export const getUmbrellaCategoryAcc = async () => {
+  const matchers = await getServiceMatchers()
+  const cats: UmbrellaCategoryAcc = Object.values(matchers).reduce((acc, next) =>
     ({ ...acc, ... { [next.umbrellaCategory]: 0 } }), {})
   cats[UNCATEGORIZABLE] = 0
   return cats;
 }
 
 export const getUmbrellaCategories = async () => {
-  const matchers = await Read.matchers()
+  const matchers = await getDbMatchers()
   return Object.keys(matchers)
 }
 
 export type Bucket = { fragments: string[], categoryData: { umbrellaCategory: string } }
-export const getBuckets: () => Bucket[] = () => Object.entries(targetSummary)
-  .map(([namespace, data]) =>
-  ({
-    fragments: namespace.toLowerCase().split(COMMA).map(fragment => fragment.trim()).filter(Boolean),
-    categoryData: data
-  }))
+export const getBuckets: () => Promise<Bucket[]> = async () => {
+  const matchers = await getServiceMatchers()
+  return Object.entries(matchers)
+    .map(([csvQueries, data]) =>
+    ({
+      fragments: csvQueries.toLowerCase().split(COMMA).map(fragment => fragment.trim()).filter(Boolean),
+      categoryData: data
+    }))
+}
 
 export type UmbrellaCategoryAccWithTotal = UmbrellaCategoryAcc & { total: number }
-export const summarize = (transactions: ICategorizedTransaction[]): UmbrellaCategoryAccWithTotal => {
+export const summarize = (umbrellaCategoryAcc: UmbrellaCategoryAcc, transactions: ICategorizedTransaction[]): UmbrellaCategoryAccWithTotal => {
   const summarizedTransactions = transactions.reduce((acc, t) => {
     const currentValue = acc[t.category] ?? 0;
 
     return { ...acc, ...({ [t.category]: currentValue + t.amount }) }
-  }, getUmbrellaCategoryAcc());
+  }, umbrellaCategoryAcc);
 
   const [firstTransaction] = transactions
   let total;
@@ -170,8 +187,7 @@ export const combineSummaries = (debitsSummary: UmbrellaCategoryAccWithTotal, cr
 /**
  * Used with ITransaction | ICategorizedTransaction inputs
  */
-export const assignCategories = (t: any): ICategorizedTransaction => {
-  const buckets = getBuckets()
+export const assignCategories = (buckets: Bucket[]) => (t: any): ICategorizedTransaction => {
   if (t.permanentCategory) {
     t.category = t.permanentCategory
   } else {

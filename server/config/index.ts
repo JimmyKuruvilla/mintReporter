@@ -23,7 +23,7 @@ export const FILE_NAMES = {
 export const categoriesFolder = path.join(process.cwd(), 'server', 'categories')
 
 export const matchersFolder = path.join(process.cwd(), 'server', 'matchers')
-export const matchersFilePath = () => `${path.join(matchersFolder, FILE_NAMES.MATCHERS.FINAL)}.json`
+export const finalMatchersFilePath = () => `${path.join(matchersFolder, FILE_NAMES.MATCHERS.FINAL)}.json`
 export const modifiedMatchersFilePath = () => `${path.join(matchersFolder, FILE_NAMES.MATCHERS.MODIFIED)}.json`
 
 export const inputsFolder = path.join(process.cwd(), 'server', 'data', 'inputs')

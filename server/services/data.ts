@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { initialDataFilePath, FILE_NAMES, editingFilePath, csvOutputFilePath, modifiedMatchersFilePath, matchersFilePath } from '../config'
+import { initialDataFilePath, FILE_NAMES, editingFilePath, csvOutputFilePath, modifiedMatchersFilePath, finalMatchersFilePath } from '../config'
 import { ICategorizedTransaction } from './transaction'
 import { readJsonFile } from './file';
 import { IDbMatchers, IInvertedDbMatchers, IUiMatcher } from './summary';
@@ -7,8 +7,8 @@ import { IDbMatchers, IInvertedDbMatchers, IUiMatcher } from './summary';
 const json = (data: any) => JSON.stringify(data, null, 2)
 
 export const Read = {
-  matchers: () =>
-    readJsonFile<IDbMatchers>(matchersFilePath()),
+  finalMatchers: () =>
+    readJsonFile<IDbMatchers>(finalMatchersFilePath()),
   modifiedMatchers: () =>
     readJsonFile<IDbMatchers>(modifiedMatchersFilePath()),
   allDebits: () =>
@@ -24,6 +24,8 @@ export const Read = {
 }
 
 export const Write = {
+  finalMatchers: (data: any) =>
+    fs.writeFileSync(finalMatchersFilePath(), json(data)),
   modifiedMatchers: (data: any) =>
     fs.writeFileSync(modifiedMatchersFilePath(), json(data)),
   ignoredDebits: (data: any) =>
@@ -45,6 +47,10 @@ export const Write = {
     fs.writeFileSync(csvOutputFilePath(FILE_NAMES.ALL_CREDITS), data),
   outputSummary: (data: string) =>
     fs.writeFileSync(csvOutputFilePath(FILE_NAMES.SUMMARY), data)
+}
+
+export const Delete = {
+  modifiedMatchers: () => fs.unlinkSync(modifiedMatchersFilePath()),
 }
 
 export const getIdWithoutCategory = (data: any) => `${data.date}-${data.amount}-${data.description}`

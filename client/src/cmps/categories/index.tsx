@@ -6,36 +6,39 @@ import { GlobalContext } from '../../contexts/global';
 import Button from '@mui/material/Button';
 import { IUiMatcher } from '@/server/services/summary'
 import { fatch } from '../../utils/fatch';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, useGridApiRef } from '@mui/x-data-grid';
 import { IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 type CategoriesProps = {
+  umbrellaCategories: string[],
   setUmbrellaCategories: Function
 }
 // should be on this the backend prop?
-type CategoryUIMatcher = IUiMatcher & { id: number, shouldBeDeleted: boolean }
+type CategoryUIMatcher = IUiMatcher & { id: number, markedForDelete: boolean }
 const createRow = (matcher: CategoryUIMatcher, index: number) => ({
   id: index,
   category: matcher.category,
   query: matcher.query,
-  shouldBeDeleted: false
+  markedForDelete: false
 })
 
 const DATA_GRID_DELETE = { _action: 'delete' }
 
-export const Categories = ({ setUmbrellaCategories }: CategoriesProps) => {
+export const Categories = ({ umbrellaCategories, setUmbrellaCategories }: CategoriesProps) => {
   const { ctx, setCtx } = useContext(GlobalContext)
-  const [localCategories, setLocalCategories] = useState([])
+  // const [localCategories, setLocalCategories] = useState([])
   const [columns, setColumns] = useState<GridColDef[]>([]);
   const [rows, setRows] = useState<CategoryUIMatcher[]>([])
   const [rowDeleted, setRowDeleted] = useState<{}>({})
+
+  // const apiRef = useGridApiRef();
 
   useEffect(() => {
     fatch({ path: 'categories/matchers', }).then((data) => {
       console.log('setting categories')
       // setUmbrellaCategories(data.categories)
-      setLocalCategories(data.categories)
+      // setLocalCategories(data.categories)
       setRows(data.matchers.map(createRow))
 
       setColumns([
@@ -45,9 +48,8 @@ export const Categories = ({ setUmbrellaCategories }: CategoriesProps) => {
           width: 60,
           renderCell: (params) => {
             const handleButtonClick = () => {
-              params.row.shouldBeDeleted = true;
+              params.row.markedForDelete = true;
               setRowDeleted({})
-              // eventually fatch delete /categories/matchers/:id
             };
 
             return (
@@ -57,14 +59,19 @@ export const Categories = ({ setUmbrellaCategories }: CategoriesProps) => {
             );
           },
         },
-        { field: 'category', headerName: 'Category', width: 200 },
-        { field: 'query', headerName: 'Matcher', width: 200 },
+        {
+          field: 'category', headerName: 'Category', width: 200,
+          type: 'singleSelect',
+          valueOptions: umbrellaCategories,
+          editable: true,
+        },
+        { field: 'query', headerName: 'Matcher', width: 200, editable: true, },
       ])
     })
   }, [])
 
   useEffect(() => {
-    setRows(rows.filter(row => !row.shouldBeDeleted))
+    setRows(rows.filter(row => !row.markedForDelete))
   }, [rowDeleted])
 
   const handleAddRow = () => setRows(
@@ -72,20 +79,34 @@ export const Categories = ({ setUmbrellaCategories }: CategoriesProps) => {
       id: Math.round(1e7 + Math.random() * 1000),
       category: 'New Category',
       query: 'New Matcher',
-      shouldBeDeleted: false
+      markedForDelete: false
     },
     ...rows]
   )
 
-  const saveRow = (row: CategoryUIMatcher) => {
-    console.log('saving row - do any validation here and return the originalrow if fails', row)
-    return row
+  const handleRowUpdate = (updatedRow: CategoryUIMatcher, originalRow: CategoryUIMatcher) => {
+    setRows([updatedRow, ...rows.filter(row => row.id !== updatedRow.id)])
+    return updatedRow
   }
 
-  const handleSaveChanges = () => {
-    console.log(rows.length)
-    fatch({ path: 'categories/matchers', method: 'post', body: rows }).then((data) => {
-      console.log(data)
+  const handleSaveTempChanges = () => {
+    fatch({ path: 'categories/matchers/modified', method: 'post', body: rows }).then((data) => {
+      setUmbrellaCategories(data.categories)
+      setRows(data.matchers.map(createRow))
+    })
+  }
+
+  const handleAbandonTempChanges = () => {
+    fatch({ path: 'categories/matchers/modified', method: 'delete' }).then((data) => {
+      setUmbrellaCategories(data.categories)
+      setRows(data.matchers.map(createRow))
+    })
+  }
+
+  const handleSavePermanently = () => {
+    fatch({ path: 'categories/matchers/final', method: 'post', body: rows }).then((data) => {
+      setUmbrellaCategories(data.categories)
+      setRows(data.matchers.map(createRow))
     })
   }
   /**
@@ -105,25 +126,29 @@ export const Categories = ({ setUmbrellaCategories }: CategoriesProps) => {
   * remove perma query from ingested data
   * 
    */
-  const paginationModel = { page: 0, pageSize: 100 };
+  const paginationModel = { page: 0, pageSize: 10 };
 
   return (
     <div className='categories'>
-      <Button variant="contained" onClick={handleAddRow}>Add</Button>
-      <Button variant="contained" onClick={handleSaveChanges}>Save</Button>
+      <span className='buttons'>
+        <span className='left'>
+          <Button variant="contained" onClick={handleAddRow}>Add Row</Button>
+        </span>
+        <span className='right'>
+          <Button variant="contained" onClick={handleAbandonTempChanges}>Abandon Temp Changes</Button>
+          <Button variant="contained" onClick={handleSaveTempChanges}>Save Temp Changes</Button>
+          <Button variant="contained" onClick={handleSavePermanently}>Save Changes Permanently</Button>
+        </span>
+      </span>
 
       <DataGrid
         rows={rows}
         columns={columns}
-        processRowUpdate={(updatedRow, originalRow) => saveRow(updatedRow)}
+        processRowUpdate={handleRowUpdate}
         initialState={{ pagination: { paginationModel } }}
-        pageSizeOptions={[50, 100]}
+        pageSizeOptions={[10, 1000]}
         density="compact"
       />
-
-      {/* <Button variant="contained" onClick={removeRow}>-</Button> */}
-
-      {/* <Button variant="contained" onClick={handleDeleteInputs}>Delete All</Button> */}
     </div >
   )
 }

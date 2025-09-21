@@ -1,7 +1,7 @@
 import express, { NextFunction, Request, Response } from 'express'
 import * as z from "zod";
-import { getIdWithoutCategory, Read, Write } from '../services/data';
-import { serviceMatchers, getUmbrellaCategories, serviceMatchersToUiMatchers, uiMatchersToDbMatchers } from '../services/summary';
+import { Delete, getIdWithoutCategory, Read, Write } from '../services/data';
+import { getUmbrellaCategories, serviceMatchersToUiMatchers, uiMatchersToDbMatchers, getDbMatchers, getServiceMatchers, getUiMatchers } from '../services/summary';
 import { clearEditingFolder, clearInitialData, clearUploadsFolder } from '../services/file';
 import { CategorizedTransaction, ICategorizedTransaction } from '../services';
 import { createFinalSummary, createInitialData } from '../services/stages';
@@ -75,25 +75,46 @@ dataRouter.get(
     try {
       res.json({
         categories: (await getUmbrellaCategories()),
-        matchers: serviceMatchersToUiMatchers(serviceMatchers)
+        matchers: await getUiMatchers()
       });
     } catch (error: any) {
       next(error)
     }
   });
 
-/**
- * this is a single post because we don't have a db.
- * everything is written to a file all at once and then merged
- * when a db is ready a single category added and removed in separate calls
- */
 dataRouter.post(
-  '/categories/matchers',
+  '/categories/matchers/:type',
   async (req, res, next) => {
     try {
-      await Write.modifiedMatchers(uiMatchersToDbMatchers(req.body))
-      const modifiedMatchers = await Read.modifiedMatchers()
-      res.json(modifiedMatchers);
+      if (req.params.type === 'final') {
+        console.log('final')
+        await Write.finalMatchers(uiMatchersToDbMatchers(req.body))
+      } else {
+        await Write.modifiedMatchers(uiMatchersToDbMatchers(req.body))
+      }
+      res.json({
+        categories: (await getUmbrellaCategories()),
+        matchers: await getUiMatchers()
+      });
+    } catch (error: any) {
+      next(error)
+    }
+  });
+
+dataRouter.delete(
+  '/categories/matchers/modified',
+  async (req, res, next) => {
+    try {
+      try {
+        await Delete.modifiedMatchers()
+      } catch (error) {
+        console.warn(`No modified file to delete`)
+      }
+
+      res.json({
+        categories: (await getUmbrellaCategories()),
+        matchers: await getUiMatchers()
+      });
     } catch (error: any) {
       next(error)
     }
@@ -103,6 +124,7 @@ const EditsBodySchema = z.object({
   editedDebits: z.array(z.any()),
   editedCredits: z.array(z.any()),
 });
+// rename this - it's not just edits. it's edits on the transactions. 
 dataRouter.post(
   '/edits',
   validateMiddleware(EditsBodySchema, 'body'),

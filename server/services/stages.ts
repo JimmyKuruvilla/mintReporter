@@ -6,7 +6,7 @@ import { isUncategorizable, prepareSummaryCsv, prepareTransactionCsv, recursiveT
 import { chain, sortBy } from 'lodash';
 import { ChaseIdToDetails } from '../config';
 import { getChaseAccountId } from './chase';
-import { isNotTransfer, assignCategories, combineSummaries, summarize } from './summary';
+import { isNotTransfer, assignCategories, combineSummaries, summarize, getBuckets, getUmbrellaCategories, getUmbrellaCategoryAcc } from './summary';
 import { Read, Write } from './data';
 
 const getFields = (t: ICategorizedTransaction) => [
@@ -63,10 +63,11 @@ export const createInitialData = async (startDate: Date, endDate: Date, fileExts
     }
   })
 
+  const buckets = await getBuckets()
   const [debits, credits] = chain(allTransactions)
     .filter(t => objWithinDateRange(t) && isNotTransfer(t))
     .sortBy('date')
-    .map(assignCategories)
+    .map(assignCategories(buckets))
     .partition(['transactionType', TRANSACTION_TYPES.DEBIT])
     .value()
 
@@ -77,17 +78,19 @@ export const createInitialData = async (startDate: Date, endDate: Date, fileExts
 export const createFinalSummary = async ({ changedDebits }: { changedDebits: ICategorizedTransaction[] }) => {
   const debits = (await Read.allDebits()).map(CategorizedTransaction)
   const credits = (await Read.allCredits()).map(CategorizedTransaction)
+  const buckets = await getBuckets()
   // only used in the script format. In the UI debits and credits are edited directly and so this is always set to []
   const maybeCategorizableDebits = changedDebits
     .map(CategorizedTransaction)
-    .map(assignCategories)
+    .map(assignCategories(buckets))
 
   const categorizableDebits = debits.filter((t) => !isUncategorizable(t))
   const processedDebits = [...categorizableDebits, ...maybeCategorizableDebits]
 
+  const umbrellaCategoryAcc = await getUmbrellaCategoryAcc()
   const combinedSummary = combineSummaries(
-    summarize(processedDebits),
-    summarize(credits)
+    await summarize(umbrellaCategoryAcc, processedDebits),
+    await summarize(umbrellaCategoryAcc, credits)
   )
 
   const debitsCSV = prepareTransactionCsv(sortBy(processedDebits, 'category'))

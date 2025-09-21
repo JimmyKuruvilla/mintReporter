@@ -6,6 +6,7 @@ import { TabPanel } from '../tabPanel';
 import { ICategorizedTransaction } from '@/server/services/transaction'
 import { fatch } from '../../utils/fatch';
 import { TRANSACTION_TYPES } from '../../../../server/constants';
+import { Inputs } from '../inputs';
 
 type Row = Omit<ICategorizedTransaction, 'permanentCategory' | 'permanentCategoryQuery' | 'metadata' | 'date'> & {
   id: number,
@@ -46,12 +47,13 @@ const createRow = (i: ICategorizedTransaction, index: number): Row => ({
 })
 
 type IngestedDataProps = {
+  setIngestedData: Function
   debits: ICategorizedTransaction[],
   credits: ICategorizedTransaction[],
   categories: string[]
 }
 
-export const IngestedData = ({ categories, debits, credits }: IngestedDataProps) => {
+export const IngestedData = ({ setIngestedData, categories, debits, credits }: IngestedDataProps) => {
   const [tabValue, setTabValue] = useState(0);
   const [columns, setColumns] = useState<GridColDef[]>([]);
   const [debitRows, setDebitRows] = useState<Row[]>([]);
@@ -85,7 +87,7 @@ export const IngestedData = ({ categories, debits, credits }: IngestedDataProps)
 
   }, [categories, credits, debits])
 
-  const paginationModel = { page: 0, pageSize: 100 };
+  const paginationModel = { page: 0, pageSize: 10 };
 
   const handleCreditRowUpdate = (updatedRow: Row, originalRow: Row) => {
     setEditedCredits([
@@ -135,6 +137,8 @@ export const IngestedData = ({ categories, debits, credits }: IngestedDataProps)
 
   return (
     <>
+    <Inputs setIngestedData={setIngestedData}></Inputs>
+    
       <Tabs
         value={tabValue}
         onChange={handleTabChange}
@@ -160,7 +164,7 @@ export const IngestedData = ({ categories, debits, credits }: IngestedDataProps)
           processRowUpdate={handleDebitRowUpdate}
           onProcessRowUpdateError={handleProcessRowUpdateError}
           initialState={{ pagination: { paginationModel } }}
-          pageSizeOptions={[50, 100]}
+          pageSizeOptions={[10, 1000]}
           density="compact"
         />
       </TabPanel>
@@ -172,7 +176,7 @@ export const IngestedData = ({ categories, debits, credits }: IngestedDataProps)
           processRowUpdate={handleCreditRowUpdate}
           onProcessRowUpdateError={handleProcessRowUpdateError}
           initialState={{ pagination: { paginationModel } }}
-          pageSizeOptions={[50, 100]}
+          pageSizeOptions={[10, 1000]}
           density="compact"
         />
       </TabPanel>
