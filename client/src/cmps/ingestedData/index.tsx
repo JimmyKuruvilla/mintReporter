@@ -166,6 +166,7 @@ export const IngestedData = ({ setIngestedData, categories, debits, credits }: I
           initialState={{ pagination: { paginationModel } }}
           pageSizeOptions={[10, 1000]}
           density="compact"
+          showToolbar
         />
       </TabPanel>
 
@@ -178,6 +179,7 @@ export const IngestedData = ({ setIngestedData, categories, debits, credits }: I
           initialState={{ pagination: { paginationModel } }}
           pageSizeOptions={[10, 1000]}
           density="compact"
+          showToolbar
         />
       </TabPanel>
     </>

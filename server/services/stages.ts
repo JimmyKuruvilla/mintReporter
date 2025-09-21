@@ -1,12 +1,12 @@
 import fs from 'fs';
-import { IGNORE, UNCATEGORIZABLE, CHECK, TRANSACTION_TYPES, UTF8, NEW_LINE } from '../constants'
-import { initialDataFilePath, inputsFolder, FILE_NAMES } from '../config'
+import { IGNORE, TRANSACTION_TYPES, UTF8, } from '../constants'
+import { uploadsFolder } from '../config'
 import { CategorizedTransaction, ICategorizedTransaction, ITransaction } from './transaction'
-import { isUncategorizable, prepareSummaryCsv, prepareTransactionCsv, recursiveTraverse, updatePermanentQueries, writeSummaryAsCsv, writeTransactionsAsCsv } from './utils';
+import { isUncategorizable, prepareSummaryCsv, prepareTransactionCsv, recursiveTraverse, updatePermanentQueries } from './utils';
 import { chain, sortBy } from 'lodash';
 import { ChaseIdToDetails } from '../config';
 import { getChaseAccountId } from './chase';
-import { isNotTransfer, assignCategories, combineSummaries, summarize, getBuckets, getUmbrellaCategories, getUmbrellaCategoryAcc } from './summary';
+import { isNotTransfer, assignCategories, combineSummaries, summarize, getBuckets, getUmbrellaCategoryAcc } from './summary';
 import { Read, Write } from './data';
 
 const getFields = (t: ICategorizedTransaction) => [
@@ -48,7 +48,7 @@ export const createInitialData = async (startDate: Date, endDate: Date, fileExts
 
   const allTransactions: ITransaction[] = []
 
-  await recursiveTraverse(inputsFolder, fileExts, console, (path: string) => {
+  await recursiveTraverse(uploadsFolder, fileExts, console, (path: string) => {
     const id = getChaseAccountId(path)
     if (id) {
       const csvTransactions = fs.readFileSync(path, { encoding: UTF8 });

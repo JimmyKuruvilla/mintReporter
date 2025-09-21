@@ -45,11 +45,15 @@ Usage
 - stage2 will also report any Checks found. Update debits.all.json with categories to categorize the checks
 - Ignore only works when updated in summary.ts because we don't want it in the final summary csv. 
 
+UI Usage is very similar just less error prone and obvious
 
 Bugs:
 fragment: american (american airlines) matches t.description: American Meadows. Fixed as a one time update. Solution is American airlines needs to be more specific. 
 
 
 TODO
-1. instead of dumping into initial - copy to a date named folder and keep all the docs for a given set in the same place. Overwriting if the same name exists, group by month it's broad. 
-2. After stage 1, stage 2 to should create new files with the perma categories and the one time categories separated so I can easily upadte all then merge them.
+1. add back one month and forward 1 month buttons to inputs cmp
+2. persist records to db, and update service to use db models
+3. add copy to clipboard icon to each section and 1 copy to clipboard for the whole thing
+4. after input>generate it would be great to have a tab that showed the current tally for each known category. 
+

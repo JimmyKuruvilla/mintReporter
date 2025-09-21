@@ -1,7 +1,7 @@
 import express, { NextFunction, Request, Response } from 'express'
 import * as z from "zod";
 import { Delete, getIdWithoutCategory, Read, Write } from '../services/data';
-import { getUmbrellaCategories, serviceMatchersToUiMatchers, uiMatchersToDbMatchers, getDbMatchers, getServiceMatchers, getUiMatchers } from '../services/summary';
+import { getUiUmbrellaCategories, uiMatchersToDbMatchers, getUiMatchers } from '../services/summary';
 import { clearEditingFolder, clearInitialData, clearUploadsFolder } from '../services/file';
 import { CategorizedTransaction, ICategorizedTransaction } from '../services';
 import { createFinalSummary, createInitialData } from '../services/stages';
@@ -10,7 +10,10 @@ import { csvOutputFilePath, FILE_NAMES } from '../config';
 
 export const dataRouter = express.Router()
 
-const readInputData = async () => {
+const FINAL = 'final'
+const MODIFIED = 'modified'
+
+const readInitialData = async () => {
   const debits = (await Read.allDebits()).map(CategorizedTransaction)
   const credits = (await Read.allCredits()).map(CategorizedTransaction)
   return { debits, credits }
@@ -20,7 +23,7 @@ dataRouter.get(
   '/inputs',
   async (req, res, next) => {
     try {
-      const inputs = await readInputData();
+      const inputs = await readInitialData();
       res.json(inputs);
     } catch (error: any) {
       next(error)
@@ -53,7 +56,7 @@ dataRouter.post(
       await clearInitialData()
       await createInitialData(new Date(startDate), new Date(endDate), ['.csv'])
 
-      res.json((await readInputData()));
+      res.json((await readInitialData()));
     } catch (error: any) {
       next(error)
     }
@@ -63,7 +66,7 @@ dataRouter.get(
   '/categories',
   async (req, res, next) => {
     try {
-      res.json((await getUmbrellaCategories()));
+      res.json((await getUiUmbrellaCategories()));
     } catch (error: any) {
       next(error)
     }
@@ -74,7 +77,7 @@ dataRouter.get(
   async (req, res, next) => {
     try {
       res.json({
-        categories: (await getUmbrellaCategories()),
+        categories: (await getUiUmbrellaCategories()),
         matchers: await getUiMatchers()
       });
     } catch (error: any) {
@@ -83,20 +86,20 @@ dataRouter.get(
   });
 
 const MatchersParamsSchema = z.object({
-  type: z.enum(['final', 'modified'])
+  type: z.enum([FINAL, MODIFIED])
 });
 dataRouter.post(
   '/categories/matchers/:type',
   validateMiddleware(MatchersParamsSchema, 'params'),
   async (req, res, next) => {
     try {
-      if (req.params.type === 'final') {
+      if (req.params.type === FINAL) {
         await Write.finalMatchers(uiMatchersToDbMatchers(req.body))
       } else {
         await Write.modifiedMatchers(uiMatchersToDbMatchers(req.body))
       }
       res.json({
-        categories: (await getUmbrellaCategories()),
+        categories: (await getUiUmbrellaCategories()),
         matchers: await getUiMatchers()
       });
     } catch (error: any) {
@@ -115,7 +118,7 @@ dataRouter.delete(
       }
 
       res.json({
-        categories: (await getUmbrellaCategories()),
+        categories: (await getUiUmbrellaCategories()),
         matchers: await getUiMatchers()
       });
     } catch (error: any) {
@@ -140,19 +143,22 @@ dataRouter.post(
       const editedDebits = await Read.editedDebits()
       const editedCredits = await Read.editedCredits()
       const allDebits = await Read.allDebits()
+      const allCredits = await Read.allCredits()
       const uncategorizableDebits = await Read.uncategorizableDebits()
 
       const editedDebitIds = editedDebits.map(getIdWithoutCategory)
       const editedCreditIds = editedCredits.map(getIdWithoutCategory)
 
-      // TODO: ignoring uncategorizedCredits because it isn't part of the flow right now. Meaning credit updates will not propogate. 
       const modifiedUncategorizableDebits = uncategorizableDebits.filter(u => !editedDebitIds.includes(getIdWithoutCategory(u)))
       await Write.uncategorizableDebits(modifiedUncategorizableDebits)
 
-      const modifiedAllDebits = [...allDebits.filter(u => !editedDebitIds.includes(getIdWithoutCategory(u))), ...editedDebits]
+      const modifiedAllDebits = [...editedDebits, ...allDebits.filter(t => !editedDebitIds.includes(getIdWithoutCategory(t)))]
       await Write.allDebits(modifiedAllDebits)
 
-      res.json((await readInputData()));
+      const modifiedAllCredits = [...editedCredits, ...allCredits.filter(t => !editedCreditIds.includes(getIdWithoutCategory(t)))]
+      await Write.allCredits(modifiedAllCredits)
+
+      res.json((await readInitialData()));
     } catch (error: any) {
       next(error)
     }

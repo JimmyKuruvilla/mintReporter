@@ -27,19 +27,13 @@ const createRow = (matcher: CategoryUIMatcher, index: number) => ({
 const DATA_GRID_DELETE = { _action: 'delete' }
 
 export const Categories = ({ umbrellaCategories, setUmbrellaCategories }: CategoriesProps) => {
-  const { ctx, setCtx } = useContext(GlobalContext)
-  // const [localCategories, setLocalCategories] = useState([])
   const [columns, setColumns] = useState<GridColDef[]>([]);
   const [rows, setRows] = useState<CategoryUIMatcher[]>([])
   const [rowDeleted, setRowDeleted] = useState<{}>({})
 
-  // const apiRef = useGridApiRef();
-
   useEffect(() => {
     fatch({ path: 'categories/matchers', }).then((data) => {
       console.log('setting categories')
-      // setUmbrellaCategories(data.categories)
-      // setLocalCategories(data.categories)
       setRows(data.matchers.map(createRow))
 
       setColumns([
@@ -110,23 +104,7 @@ export const Categories = ({ umbrellaCategories, setUmbrellaCategories }: Catego
       setRows(data.matchers.map(createRow))
     })
   }
-  /**
-  * make category fields editable
-  * the user should be able to make changes temporarily, run reports and validate their categories, and then persist them if they want
-  * 
-  * categories should return the filename modified/final.json that is being used and display it
-  * the backend should read from modified if available, otherwise use final
-  * making changes creates modified
-  * add a button to copy the modified over to the final. 
-  * 
-  * data cmp before categories
-  * - show uncategorizable first
-  * user then edits categories for perma queries, reruns until satisfied
-  * 
-  * then edits individual records until satisfied
-  * remove perma query from ingested data
-  * 
-   */
+
   const paginationModel = { page: 0, pageSize: 10 };
 
   return (
@@ -151,6 +129,7 @@ export const Categories = ({ umbrellaCategories, setUmbrellaCategories }: Catego
         initialState={{ pagination: { paginationModel } }}
         pageSizeOptions={[10, 1000]}
         density="compact"
+        showToolbar
       />
     </div >
   )

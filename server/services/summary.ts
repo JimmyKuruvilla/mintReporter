@@ -1,54 +1,8 @@
 import { COMMA, IGNORE, TRANSACTION_TYPES, UNCATEGORIZABLE } from '../constants';
 import { ICategorizedTransaction, ITransaction } from './transaction';
 import { chain } from 'lodash';
-import { Read, Write } from './data';
+import { Read } from './data';
 import { isTest } from '../config';
-
-
-// import BaseCategories from '../categories/base.json'
-// import { costaRica062024, santeFe062025 } from '../categories/vacations.json';
-/*
-  WW CCD is reimbursement and should be zeroed with some purchase, so tagged for manual changes
-  WW PPD is salary and FSAs and should be counted as income
-  - CCD is ignored, use an override to ignore a particular purchase so that it will be left out of totals.
-
-  College Savings ACH is a bank ACH_DEBIT and not a transfer-type, but ignored here because it is just moving money to college funds, not actually an expense that was incurred
-*/
-// const Ignore = 'WW INTERNATIONAL PAYMENT CCD, College Savings ACH, ILD529'
-// const Vacation = `${santeFe062025}, ${costaRica062024}, ${BaseCategories.Vacation}`
-// export const categorySummary: ICategorySummary =
-// {
-//   [BaseCategories.Amusements]: { umbrellaCategory: 'Amusements', },
-//   [BaseCategories.Auto]: { umbrellaCategory: 'Auto', },
-//   [BaseCategories.Education]: { umbrellaCategory: 'Education', },
-//   [BaseCategories.Emergency]: { umbrellaCategory: 'Emergency', },
-//   [BaseCategories.Charity]: { umbrellaCategory: 'Charity', },
-//   [BaseCategories.Check]: { umbrellaCategory: 'Check', },
-//   [BaseCategories.Clothing]: { umbrellaCategory: 'Clothing', },
-//   [BaseCategories.EatingOut]: { umbrellaCategory: 'EatingOut', },
-//   [BaseCategories.Fees]: { umbrellaCategory: 'Fees', },
-//   [BaseCategories.Gift]: { umbrellaCategory: 'Gift', },
-//   [BaseCategories.HomeImprovement]: { umbrellaCategory: 'HomeImprovement', },
-//   [BaseCategories.HomeMaintenance]: { umbrellaCategory: 'HomeMaintenance', },
-//   [BaseCategories.Kid]: { umbrellaCategory: 'Kid', },
-//   [BaseCategories.LawyerFees]: { umbrellaCategory: 'LawyerFees', },
-//   [BaseCategories.Medical]: { umbrellaCategory: 'Medical', },
-//   [BaseCategories.MetaCanada]: { umbrellaCategory: 'MetaCanada', },
-//   [BaseCategories.MetaStan]: { umbrellaCategory: 'MetaStan', },
-//   [BaseCategories.MetaOneTime]: { umbrellaCategory: 'MetaOneTime', },
-//   [BaseCategories.MetaFood]: { umbrellaCategory: 'MetaFood', },
-//   // ATM Withdrawal vs NON-CHASE ATM WITHDRAW captured by one string
-//   [BaseCategories.Misc]: { umbrellaCategory: 'Misc', },
-//   [BaseCategories.Mortgage]: { umbrellaCategory: 'Mortgage', },
-//   [BaseCategories.PersonalCare]: { umbrellaCategory: 'PersonalCare', },
-//   [BaseCategories.Pet]: { umbrellaCategory: 'Pet', },
-//   [BaseCategories.Shopping]: { umbrellaCategory: 'Shopping', },
-//   [BaseCategories.Utilities]: { umbrellaCategory: 'Utilities', },
-
-//   [Vacation]: { umbrellaCategory: 'Vacation', },
-
-//   [Ignore]: { umbrellaCategory: IGNORE, },
-// }
 
 export const getDbMatchers = async (): Promise<IDbMatchers> => {
   let matchers;
@@ -139,6 +93,10 @@ export const getUmbrellaCategoryAcc = async () => {
 export const getUmbrellaCategories = async () => {
   const matchers = await getDbMatchers()
   return Object.keys(matchers)
+}
+
+export const getUiUmbrellaCategories = async () => {
+  return [...(await getUmbrellaCategories()), UNCATEGORIZABLE, IGNORE]
 }
 
 export type Bucket = { fragments: string[], categoryData: { umbrellaCategory: string } }
