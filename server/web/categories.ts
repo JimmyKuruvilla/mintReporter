@@ -1,0 +1,74 @@
+import express, { NextFunction, Request, Response } from 'express'
+import * as z from "zod";
+import { Delete, Write } from '../services/data';
+import { getUiUmbrellaCategories, uiMatchersToDbMatchers, getUiMatchers } from '../services/summary';
+import { validateMiddleware } from '../middleware';
+
+export const categoriesRouter = express.Router()
+
+const FINAL = 'final'
+const MODIFIED = 'modified'
+
+categoriesRouter.get(
+  '/categories',
+  async (req, res, next) => {
+    try {
+      res.json((await getUiUmbrellaCategories()));
+    } catch (error: any) {
+      next(error)
+    }
+  });
+
+categoriesRouter.get(
+  '/categories/matchers',
+  async (req, res, next) => {
+    try {
+      res.json({
+        categories: (await getUiUmbrellaCategories()),
+        matchers: await getUiMatchers()
+      });
+    } catch (error: any) {
+      next(error)
+    }
+  });
+
+const MatchersParamsSchema = z.object({
+  type: z.enum([FINAL, MODIFIED])
+});
+categoriesRouter.post(
+  '/categories/matchers/:type',
+  validateMiddleware(MatchersParamsSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      if (req.params.type === FINAL) {
+        await Write.finalMatchers(uiMatchersToDbMatchers(req.body))
+      } else {
+        await Write.modifiedMatchers(uiMatchersToDbMatchers(req.body))
+      }
+      res.json({
+        categories: (await getUiUmbrellaCategories()),
+        matchers: await getUiMatchers()
+      });
+    } catch (error: any) {
+      next(error)
+    }
+  });
+
+categoriesRouter.delete(
+  '/categories/matchers/modified',
+  async (req, res, next) => {
+    try {
+      try {
+        await Delete.modifiedMatchers()
+      } catch (error) {
+        console.warn(`No modified file to delete`)
+      }
+
+      res.json({
+        categories: (await getUiUmbrellaCategories()),
+        matchers: await getUiMatchers()
+      });
+    } catch (error: any) {
+      next(error)
+    }
+  });

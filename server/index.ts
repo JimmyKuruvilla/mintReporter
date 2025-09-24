@@ -1,17 +1,22 @@
 import express from 'express'
 import cors from 'cors'
-import { uploadRouter } from './web/upload'
 import { uploadsFolder } from './config'
 import { errorMiddleware } from './middleware'
-import { dataRouter } from './web/data'
+
+import { uploadsRouter } from './web/uploads'
+import { categoriesRouter } from './web/categories'
+import { inputsRouter } from './web/inputs'
+import { outputsRouter } from './web/outputs'
 
 const app = express()
 app.use(cors())
 app.use(express.json({ limit: '10mb' }))
 const PORT = process.env.PORT || 4000
 
-app.use(uploadRouter)
-app.use(dataRouter)
+app.use(uploadsRouter)
+app.use(inputsRouter)
+app.use(categoriesRouter)
+app.use(outputsRouter)
 app.use(errorMiddleware)
 
 app.listen(PORT, () => {

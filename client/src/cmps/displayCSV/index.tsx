@@ -8,7 +8,7 @@ import SaveIcon from '@mui/icons-material/Save';
 
 export type CSVData = { creditsCSV: string, debitsCSV: string, summaryCSV: string }
 
-const getDownloadPath = (name: string) => `${baseUrl}/download/${name}`
+const getDownloadPath = (name: string) => `${baseUrl}/outputs/${name}`
 export const DisplayCSV = () => {
   const [outputs, setOutputs] = useState<CSVData>({ creditsCSV: '', debitsCSV: '', summaryCSV: '' })
 

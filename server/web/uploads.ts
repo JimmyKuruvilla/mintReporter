@@ -4,12 +4,12 @@ import * as z from "zod";
 import { csvUploadMiddleware, validateMiddleware } from 'server/middleware';
 import { clearUploadsFolder, LIST } from '../services/file';
 
-export const uploadRouter = express.Router()
+export const uploadsRouter = express.Router()
 const UploadBodySchema = z.object({
   files: z.any(),
 });
 
-uploadRouter.post(
+uploadsRouter.post(
   '/uploads',
   csvUploadMiddleware.array('files', 20),
   validateMiddleware(UploadBodySchema, 'body', clearUploadsFolder),
@@ -23,7 +23,7 @@ uploadRouter.post(
     }
   });
 
-uploadRouter.get(
+uploadsRouter.get(
   '/uploads',
   async (req, res, next) => {
     try {
@@ -33,7 +33,7 @@ uploadRouter.get(
     }
   });
 
-uploadRouter.delete(
+uploadsRouter.delete(
   '/uploads',
   async (req, res, next) => {
     try {
