@@ -25,7 +25,7 @@ export const Inputs = ({ setIngestedData }: InputProps) => {
     setCtx({ ...ctx, uploadEndDate: pickedDate })
   }
 
-  const handleCreateInputs = async () => {
+  const handleCalculate = async () => {
     fatch({
       path: 'inputs', method: 'post',
       body: {
@@ -37,8 +37,10 @@ export const Inputs = ({ setIngestedData }: InputProps) => {
     })
   }
 
-  const handleDeleteInputs = async () => {
-    fatch({ path: 'inputs', method: 'delete', }).then((data) => {
+  const handleDeleteInitialData = async () => {
+    fatch({
+      path: 'inputs', method: 'delete',
+    }).then((data) => {
       setIngestedData(data)
     })
   }
@@ -51,8 +53,8 @@ export const Inputs = ({ setIngestedData }: InputProps) => {
       <div>
         <DatePicker defaultValue={endDate} onChange={handleSetEndDate}></DatePicker>
       </div>
-      <Button variant="contained" onClick={handleCreateInputs}>Generate</Button>
-      <Button variant="contained" onClick={handleDeleteInputs}>Delete</Button>
+      <Button variant="contained" onClick={handleCalculate}>Calculate</Button>
+      <Button variant="contained" onClick={handleDeleteInitialData} color="error">Clear</Button>
     </div>
   )
 }

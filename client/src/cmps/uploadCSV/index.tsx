@@ -2,38 +2,40 @@ import { useState } from 'react'
 import './styles.css'
 import Button from '@mui/material/Button';
 import { fatch } from '../../utils/fatch';
+import { FileOnServer } from '../../../../server/constants';
 
-export const UploadCSV = () => {
-  const [files, setFiles] = useState<FileList | null>(null)
-  const [status, setStatus] = useState('')
+type UploadCSVProps = {
+  filesOnServer: FileOnServer[],
+  setFilesOnServer: Function
+}
+export const UploadCSV = ({ filesOnServer, setFilesOnServer }: UploadCSVProps) => {
+  const [filesToUpload, setFilesToUpload] = useState<FileList | null>(null)
 
+  console.count('render UploadCSV')
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!files || files.length === 0) return
-
-    setStatus('Uploading...')
+    if (!filesToUpload || filesToUpload.length === 0) return
 
     const form = new FormData()
-    Array.from(files).forEach(f => form.append('files', f))
+    Array.from(filesToUpload).forEach(f => form.append('files', f))
 
     try {
       const res = await fatch({
-        path: 'upload',
+        path: 'uploads',
         method: 'postRaw',
         body: form,
         headers: {}
       })
 
-      setStatus(`Uploaded ${res.count} files`)
+      setFilesOnServer(res)
     } catch (err: any) {
-      setStatus('Upload failed')
       console.error(err)
     }
   }
 
   const handleDeleteCsvs = async () => {
-    setFiles(null)
-    fatch({ path: 'inputs', method: 'delete', }).then((status200) => {
+    setFilesOnServer([])
+    fatch({ path: 'uploads', method: 'delete', }).then((status200) => {
       console.warn('add reactivity and error handling')
     })
   }
@@ -42,18 +44,25 @@ export const UploadCSV = () => {
     <div className='uploadCSV'>
       <form onSubmit={handleUpload} encType="multipart/form-data">
         <div>
-          <input type="file" multiple onChange={(e) => setFiles(e.target.files)} />
+          <input type="file" multiple onChange={(e) => setFilesToUpload(e.target.files)} />
           <p>{status}</p>
         </div>
 
         <div>
-          <Button variant="contained" type="submit">Upload</Button>
+          <Button sx={{ width: '100px' }} variant="contained" type="submit">Upload</Button>
         </div>
-
       </form>
 
-      <Button variant="contained" onClick={handleDeleteCsvs}>Delete All</Button>
+      <Button sx={{ width: '100px' }} variant="contained" onClick={handleDeleteCsvs} color="error">Clear</Button>
 
-    </div>
+      {
+        filesOnServer.length > 0 && (
+          <>
+            <h3>Uploaded Files</h3>
+            <ol>{filesOnServer.map((file, index) => <li key={index}>{file.filename}</li>)}</ol>
+          </>
+        )
+      }
+    </div >
   )
 }

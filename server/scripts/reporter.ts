@@ -2,7 +2,7 @@
 import { COMMA } from '../constants';
 import { Read, } from '../services';
 import { clearInitialData } from '../services/file';
-import { createInitialData, createFinalSummary } from '../services/stages';
+import { createInitialData, createFinalSummaryCSVs } from '../services/stages';
 
 const STAGE = (process.env as any).STAGE;
 
@@ -23,7 +23,7 @@ const STAGE = (process.env as any).STAGE;
       break;
     case 'writeFinalSummary':
       const changedDebits = await Read.uncategorizableDebits()
-      await createFinalSummary({ changedDebits })
+      await createFinalSummaryCSVs({ changedDebits })
       break;
     default:
       console.log('NO STAGE PROVIDED')

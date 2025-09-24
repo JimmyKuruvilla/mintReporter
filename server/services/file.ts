@@ -17,3 +17,7 @@ export const clearEditingFolder = async () => recursiveTraverse(editingFolder, [
 export const readJsonFile = async <T>(filepath: string): Promise<T> => {
   return JSON.parse(await fs.readFileSync(filepath, { encoding: 'utf8' }))
 }
+
+export const LIST = {
+  uploads: async () => fs.readdirSync(uploadsFolder)
+}

@@ -4,7 +4,7 @@ import { Delete, getIdWithoutCategory, Read, Write } from '../services/data';
 import { getUiUmbrellaCategories, uiMatchersToDbMatchers, getUiMatchers } from '../services/summary';
 import { clearEditingFolder, clearInitialData, clearUploadsFolder } from '../services/file';
 import { CategorizedTransaction, ICategorizedTransaction } from '../services';
-import { createFinalSummary, createInitialData } from '../services/stages';
+import { createFinalSummaryCSVs, createInitialData, getReconciledSummary } from '../services/stages';
 import { validateMiddleware } from '../middleware';
 import { csvOutputFilePath, FILE_NAMES } from '../config';
 
@@ -22,9 +22,18 @@ const readInitialData = async () => {
 dataRouter.get(
   '/inputs',
   async (req, res, next) => {
+    let reconciledSummary = {}
     try {
-      const inputs = await readInitialData();
-      res.json(inputs);
+      try {
+        const resp = await getReconciledSummary({ changedDebits: [] })
+        reconciledSummary = resp.reconciledSummary
+      }
+      catch (error) {
+        console.log(error)
+      }
+
+      const { credits, debits } = await readInitialData()
+      res.json({ credits, debits, reconciledSummary });
     } catch (error: any) {
       next(error)
     }
@@ -34,8 +43,7 @@ dataRouter.delete(
   '/inputs',
   async (req, res, next) => {
     try {
-      await clearUploadsFolder()
-      console.log('CLEARED_UPLOADS_FOLDER')
+      await clearInitialData()
       res.status(200).send({ credits: [], debits: [] });
     } catch (error: any) {
       next(error)
@@ -53,10 +61,52 @@ dataRouter.post(
     try {
       const startDate = req.body.startDate
       const endDate = req.body.endDate
-      await clearInitialData()
       await createInitialData(new Date(startDate), new Date(endDate), ['.csv'])
 
-      res.json((await readInitialData()));
+      const { credits, debits } = await readInitialData()
+      const { reconciledSummary, } = await getReconciledSummary({ changedDebits: [] })
+
+      res.json({ credits, debits, reconciledSummary });
+    } catch (error: any) {
+      next(error)
+    }
+  });
+
+const EditsBodySchema = z.object({
+  editedDebits: z.array(z.any()),
+  editedCredits: z.array(z.any()),
+});
+dataRouter.patch(
+  '/inputs',
+  validateMiddleware(EditsBodySchema, 'body'),
+  async (req, res, next) => {
+    try {
+      await clearEditingFolder()
+      await Write.editedDebits(req.body.editedDebits)
+      await Write.editedCredits(req.body.editedCredits)
+
+      const editedDebits = await Read.editedDebits()
+      const editedCredits = await Read.editedCredits()
+      const allDebits = await Read.allDebits()
+      const allCredits = await Read.allCredits()
+      const uncategorizableDebits = await Read.uncategorizableDebits()
+
+      const editedDebitIds = editedDebits.map(getIdWithoutCategory)
+      const editedCreditIds = editedCredits.map(getIdWithoutCategory)
+
+      const modifiedUncategorizableDebits = uncategorizableDebits.filter(u => !editedDebitIds.includes(getIdWithoutCategory(u)))
+      await Write.uncategorizableDebits(modifiedUncategorizableDebits)
+
+      const modifiedAllDebits = [...editedDebits, ...allDebits.filter(t => !editedDebitIds.includes(getIdWithoutCategory(t)))]
+      await Write.allDebits(modifiedAllDebits)
+
+      const modifiedAllCredits = [...editedCredits, ...allCredits.filter(t => !editedCreditIds.includes(getIdWithoutCategory(t)))]
+      await Write.allCredits(modifiedAllCredits)
+
+      const { credits, debits } = await readInitialData()
+      const { reconciledSummary, } = await getReconciledSummary({ changedDebits: [] })
+
+      res.json({ credits, debits, reconciledSummary });
     } catch (error: any) {
       next(error)
     }
@@ -126,49 +176,11 @@ dataRouter.delete(
     }
   });
 
-const EditsBodySchema = z.object({
-  editedDebits: z.array(z.any()),
-  editedCredits: z.array(z.any()),
-});
-// rename this - it's not just edits. it's edits on the transactions. 
-dataRouter.post(
-  '/edits',
-  validateMiddleware(EditsBodySchema, 'body'),
-  async (req, res, next) => {
-    try {
-      await clearEditingFolder()
-      await Write.editedDebits(req.body.editedDebits)
-      await Write.editedCredits(req.body.editedCredits)
-
-      const editedDebits = await Read.editedDebits()
-      const editedCredits = await Read.editedCredits()
-      const allDebits = await Read.allDebits()
-      const allCredits = await Read.allCredits()
-      const uncategorizableDebits = await Read.uncategorizableDebits()
-
-      const editedDebitIds = editedDebits.map(getIdWithoutCategory)
-      const editedCreditIds = editedCredits.map(getIdWithoutCategory)
-
-      const modifiedUncategorizableDebits = uncategorizableDebits.filter(u => !editedDebitIds.includes(getIdWithoutCategory(u)))
-      await Write.uncategorizableDebits(modifiedUncategorizableDebits)
-
-      const modifiedAllDebits = [...editedDebits, ...allDebits.filter(t => !editedDebitIds.includes(getIdWithoutCategory(t)))]
-      await Write.allDebits(modifiedAllDebits)
-
-      const modifiedAllCredits = [...editedCredits, ...allCredits.filter(t => !editedCreditIds.includes(getIdWithoutCategory(t)))]
-      await Write.allCredits(modifiedAllCredits)
-
-      res.json((await readInitialData()));
-    } catch (error: any) {
-      next(error)
-    }
-  });
-
 dataRouter.post(
   '/outputs',
   async (req, res, next) => {
     try {
-      const { creditsCSV, debitsCSV, summaryCSV } = await createFinalSummary({ changedDebits: [] })
+      const { creditsCSV, debitsCSV, summaryCSV } = await createFinalSummaryCSVs({ changedDebits: [] })
       res.json({ creditsCSV, debitsCSV, summaryCSV });
     } catch (error: any) {
       next(error)

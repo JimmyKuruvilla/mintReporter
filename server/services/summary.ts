@@ -129,7 +129,7 @@ export const summarize = (umbrellaCategoryAcc: UmbrellaCategoryAcc, transactions
   return { ...summarizedTransactions, total };
 }
 
-export type CombinedSummary = Omit<UmbrellaCategoryAccWithTotal, 'total'> & { _TotalOutgoing: number, _totalIncoming: number, _Net: number }
+export type ICombinedSummary = Omit<UmbrellaCategoryAccWithTotal, 'total'> & { _TotalOutgoing: number, _totalIncoming: number, _Net: number }
 export const combineSummaries = (debitsSummary: UmbrellaCategoryAccWithTotal, creditsSummary: UmbrellaCategoryAccWithTotal) => {
   const mergedCategories: any = {}
   Object.entries(debitsSummary).forEach(([category, value]) => {
@@ -140,7 +140,7 @@ export const combineSummaries = (debitsSummary: UmbrellaCategoryAccWithTotal, cr
   mergedCategories['_TotalIncoming'] = creditsSummary.total
   mergedCategories['_Net'] = mergedCategories.total;
   delete mergedCategories.total;
-  return mergedCategories as CombinedSummary
+  return mergedCategories as ICombinedSummary
 }
 
 /**

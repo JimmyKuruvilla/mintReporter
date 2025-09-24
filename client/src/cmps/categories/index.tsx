@@ -116,8 +116,8 @@ export const Categories = ({ umbrellaCategories, setUmbrellaCategories }: Catego
           </IconButton>
         </span>
         <span className='right'>
-          <Button variant="contained" onClick={handleAbandonTempChanges}>Abandon Temp Changes</Button>
-          <Button variant="contained" onClick={handleSaveTempChanges}>Save Temp Changes</Button>
+          <Button variant="contained" onClick={handleAbandonTempChanges}>Abandon Changes</Button>
+          <Button variant="contained" onClick={handleSaveTempChanges}>Save Changes</Button>
           <Button variant="contained" onClick={handleSavePermanently} color="error">Save Changes Permanently</Button>
         </span>
       </span>

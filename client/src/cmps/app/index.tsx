@@ -18,26 +18,30 @@ import { fatch } from '../../utils/fatch';
 import { DisplayCSV } from '../displayCSV';
 import { Inputs } from '../inputs';
 import { Categories } from '../categories';
-
+import { ICombinedSummary } from '../../../../server/services/summary';
+import { FileOnServer } from '../../../../server/constants';
 
 const App = () => {
   const [mainPanelCmp, setMainPanelCmp] = useState('UploadCSV')
   const [umbrellaCategories, setUmbrellaCategories] = useState<string[]>([])
   const [ingestedData, setIngestedData] = useState<APIIngestedData>({
     debits: [],
-    credits: []
+    credits: [],
+    reconciledSummary: {} as ICombinedSummary
   })
-
+  const [filesOnServer, setFilesOnServer] = useState<FileOnServer[]>([])
 
   useEffect(() => {
-    console.count('app useeffect')
+    console.count('App useEffect')
     Promise.all([
       fatch({ path: 'categories' }),
-      fatch({ path: 'inputs' })
-    ]).then((data: [string[], APIIngestedData]) => {
-      const [umbrellaCategories, apiIngestedData] = data;
+      fatch({ path: 'inputs' }),
+      fatch({ path: 'uploads' })
+    ]).then((data: [string[], APIIngestedData, FileOnServer[]]) => {
+      const [umbrellaCategories, apiIngestedData, filesOnServer] = data;
       setIngestedData(apiIngestedData)
       setUmbrellaCategories(umbrellaCategories)
+      setFilesOnServer(filesOnServer)
     })
   }, [])
 
@@ -57,19 +61,20 @@ const App = () => {
                   setUmbrellaCategories={setUmbrellaCategories}>
                 </Categories>
               case 'UploadCSV':
-                return <UploadCSV></UploadCSV>
+                return <UploadCSV filesOnServer={filesOnServer} setFilesOnServer={setFilesOnServer}></UploadCSV>
               case 'IngestedData':
                 return <IngestedData
                   setIngestedData={setIngestedData}
                   categories={umbrellaCategories}
                   debits={ingestedData.debits}
-                  credits={ingestedData.credits}>
+                  credits={ingestedData.credits}
+                  reconciledSummary={ingestedData.reconciledSummary}>
                 </IngestedData>
 
               case 'DisplayCSV':
                 return <DisplayCSV></DisplayCSV>
               default:
-                return <UploadCSV></UploadCSV>
+                return <UploadCSV filesOnServer={filesOnServer} setFilesOnServer={setFilesOnServer}></UploadCSV>
             }
           })()}
         </Container>

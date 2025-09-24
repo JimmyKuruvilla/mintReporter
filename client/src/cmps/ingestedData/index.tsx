@@ -7,17 +7,24 @@ import { ICategorizedTransaction } from '@/server/services/transaction'
 import { fatch } from '../../utils/fatch';
 import { TRANSACTION_TYPES } from '../../../../server/constants';
 import { Inputs } from '../inputs';
+import { ICombinedSummary } from '../../../../server/services/summary';
 
-type Row = Omit<ICategorizedTransaction, 'permanentCategory' | 'permanentCategoryQuery' | 'metadata' | 'date'> & {
+type TransactionRow = Omit<ICategorizedTransaction, 'permanentCategory' | 'permanentCategoryQuery' | 'metadata' | 'date'> & {
   id: number,
   date: Date,
   checkNum?: string,
   bankType?: string
 }
 
-const getRowId = (row: ICategorizedTransaction | Row) => `${row.date?.toISOString?.() ?? row.date}-${row.amount}-${row.description}-${row.category}`
+type SummaryRow = {
+  id: number,
+  category: string
+  amount: string
+}
 
-const createTransaction = (row: Row): ICategorizedTransaction => {
+const getRowId = (row: ICategorizedTransaction | TransactionRow) => `${row.date?.toISOString?.() ?? row.date}-${row.amount}-${row.description}-${row.category}`
+
+const createTransaction = (row: TransactionRow): ICategorizedTransaction => {
   const t: any = structuredClone(row)
 
   delete t.id
@@ -33,7 +40,7 @@ const createTransaction = (row: Row): ICategorizedTransaction => {
   return t
 }
 
-const createRow = (i: ICategorizedTransaction, index: number): Row => ({
+const createRow = (i: ICategorizedTransaction, index: number): TransactionRow => ({
   id: index,
   category: i.category,
   amount: i.amount,
@@ -51,20 +58,36 @@ type IngestedDataProps = {
   debits: ICategorizedTransaction[],
   credits: ICategorizedTransaction[],
   categories: string[]
+  reconciledSummary: ICombinedSummary
 }
 
-export const IngestedData = ({ setIngestedData, categories, debits, credits }: IngestedDataProps) => {
+export const IngestedData = ({ setIngestedData, categories, debits, credits, reconciledSummary }: IngestedDataProps) => {
   const [tabValue, setTabValue] = useState(0);
-  const [columns, setColumns] = useState<GridColDef[]>([]);
-  const [debitRows, setDebitRows] = useState<Row[]>([]);
-  const [creditRows, setCreditRows] = useState<Row[]>([]);
+  const [transactionColumns, setTransactionColumns] = useState<GridColDef[]>([]);
+  const [reconciledColumns, setReconciledColumns] = useState<GridColDef[]>([]);
+
+  const [reconciledRows, setReconciledRows] = useState<SummaryRow[]>([]);
+  const [transactionDebitRows, setTransactionDebitRows] = useState<TransactionRow[]>([]);
+  const [transactionCreditRows, setTransactionCreditRows] = useState<TransactionRow[]>([]);
+
   const [editedDebits, setEditedDebits] = useState<ICategorizedTransaction[]>([]);
   const [editedCredits, setEditedCredits] = useState<ICategorizedTransaction[]>([]);
 
   console.count('ingestedata')
 
   useEffect(() => {
-    setColumns([
+    setReconciledColumns([
+      { field: 'category', headerName: 'Category', width: 150 },
+      { field: 'amount', headerName: 'Amount' },
+    ])
+
+    setReconciledRows(
+      Object
+        .entries(reconciledSummary)
+        .map(([category, amount], index) => ({ id: index, category, amount: amount.toFixed(2) }))
+    )
+
+    setTransactionColumns([
       {
         field: 'category', headerName: 'Category',
         type: 'singleSelect',
@@ -82,14 +105,15 @@ export const IngestedData = ({ setIngestedData, categories, debits, credits }: I
       { field: 'checkNum', headerName: 'Check' },
     ])
 
-    setDebitRows(debits.map(createRow));
-    setCreditRows(credits.map(createRow));
+    setTransactionDebitRows(debits.map(createRow));
+    setTransactionCreditRows(credits.map(createRow));
 
   }, [categories, credits, debits])
 
   const paginationModel = { page: 0, pageSize: 10 };
+  const reconciledPaginationModel = { page: 0, pageSize: 100 };
 
-  const handleCreditRowUpdate = (updatedRow: Row, originalRow: Row) => {
+  const handleCreditRowUpdate = (updatedRow: TransactionRow, originalRow: TransactionRow) => {
     setEditedCredits([
       ...(editedCredits.filter(d => getRowId(d) !== getRowId(originalRow))),
       createTransaction(updatedRow)
@@ -97,7 +121,7 @@ export const IngestedData = ({ setIngestedData, categories, debits, credits }: I
     return updatedRow
   }
 
-  const handleDebitRowUpdate = (updatedRow: Row, originalRow: Row) => {
+  const handleDebitRowUpdate = (updatedRow: TransactionRow, originalRow: TransactionRow) => {
     setEditedDebits([
       ...(editedDebits.filter(d => getRowId(d) !== getRowId(originalRow))),
       createTransaction(updatedRow)
@@ -125,20 +149,20 @@ export const IngestedData = ({ setIngestedData, categories, debits, credits }: I
       console.error('One row missing perma category or perma query')
     } else {
       fatch(
-        { path: 'edits', method: 'post', body: { editedDebits, editedCredits } }
+        { path: 'inputs', method: 'patch', body: { editedDebits, editedCredits } }
       ).then(data => {
         setEditedCredits([])
         setEditedDebits([])
-        setDebitRows(data.debits.map(createRow))
-        setCreditRows(data.credits.map(createRow))
+        setTransactionDebitRows(data.debits.map(createRow))
+        setTransactionCreditRows(data.credits.map(createRow))
       })
     }
   }
 
   return (
     <>
-    <Inputs setIngestedData={setIngestedData}></Inputs>
-    
+      <Inputs setIngestedData={setIngestedData}></Inputs>
+
       <Tabs
         value={tabValue}
         onChange={handleTabChange}
@@ -147,6 +171,7 @@ export const IngestedData = ({ setIngestedData, categories, debits, credits }: I
       >
         <Tab label="Debits" />
         <Tab label="Credits" />
+        <Tab label="Reconciled" />
       </Tabs>
 
       <Button
@@ -159,8 +184,8 @@ export const IngestedData = ({ setIngestedData, categories, debits, credits }: I
 
       <TabPanel value={tabValue} index={0}>
         <DataGrid
-          rows={debitRows}
-          columns={columns}
+          rows={transactionDebitRows}
+          columns={transactionColumns}
           processRowUpdate={handleDebitRowUpdate}
           onProcessRowUpdateError={handleProcessRowUpdateError}
           initialState={{ pagination: { paginationModel } }}
@@ -172,8 +197,8 @@ export const IngestedData = ({ setIngestedData, categories, debits, credits }: I
 
       <TabPanel value={tabValue} index={1}>
         <DataGrid
-          rows={creditRows}
-          columns={columns}
+          rows={transactionCreditRows}
+          columns={transactionColumns}
           processRowUpdate={handleCreditRowUpdate}
           onProcessRowUpdateError={handleProcessRowUpdateError}
           initialState={{ pagination: { paginationModel } }}
@@ -182,6 +207,19 @@ export const IngestedData = ({ setIngestedData, categories, debits, credits }: I
           showToolbar
         />
       </TabPanel>
+
+      <TabPanel value={tabValue} index={2}>
+        <DataGrid
+          rows={reconciledRows}
+          columns={reconciledColumns}
+          initialState={{ pagination: { paginationModel: reconciledPaginationModel } }}
+          pageSizeOptions={[10, 1000]}
+          density="compact"
+          showToolbar
+        />
+      </TabPanel>
     </>
   )
 }
+
+// start with reconciled. when updating a category, the recalculated values should update hte reconciled.

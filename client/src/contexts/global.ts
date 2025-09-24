@@ -1,6 +1,7 @@
 import dayjs, { Dayjs } from 'dayjs';
 import { createContext } from 'react';
 import { ICategorizedTransaction } from '@/server/services/transaction';
+import { ICombinedSummary } from '../../../server/services/summary';
 
 /* 
 const debit = {
@@ -22,6 +23,7 @@ const debit = {
 export type APIIngestedData = {
   debits: ICategorizedTransaction[],
   credits: ICategorizedTransaction[]
+  reconciledSummary: ICombinedSummary
 }
 
 export type CTX = {
@@ -35,7 +37,8 @@ export const initialCtx: CTX = {
   uploadEndDate: dayjs(new Date()).endOf('month'),
   ingestedData: {
     debits: [],
-    credits: []
+    credits: [],
+    reconciledSummary: {} as ICombinedSummary
   }
 }
 

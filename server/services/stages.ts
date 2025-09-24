@@ -75,11 +75,14 @@ export const createInitialData = async (startDate: Date, endDate: Date, fileExts
   return { credits, debits }
 }
 
-export const createFinalSummary = async ({ changedDebits }: { changedDebits: ICategorizedTransaction[] }) => {
+/*
+  maybeCategorizableDebits
+  is only used in the script format. In the UI debits and credits are edited directly and so this is always set to []
+ */
+export const getReconciledSummary = async ({ changedDebits }: { changedDebits: ICategorizedTransaction[] }) => {
   const debits = (await Read.allDebits()).map(CategorizedTransaction)
   const credits = (await Read.allCredits()).map(CategorizedTransaction)
   const buckets = await getBuckets()
-  // only used in the script format. In the UI debits and credits are edited directly and so this is always set to []
   const maybeCategorizableDebits = changedDebits
     .map(CategorizedTransaction)
     .map(assignCategories(buckets))
@@ -88,14 +91,19 @@ export const createFinalSummary = async ({ changedDebits }: { changedDebits: ICa
   const processedDebits = [...categorizableDebits, ...maybeCategorizableDebits]
 
   const umbrellaCategoryAcc = await getUmbrellaCategoryAcc()
-  const combinedSummary = combineSummaries(
+  const reconciledSummary = combineSummaries(
     await summarize(umbrellaCategoryAcc, processedDebits),
     await summarize(umbrellaCategoryAcc, credits)
   )
 
-  const debitsCSV = prepareTransactionCsv(sortBy(processedDebits, 'category'))
+  return { debits: processedDebits, credits, reconciledSummary, maybeCategorizableDebits }
+}
+
+export const createFinalSummaryCSVs = async ({ changedDebits }: { changedDebits: ICategorizedTransaction[] }) => {
+  const { debits, credits, reconciledSummary, maybeCategorizableDebits } = await getReconciledSummary({ changedDebits })
+  const debitsCSV = prepareTransactionCsv(sortBy(debits, 'category'))
   const creditsCSV = prepareTransactionCsv(sortBy(credits, 'description'))
-  const summaryCSV = prepareSummaryCsv(combinedSummary)
+  const summaryCSV = prepareSummaryCsv(reconciledSummary)
 
   await Write.outputDebits(debitsCSV)
   await Write.outputCredits(creditsCSV)
@@ -103,7 +111,7 @@ export const createFinalSummary = async ({ changedDebits }: { changedDebits: ICa
   await updatePermanentQueries(maybeCategorizableDebits)
 
   console.log('############ REMAINING UNCATEGORIZABLE DEBITS/CHECKS ###################')
-  console.log(processedDebits.filter(isUncategorizable))
+  console.log(debits.filter(isUncategorizable))
 
   return { debitsCSV, creditsCSV, summaryCSV }
 }

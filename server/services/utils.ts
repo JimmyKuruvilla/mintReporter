@@ -4,7 +4,7 @@ import fs from 'fs';
 import { sortBy } from 'lodash';
 import { IGNORE, UNCATEGORIZABLE, NEW_LINE, CHECK } from '../constants';
 import { csvOutputFilePath, categoriesFolder } from '../config'
-import { CombinedSummary } from './summary';
+import { ICombinedSummary } from './summary';
 import { ICategorizedTransaction } from './transaction';
 import { readJsonFile } from './file';
 import { Write } from './data';
@@ -39,7 +39,7 @@ export const prepareTransactionCsv = (transactions: ICategorizedTransaction[]) =
     .join(NEW_LINE)
 }
 
-export const prepareSummaryCsv = (summary: CombinedSummary) => {
+export const prepareSummaryCsv = (summary: ICombinedSummary) => {
   const ignoreTotal = summary[IGNORE]
   const uncategorizableTotal = summary[UNCATEGORIZABLE]
   const cleanList = Object.fromEntries(

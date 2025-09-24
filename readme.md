@@ -56,4 +56,6 @@ TODO
 2. persist records to db, and update service to use db models
 3. add copy to clipboard icon to each section and 1 copy to clipboard for the whole thing
 4. after input>generate it would be great to have a tab that showed the current tally for each known category. 
+5. would be great to directly add a permacategory from teh ingested data view. So that I don't have to remember the name for later. 
 
+BUG: once edits are made the inputs are still returned. we should return the edits if they exist and allow option to delete them. 
