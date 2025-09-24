@@ -2,10 +2,11 @@ import { useContext, useEffect, useState } from 'react'
 import './styles.css'
 import Button from '@mui/material/Button';
 import { baseUrl, fatch } from '../../utils/fatch';
+import { IconButton } from '@mui/material';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import SaveIcon from '@mui/icons-material/Save';
 
 export type CSVData = { creditsCSV: string, debitsCSV: string, summaryCSV: string }
-
-// move ingesteddata fetch into IngestedData
 
 const getDownloadPath = (name: string) => `${baseUrl}/download/${name}`
 export const DisplayCSV = () => {
@@ -17,43 +18,71 @@ export const DisplayCSV = () => {
     })
   }
 
+  const handleCopyToClipBoard = (type: string) => () => {
+    switch (type) {
+      case 'credit':
+        navigator.clipboard.writeText(outputs.creditsCSV);
+        break
+      case 'debit':
+        navigator.clipboard.writeText(outputs.debitsCSV);
+        break
+      case 'summary':
+        navigator.clipboard.writeText(outputs.summaryCSV);
+        break
+      default:
+        break
+    }
+  }
+
   return (
     <div className='displayCSV'>
       <Button variant="contained" sx={{ marginBottom: '10px' }} onClick={handleRun}>Generate</Button>
 
-      {outputs.summaryCSV && <a href={getDownloadPath('summary')} download>💾 Summary</a>}
-      {outputs.creditsCSV && <a href={getDownloadPath('credit')} download>💾 Credits</a>}
-      {outputs.debitsCSV && <a href={getDownloadPath('debit')} download>💾 Debits</a>}
-
-      {
-        outputs.summaryCSV &&
-        <>
-          <a href={getDownloadPath('summary')} download><h4>Summary</h4></a>
+      <div>
+        {outputs.summaryCSV && <>
+          <h4>Summary</h4>
+          <IconButton href={getDownloadPath('summary')} download color="primary">
+            <SaveIcon></SaveIcon>
+          </IconButton>
+          <IconButton onClick={handleCopyToClipBoard('summary')} color="primary">
+            <ContentCopyIcon />
+          </IconButton>
           <pre>
             {outputs.summaryCSV}
           </pre>
-        </>
-      }
+        </>}
+      </div>
 
-      {
-        outputs.creditsCSV &&
-        <>
-          <a href={getDownloadPath('credit')} download><h4>Credits</h4></a>
+      <div>
+        {outputs.creditsCSV && <>
+          <h4>Credits</h4>
+          <IconButton href={getDownloadPath('credit')} download color="primary">
+            <SaveIcon></SaveIcon>
+          </IconButton>
+          <IconButton onClick={handleCopyToClipBoard('credit')} color="primary">
+            <ContentCopyIcon />
+          </IconButton>
           <pre>
             {outputs.creditsCSV}
           </pre>
-        </>
-      }
+        </>}
+      </div>
 
-      {
-        outputs.debitsCSV &&
-        <>
-          <a href={getDownloadPath('debit')} download><h4>Debits</h4></a>
+      <div>
+        {outputs.debitsCSV && <>
+          <h4>Debits</h4>
+          <IconButton href={getDownloadPath('debit')} download color="primary">
+            <SaveIcon></SaveIcon>
+          </IconButton>
+          <IconButton onClick={handleCopyToClipBoard('debit')} color="primary">
+            <ContentCopyIcon />
+          </IconButton>
           <pre>
             {outputs.debitsCSV}
           </pre>
-        </>
-      }
+        </>}
+      </div>
+
     </div>
   )
 }

@@ -221,5 +221,3 @@ export const IngestedData = ({ setIngestedData, categories, debits, credits, rec
     </>
   )
 }
-
-// start with reconciled. when updating a category, the recalculated values should update hte reconciled.
