@@ -2,17 +2,11 @@ import express, { NextFunction, Request, Response } from 'express'
 import * as z from "zod";
 import { getIdWithoutCategory, Read, Write } from '../services/data';
 import { clearEditingFolder, clearInitialData, } from '../services/file';
-import { CategorizedTransaction, ICategorizedTransaction, } from '../services';
+import {  ICategorizedTransaction, } from '../services';
 import { createInitialData, getReconciledSummary } from '../services/stages';
 import { validateMiddleware } from '../middleware';
 
 export const inputsRouter = express.Router()
-
-const readInitialData = async () => {
-  const debits = (await Read.allDebits()).map(CategorizedTransaction)
-  const credits = (await Read.allCredits()).map(CategorizedTransaction)
-  return { debits, credits }
-}
 
 inputsRouter.get(
   '/inputs',
@@ -62,8 +56,7 @@ inputsRouter.post(
       const endDate = req.body.endDate
       await createInitialData(new Date(startDate), new Date(endDate), ['.csv'])
 
-      const { credits, debits } = await readInitialData()
-      const { reconciledSummary } = await getReconciledSummary({ changedDebits: [] })
+      const { credits, debits, reconciledSummary, } = await getReconciledSummary({ changedDebits: [] })
 
       res.json({ credits, debits, reconciledSummary });
     } catch (error: any) {
@@ -102,8 +95,7 @@ inputsRouter.patch(
       const modifiedAllCredits = [...editedCredits, ...allCredits.filter(t => !editedCreditIds.includes(getIdWithoutCategory(t)))]
       await Write.allCredits(modifiedAllCredits)
 
-      const { credits, debits } = await readInitialData()
-      const { reconciledSummary, } = await getReconciledSummary({ changedDebits: [] })
+      const { credits, debits, reconciledSummary, } = await getReconciledSummary({ changedDebits: [] })
 
       res.json({ credits, debits, reconciledSummary });
     } catch (error: any) {

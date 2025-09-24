@@ -71,4 +71,5 @@ export const updatePermanentQueries = async (uncategorizableDebits: ICategorized
   fs.writeFileSync(`${categoriesFolder}/modifiedBaseForReview.json`, JSON.stringify(baseSummaryJson, null, 2))
 }
 
-export const isUncategorizable = (i: { category: string }) => i.category === UNCATEGORIZABLE || i.category === CHECK
+export const isUncategorizable = (i: { category: string }) => i.category === UNCATEGORIZABLE
+export const isUncategorizableOrCheck = (i: { category: string }) => isUncategorizable(i) || i.category === CHECK

@@ -40,7 +40,7 @@ const createTransaction = (row: TransactionRow): ICategorizedTransaction => {
   return t
 }
 
-const createRow = (i: ICategorizedTransaction, index: number): TransactionRow => ({
+const createTransactionRow = (i: ICategorizedTransaction, index: number): TransactionRow => ({
   id: index,
   category: i.category,
   amount: i.amount,
@@ -52,6 +52,11 @@ const createRow = (i: ICategorizedTransaction, index: number): TransactionRow =>
   accountName: i.accountName,
   accountType: i.accountType
 })
+
+const createReconciledRows = (reconciledSummary: ICombinedSummary) =>
+  Object
+    .entries(reconciledSummary)
+    .map(([category, amount], index) => ({ id: index, category, amount: amount.toFixed(2) }))
 
 type IngestedDataProps = {
   setIngestedData: Function
@@ -80,12 +85,7 @@ export const IngestedData = ({ setIngestedData, categories, debits, credits, rec
       { field: 'category', headerName: 'Category', width: 150 },
       { field: 'amount', headerName: 'Amount' },
     ])
-
-    setReconciledRows(
-      Object
-        .entries(reconciledSummary)
-        .map(([category, amount], index) => ({ id: index, category, amount: amount.toFixed(2) }))
-    )
+    setReconciledRows(createReconciledRows(reconciledSummary))
 
     setTransactionColumns([
       {
@@ -105,10 +105,9 @@ export const IngestedData = ({ setIngestedData, categories, debits, credits, rec
       { field: 'checkNum', headerName: 'Check' },
     ])
 
-    setTransactionDebitRows(debits.map(createRow));
-    setTransactionCreditRows(credits.map(createRow));
-
-  }, [categories, credits, debits])
+    setTransactionDebitRows(debits.map(createTransactionRow));
+    setTransactionCreditRows(credits.map(createTransactionRow));
+  }, [categories, credits, debits, reconciledSummary])
 
   const paginationModel = { page: 0, pageSize: 10 };
   const reconciledPaginationModel = { page: 0, pageSize: 100 };
@@ -138,25 +137,15 @@ export const IngestedData = ({ setIngestedData, categories, debits, credits, rec
   };
 
   const handleSaveEdits = () => {
-    const hasValidationError = [...editedCredits, ...editedDebits].some(row => {
-      if (row.permanentCategory || row.permanentCategoryQuery) {
-        return !(row.permanentCategory && row.permanentCategoryQuery)
-      }
-      return false
+    fatch(
+      { path: 'inputs', method: 'patch', body: { editedDebits, editedCredits } }
+    ).then(data => {
+      setEditedCredits([])
+      setEditedDebits([])
+      setTransactionDebitRows(data.debits.map(createTransactionRow))
+      setTransactionCreditRows(data.credits.map(createTransactionRow))
+      setReconciledRows(createReconciledRows(data.reconciledSummary))
     })
-
-    if (hasValidationError) {
-      console.error('One row missing perma category or perma query')
-    } else {
-      fatch(
-        { path: 'inputs', method: 'patch', body: { editedDebits, editedCredits } }
-      ).then(data => {
-        setEditedCredits([])
-        setEditedDebits([])
-        setTransactionDebitRows(data.debits.map(createRow))
-        setTransactionCreditRows(data.credits.map(createRow))
-      })
-    }
   }
 
   return (
@@ -192,6 +181,7 @@ export const IngestedData = ({ setIngestedData, categories, debits, credits, rec
           pageSizeOptions={[10, 1000]}
           density="compact"
           showToolbar
+          disableRowSelectionOnClick
         />
       </TabPanel>
 
@@ -205,6 +195,7 @@ export const IngestedData = ({ setIngestedData, categories, debits, credits, rec
           pageSizeOptions={[10, 1000]}
           density="compact"
           showToolbar
+          disableRowSelectionOnClick
         />
       </TabPanel>
 
@@ -213,9 +204,10 @@ export const IngestedData = ({ setIngestedData, categories, debits, credits, rec
           rows={reconciledRows}
           columns={reconciledColumns}
           initialState={{ pagination: { paginationModel: reconciledPaginationModel } }}
-          pageSizeOptions={[10, 1000]}
+          pageSizeOptions={[10, 100]}
           density="compact"
           showToolbar
+          disableRowSelectionOnClick
         />
       </TabPanel>
     </>

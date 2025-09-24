@@ -2,7 +2,7 @@ import fs from 'fs';
 import { IGNORE, TRANSACTION_TYPES, UTF8, } from '../constants'
 import { uploadsFolder } from '../config'
 import { CategorizedTransaction, ICategorizedTransaction, ITransaction } from './transaction'
-import { isUncategorizable, prepareSummaryCsv, prepareTransactionCsv, recursiveTraverse, updatePermanentQueries } from './utils';
+import { isUncategorizable, isUncategorizableOrCheck, prepareSummaryCsv, prepareTransactionCsv, recursiveTraverse, updatePermanentQueries } from './utils';
 import { chain, sortBy } from 'lodash';
 import { ChaseIdToDetails } from '../config';
 import { getChaseAccountId } from './chase';
@@ -23,7 +23,7 @@ const writeInitialData = (
   credits: ICategorizedTransaction[],
   debits: ICategorizedTransaction[],
 ) => {
-  const uncategorizableDebits = debits.filter(isUncategorizable)
+  const uncategorizableDebits = debits.filter(isUncategorizableOrCheck)
   const ignoredDebits = debits.filter(i => i.category === IGNORE)
 
   console.log('############ WRITING ALL DATA ###################')
@@ -111,7 +111,7 @@ export const createFinalSummaryCSVs = async ({ changedDebits }: { changedDebits:
   await updatePermanentQueries(maybeCategorizableDebits)
 
   console.log('############ REMAINING UNCATEGORIZABLE DEBITS/CHECKS ###################')
-  console.log(debits.filter(isUncategorizable))
+  console.log(debits.filter(isUncategorizableOrCheck))
 
   return { debitsCSV, creditsCSV, summaryCSV }
 }
