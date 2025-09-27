@@ -55,21 +55,5 @@ export const prepareSummaryCsv = (summary: ICombinedSummary) => {
   return csv
 }
 
-export const updatePermanentQueries = async (uncategorizableDebits: ICategorizedTransaction[]) => {
-  const baseSummaryJson = await readJsonFile<{ [category: string]: string }>(`${categoriesFolder}/base.json`)
-
-  uncategorizableDebits.forEach((t => {
-    if (t.permanentCategory) {
-      if (!baseSummaryJson[t.permanentCategory]) {
-        throw new Error(`Base Summary json does not include ${t.permanentCategory}`)
-      } else {
-        baseSummaryJson[t.permanentCategory] = `${t.permanentCategoryQuery}, ${baseSummaryJson[t.permanentCategory]}`
-      }
-    }
-  }))
-
-  fs.writeFileSync(`${categoriesFolder}/modifiedBaseForReview.json`, JSON.stringify(baseSummaryJson, null, 2))
-}
-
 export const isUncategorizable = (i: { category: string }) => i.category === UNCATEGORIZABLE
 export const isUncategorizableOrCheck = (i: { category: string }) => isUncategorizable(i) || i.category === CHECK
