@@ -79,6 +79,7 @@ export const IngestedData = ({ setIngestedData, categories, debits, credits, rec
   const [editedCredits, setEditedCredits] = useState<ICategorizedTransaction[]>([]);
 
   console.count('ingestedata')
+  const hasChanges = () => editedCredits.length > 0 || editedDebits.length > 0
 
   useEffect(() => {
     setReconciledColumns([
@@ -166,6 +167,7 @@ export const IngestedData = ({ setIngestedData, categories, debits, credits, rec
       <Button
         variant="contained"
         sx={{ margin: '10px 10px 10px 0' }}
+        color={hasChanges() ? "secondary" : "primary"}
         onClick={handleSaveEdits}
       >
         Save

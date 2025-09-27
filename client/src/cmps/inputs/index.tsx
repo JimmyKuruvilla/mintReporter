@@ -1,8 +1,7 @@
 
-import { useContext, useState } from 'react'
+import { useState } from 'react'
 import './styles.css'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { GlobalContext } from '../../contexts/global';
 import Button from '@mui/material/Button';
 import { fatch } from '../../utils/fatch';
 import dayjs from 'dayjs';
@@ -14,7 +13,7 @@ const START_DATE = 'startDate'
 const END_DATE = 'endDate'
 
 export const Inputs = ({ setIngestedData }: InputProps) => {
-  const { ctx, setCtx } = useContext(GlobalContext)
+  const [hasChanges, setHasChanges] = useState(false)
 
   const initialStartDate = localStorage.getItem(START_DATE)
     ? dayjs(localStorage.getItem(START_DATE))
@@ -28,10 +27,12 @@ export const Inputs = ({ setIngestedData }: InputProps) => {
   const [endDate, setEndDate] = useState(initialEndDate)
 
   const handleSetStartDate = (pickedDate: any) => {
+    setHasChanges(true)
     setStartDate(pickedDate)
   }
 
   const handleSetEndDate = (pickedDate: any) => {
+    setHasChanges(true)
     setEndDate(pickedDate)
   }
 
@@ -50,6 +51,7 @@ export const Inputs = ({ setIngestedData }: InputProps) => {
       }
     }).then((data) => {
       setIngestedData(data)
+      setHasChanges(false)
     })
   }
 
@@ -58,6 +60,7 @@ export const Inputs = ({ setIngestedData }: InputProps) => {
       path: 'inputs', method: 'delete',
     }).then((data) => {
       setIngestedData(data)
+      setHasChanges(false)
     })
   }
 
@@ -69,7 +72,7 @@ export const Inputs = ({ setIngestedData }: InputProps) => {
       <div>
         <DatePicker defaultValue={endDate} onChange={handleSetEndDate}></DatePicker>
       </div>
-      <Button variant="contained" onClick={handleCalculate}>Calculate</Button>
+      <Button variant="contained" color={hasChanges ? "secondary" : "primary"} onClick={handleCalculate}>Calculate</Button>
       <Button variant="contained" onClick={handleDeleteInitialData} color="error">Clear</Button>
     </div>
   )
