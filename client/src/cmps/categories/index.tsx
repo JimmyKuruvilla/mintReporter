@@ -30,6 +30,7 @@ export const Categories = ({ umbrellaCategories, setUmbrellaCategories }: Catego
   const [columns, setColumns] = useState<GridColDef[]>([]);
   const [rows, setRows] = useState<CategoryUIMatcher[]>([])
   const [rowDeleted, setRowDeleted] = useState<{}>({})
+  const [hasChanges, setHasChanges] = useState(false)
 
   useEffect(() => {
     fatch({ path: 'categories/matchers', }).then((data) => {
@@ -45,6 +46,7 @@ export const Categories = ({ umbrellaCategories, setUmbrellaCategories }: Catego
             const handleButtonClick = () => {
               params.row.markedForDelete = true;
               setRowDeleted({})
+              setHasChanges(true)
             };
 
             return (
@@ -69,18 +71,22 @@ export const Categories = ({ umbrellaCategories, setUmbrellaCategories }: Catego
     setRows(rows.filter(row => !row.markedForDelete))
   }, [rowDeleted])
 
-  const handleAddRow = () => setRows(
-    [{
-      id: Math.round(1e7 + Math.random() * 1000),
-      category: 'New Category',
-      query: 'New Matcher',
-      markedForDelete: false
-    },
-    ...rows]
-  )
+  const handleAddRow = () => {
+    setHasChanges(true)
+    setRows(
+      [{
+        id: Math.round(1e7 + Math.random() * 1000),
+        category: 'New Category',
+        query: 'New Matcher',
+        markedForDelete: false
+      },
+      ...rows]
+    )
+  }
 
   const handleRowUpdate = (updatedRow: CategoryUIMatcher, originalRow: CategoryUIMatcher) => {
     setRows([updatedRow, ...rows.filter(row => row.id !== updatedRow.id)])
+    setHasChanges(true)
     return updatedRow
   }
 
@@ -88,6 +94,7 @@ export const Categories = ({ umbrellaCategories, setUmbrellaCategories }: Catego
     fatch({ path: 'categories/matchers/modified', method: 'post', body: rows }).then((data) => {
       setUmbrellaCategories(data.categories)
       setRows(data.matchers.map(createRow))
+      setHasChanges(false)
     })
   }
 
@@ -95,6 +102,7 @@ export const Categories = ({ umbrellaCategories, setUmbrellaCategories }: Catego
     fatch({ path: 'categories/matchers/modified', method: 'delete' }).then((data) => {
       setUmbrellaCategories(data.categories)
       setRows(data.matchers.map(createRow))
+      setHasChanges(false)
     })
   }
 
@@ -102,6 +110,7 @@ export const Categories = ({ umbrellaCategories, setUmbrellaCategories }: Catego
     fatch({ path: 'categories/matchers/final', method: 'post', body: rows }).then((data) => {
       setUmbrellaCategories(data.categories)
       setRows(data.matchers.map(createRow))
+      setHasChanges(false)
     })
   }
 
@@ -117,7 +126,7 @@ export const Categories = ({ umbrellaCategories, setUmbrellaCategories }: Catego
         </span>
         <span className='right'>
           <Button variant="contained" onClick={handleAbandonTempChanges}>Abandon Changes</Button>
-          <Button variant="contained" onClick={handleSaveTempChanges}>Save Changes</Button>
+          <Button variant="contained" color={hasChanges ? "secondary" : "primary"} onClick={handleSaveTempChanges}>Save Changes</Button>
           <Button variant="contained" onClick={handleSavePermanently} color="error">Save Changes Permanently</Button>
         </span>
       </span>
