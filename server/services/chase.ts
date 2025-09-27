@@ -49,7 +49,7 @@ export const CREDIT_DEBIT_TYPES = ['sale', 'fee'];
 export const CREDIT_TRANSFER_TYPES = ['payment'];
 export const KNOWN_CHASE_CREDIT_TYPES = [...CREDIT_DEBIT_TYPES, ...CREDIT_CREDIT_TYPES, ...CREDIT_TRANSFER_TYPES];
 
-const formatDescription = (description: string) => description.replace(/ +/g, ' ').replaceAll('&amp;', '_and_').replaceAll('*', ' ')
+const formatDescription = (description: string) => description.replace(/ +/g, ' ').replaceAll('&amp;', '_and_').replaceAll('*', ' ').replaceAll('"', '')
 
 const getLineMatches = (line: string) => line.match(doubleQuotedOrNotCommaRegex)?.map(_ => _ === EMPTY_FIELD ? '' : _)
 
