@@ -111,17 +111,16 @@ export const getBuckets: () => Promise<Bucket[]> = async () => {
 }
 
 export type UmbrellaCategoryAccWithTotal = UmbrellaCategoryAcc & { total: number }
-export const summarize = (umbrellaCategoryAcc: UmbrellaCategoryAcc, transactions: ICategorizedTransaction[]): UmbrellaCategoryAccWithTotal => {
+export const summarize = (type: TRANSACTION_TYPES, umbrellaCategoryAcc: UmbrellaCategoryAcc, transactions: ICategorizedTransaction[]): UmbrellaCategoryAccWithTotal => {
   const summarizedTransactions = transactions.reduce((acc, t) => {
     const currentValue = acc[t.category] ?? 0;
 
     return { ...acc, ...({ [t.category]: currentValue + t.amount }) }
   }, umbrellaCategoryAcc);
 
-  const [firstTransaction] = transactions
   let total;
 
-  if (isDebit(firstTransaction)) {
+  if (type === TRANSACTION_TYPES.DEBIT) {
     total = chain(summarizedTransactions).omit(IGNORE).reduce((acc, v) => acc + v, 0).value();
   } else {
     total = chain(summarizedTransactions).reduce((acc, v) => acc + v, 0).value();
