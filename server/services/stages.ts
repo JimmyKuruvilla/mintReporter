@@ -92,8 +92,8 @@ export const getReconciledSummary = async ({ changedDebits }: { changedDebits: I
 
   const umbrellaCategoryAcc = await getUmbrellaCategoryAcc()
   const reconciledSummary = combineSummaries(
-    await summarize(umbrellaCategoryAcc, processedDebits),
-    await summarize(umbrellaCategoryAcc, credits)
+    await summarize(TRANSACTION_TYPES.DEBIT, umbrellaCategoryAcc, processedDebits),
+    await summarize(TRANSACTION_TYPES.CREDIT, umbrellaCategoryAcc, credits)
   )
 
   return { debits: processedDebits, credits, reconciledSummary, maybeCategorizableDebits }
