@@ -52,10 +52,10 @@ fragment: american (american airlines) matches t.description: American Meadows. 
 
 
 TODO
-1. add back one month and forward 1 month buttons to inputs cmp
+1. add 'data changed' indicator in ui for each component so it's obvious that changes have been made. Highlight the save button, or disable the save button to start?
+2. highlight the uncategorized in the reconciled summary. 
+3. clean up component names
+4. data tables should be responsive
+5. the matchers response string should be transformed back to the original: & should be in UI, not _and_. formatDescription in chase - just invert the description. 
+4. remove script nonsense entirely. including directories for data. 
 2. persist records to db, and update service to use db models
-3. add copy to clipboard icon to each section and 1 copy to clipboard for the whole thing
-4. after input>generate it would be great to have a tab that showed the current tally for each known category. 
-5. would be great to directly add a permacategory from teh ingested data view. So that I don't have to remember the name for later. 
-
-BUG: once edits are made the inputs are still returned. we should return the edits if they exist and allow option to delete them. 
