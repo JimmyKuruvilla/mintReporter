@@ -10,11 +10,12 @@ import { DataGrid, GridColDef, useGridApiRef } from '@mui/x-data-grid';
 import { IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
+import { useLoaderData } from 'react-router';
 
-type CategoriesProps = {
-  umbrellaCategories: string[],
-  setUmbrellaCategories: Function
+type CategoriesLoaderData = {
+  umbrellaCategories: string[]
 }
+
 // should be on this the backend prop?
 type CategoryUIMatcher = IUiMatcher & { id: number, markedForDelete: boolean }
 const createRow = (matcher: CategoryUIMatcher, index: number) => ({
@@ -26,7 +27,8 @@ const createRow = (matcher: CategoryUIMatcher, index: number) => ({
 
 const DATA_GRID_DELETE = { _action: 'delete' }
 
-export const Categories = ({ umbrellaCategories, setUmbrellaCategories }: CategoriesProps) => {
+export const Categories = () => {
+  const { umbrellaCategories }: CategoriesLoaderData = useLoaderData();
   const [columns, setColumns] = useState<GridColDef[]>([]);
   const [rows, setRows] = useState<CategoryUIMatcher[]>([])
   const [rowDeleted, setRowDeleted] = useState<{}>({})
@@ -92,7 +94,6 @@ export const Categories = ({ umbrellaCategories, setUmbrellaCategories }: Catego
 
   const handleSaveTempChanges = () => {
     fatch({ path: 'categories/matchers/modified', method: 'post', body: rows }).then((data) => {
-      setUmbrellaCategories(data.categories)
       setRows(data.matchers.map(createRow))
       setHasChanges(false)
     })
@@ -100,7 +101,6 @@ export const Categories = ({ umbrellaCategories, setUmbrellaCategories }: Catego
 
   const handleAbandonTempChanges = () => {
     fatch({ path: 'categories/matchers/modified', method: 'delete' }).then((data) => {
-      setUmbrellaCategories(data.categories)
       setRows(data.matchers.map(createRow))
       setHasChanges(false)
     })
@@ -108,7 +108,6 @@ export const Categories = ({ umbrellaCategories, setUmbrellaCategories }: Catego
 
   const handleSavePermanently = () => {
     fatch({ path: 'categories/matchers/final', method: 'post', body: rows }).then((data) => {
-      setUmbrellaCategories(data.categories)
       setRows(data.matchers.map(createRow))
       setHasChanges(false)
     })

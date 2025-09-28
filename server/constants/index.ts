@@ -16,4 +16,4 @@ export enum TRANSACTION_TYPES {
 
 export const CATEGORY = 'category';
 
-export type FileOnServer = { filename: string }
+export type IFileOnServer = { filename: string }

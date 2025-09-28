@@ -3,16 +3,18 @@ import { useState } from 'react'
 import './styles.css'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Button from '@mui/material/Button';
-import { fatch } from '../../utils/fatch';
+import { fatch } from '../../../utils/fatch';
 import dayjs from 'dayjs';
+import { useLoaderData } from 'react-router';
 
-type InputProps = {
-  setIngestedData: Function
-}
 const START_DATE = 'startDate'
 const END_DATE = 'endDate'
 
-export const Inputs = ({ setIngestedData }: InputProps) => {
+type DateSelectorProps = {
+  updateCalculated: Function
+}
+
+export const DateSelector = ({ updateCalculated }: DateSelectorProps) => {
   const [hasChanges, setHasChanges] = useState(false)
 
   const initialStartDate = localStorage.getItem(START_DATE)
@@ -50,8 +52,8 @@ export const Inputs = ({ setIngestedData }: InputProps) => {
         endDate: formattedEndDate
       }
     }).then((data) => {
-      setIngestedData(data)
       setHasChanges(false)
+      updateCalculated(data)
     })
   }
 
@@ -59,7 +61,6 @@ export const Inputs = ({ setIngestedData }: InputProps) => {
     fatch({
       path: 'inputs', method: 'delete',
     }).then((data) => {
-      setIngestedData(data)
       setHasChanges(false)
     })
   }

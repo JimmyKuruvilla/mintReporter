@@ -2,13 +2,15 @@ import { useState } from 'react'
 import './styles.css'
 import Button from '@mui/material/Button';
 import { fatch } from '../../utils/fatch';
-import { FileOnServer } from '../../../../server/constants';
+import { IFileOnServer } from '../../../../server/constants';
+import { useLoaderData } from 'react-router';
 
-type UploadCSVProps = {
-  filesOnServer: FileOnServer[],
-  setFilesOnServer: Function
+type UploadCSVLoaderData = {
+  filesOnServer: IFileOnServer[],
 }
-export const UploadCSV = ({ filesOnServer, setFilesOnServer }: UploadCSVProps) => {
+
+export const UploadCSV = () => {
+  const { filesOnServer }: UploadCSVLoaderData = useLoaderData()
   const [filesToUpload, setFilesToUpload] = useState<FileList | null>(null)
 
   console.count('render UploadCSV')
@@ -27,14 +29,12 @@ export const UploadCSV = ({ filesOnServer, setFilesOnServer }: UploadCSVProps) =
         headers: {}
       })
 
-      setFilesOnServer(res)
     } catch (err: any) {
       console.error(err)
     }
   }
 
   const handleDeleteCsvs = async () => {
-    setFilesOnServer([])
     fatch({ path: 'uploads', method: 'delete', }).then((status200) => {
       console.warn('add reactivity and error handling')
     })

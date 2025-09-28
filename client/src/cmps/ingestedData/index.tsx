@@ -1,13 +1,13 @@
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import './styles.css'
-import { AppBar, Box, Button, Paper, Tab, Tabs } from '@mui/material'
+import { Button, Tab, Tabs } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { TabPanel } from '../tabPanel';
 import { ICategorizedTransaction } from '@/server/services/transaction'
 import { fatch } from '../../utils/fatch';
-import { TRANSACTION_TYPES } from '../../../../server/constants';
-import { Inputs } from '../inputs';
+import { DateSelector } from './dateSelector';
 import { ICombinedSummary } from '../../../../server/services/summary';
+import { useLoaderData } from 'react-router';
 
 type TransactionRow = Omit<ICategorizedTransaction, 'permanentCategory' | 'permanentCategoryQuery' | 'metadata' | 'date'> & {
   id: number,
@@ -58,15 +58,17 @@ const createReconciledRows = (reconciledSummary: ICombinedSummary) =>
     .entries(reconciledSummary)
     .map(([category, amount], index) => ({ id: index, category, amount: amount.toFixed(2) }))
 
-type IngestedDataProps = {
-  setIngestedData: Function
-  debits: ICategorizedTransaction[],
-  credits: ICategorizedTransaction[],
-  categories: string[]
+type CalculatedData = {
+  debits: ICategorizedTransaction[]
+  credits: ICategorizedTransaction[]
   reconciledSummary: ICombinedSummary
 }
 
-export const IngestedData = ({ setIngestedData, categories, debits, credits, reconciledSummary }: IngestedDataProps) => {
+type IngestedDataLoaderData = CalculatedData & {
+  categories: string[]
+}
+export const IngestedData = () => {
+  const { categories, debits, credits, reconciledSummary }: IngestedDataLoaderData = useLoaderData();
   const [tabValue, setTabValue] = useState(0);
   const [transactionColumns, setTransactionColumns] = useState<GridColDef[]>([]);
   const [reconciledColumns, setReconciledColumns] = useState<GridColDef[]>([]);
@@ -113,6 +115,14 @@ export const IngestedData = ({ setIngestedData, categories, debits, credits, rec
   const paginationModel = { page: 0, pageSize: 10 };
   const reconciledPaginationModel = { page: 0, pageSize: 100 };
 
+  const updateCalculated = (data: CalculatedData) => {
+    setEditedCredits([])
+    setEditedDebits([])
+    setTransactionDebitRows(data.debits.map(createTransactionRow))
+    setTransactionCreditRows(data.credits.map(createTransactionRow))
+    setReconciledRows(createReconciledRows(data.reconciledSummary))
+  }
+
   const handleCreditRowUpdate = (updatedRow: TransactionRow, originalRow: TransactionRow) => {
     setEditedCredits([
       ...(editedCredits.filter(d => getRowId(d) !== getRowId(originalRow))),
@@ -138,20 +148,12 @@ export const IngestedData = ({ setIngestedData, categories, debits, credits, rec
   };
 
   const handleSaveEdits = () => {
-    fatch(
-      { path: 'inputs', method: 'patch', body: { editedDebits, editedCredits } }
-    ).then(data => {
-      setEditedCredits([])
-      setEditedDebits([])
-      setTransactionDebitRows(data.debits.map(createTransactionRow))
-      setTransactionCreditRows(data.credits.map(createTransactionRow))
-      setReconciledRows(createReconciledRows(data.reconciledSummary))
-    })
+    fatch({ path: 'inputs', method: 'patch', body: { editedDebits, editedCredits } }).then(updateCalculated)
   }
 
   return (
     <>
-      <Inputs setIngestedData={setIngestedData}></Inputs>
+      <DateSelector updateCalculated={updateCalculated}></DateSelector>
 
       <Tabs
         value={tabValue}

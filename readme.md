@@ -52,10 +52,11 @@ fragment: american (american airlines) matches t.description: American Meadows. 
 
 
 TODO
-1. add 'data changed' indicator in ui for each component so it's obvious that changes have been made. Highlight the save button, or disable the save button to start?
+1. add ui router to return to the same page on refresh
 2. highlight the uncategorized in the reconciled summary. 
 3. clean up component names
 4. data tables should be responsive
-5. the matchers response string should be transformed back to the original: & should be in UI, not _and_. formatDescription in chase - just invert the description. 
+5. add a ui service to encapsulate all the ui work. 
+
 4. remove script nonsense entirely. including directories for data. 
 2. persist records to db, and update service to use db models
