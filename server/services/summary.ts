@@ -38,13 +38,14 @@ export const dbMatchersToServiceMatchers = (dbMatchers: IDbMatchers) => {
   }, {})
 }
 
-export type IUiMatcher = { id?: number, category: string, query: string }
+export type IUiMatcher = { id?: number, category: string, query: string, markedForDelete: boolean}
 export const serviceMatchersToUiMatchers = (invertedDbMatchers: IInvertedDbMatchers) =>
   Object.entries(invertedDbMatchers).reduce<IUiMatcher[]>((acc, [queries, value]) => {
     queries.split(',').map(m => m.trim()).forEach(query => {
       acc.push({
         category: value.umbrellaCategory,
-        query
+        query,
+        markedForDelete: false
       })
     })
     return acc

@@ -1,9 +1,9 @@
-import { useState } from 'react'
-import './styles.css'
 import Button from '@mui/material/Button';
-import { fatch } from '../../utils/fatch';
-import { IFileOnServer } from '../../../../server/constants';
+import { useState } from 'react';
 import { useLoaderData } from 'react-router';
+import { IFileOnServer } from '../../../../server/constants';
+import { fatch } from '../../utils/fatch';
+import './styles.css';
 
 type UploadCSVLoaderData = {
   filesOnServer: IFileOnServer[],
@@ -13,7 +13,6 @@ export const UploadCSV = () => {
   const { filesOnServer }: UploadCSVLoaderData = useLoaderData()
   const [filesToUpload, setFilesToUpload] = useState<FileList | null>(null)
 
-  console.count('render UploadCSV')
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!filesToUpload || filesToUpload.length === 0) return

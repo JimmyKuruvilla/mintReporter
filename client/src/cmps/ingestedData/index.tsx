@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react'
-import './styles.css'
-import { Button, Tab, Tabs } from '@mui/material'
+import { ICategorizedTransaction } from '@/server/services/transaction';
+import { Button, Tab, Tabs } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { TabPanel } from '../tabPanel';
-import { ICategorizedTransaction } from '@/server/services/transaction'
-import { fatch } from '../../utils/fatch';
-import { DateSelector } from './dateSelector';
-import { ICombinedSummary } from '../../../../server/services/summary';
+import { useEffect, useState } from 'react';
 import { useLoaderData } from 'react-router';
+import { ICombinedSummary } from '../../../../server/services/summary';
+import { fatch } from '../../utils/fatch';
+import { TabPanel } from '../shared/tabPanel';
+import { DateSelector } from './dateSelector';
+import './styles.css';
 
+// fix this
 type TransactionRow = Omit<ICategorizedTransaction, 'permanentCategory' | 'permanentCategoryQuery' | 'metadata' | 'date'> & {
   id: number,
   date: Date,
@@ -22,9 +23,19 @@ type SummaryRow = {
   amount: string
 }
 
+type CalculatedData = {
+  debits: ICategorizedTransaction[]
+  credits: ICategorizedTransaction[]
+  reconciledSummary: ICombinedSummary
+}
+
+type IngestedDataLoaderData = CalculatedData & {
+  categories: string[]
+}
+
 const getRowId = (row: ICategorizedTransaction | TransactionRow) => `${row.date?.toISOString?.() ?? row.date}-${row.amount}-${row.description}-${row.category}`
 
-const createTransaction = (row: TransactionRow): ICategorizedTransaction => {
+const createEditedTransaction = (row: TransactionRow): ICategorizedTransaction => {
   const t: any = structuredClone(row)
 
   delete t.id
@@ -58,62 +69,41 @@ const createReconciledRows = (reconciledSummary: ICombinedSummary) =>
     .entries(reconciledSummary)
     .map(([category, amount], index) => ({ id: index, category, amount: amount.toFixed(2) }))
 
-type CalculatedData = {
-  debits: ICategorizedTransaction[]
-  credits: ICategorizedTransaction[]
-  reconciledSummary: ICombinedSummary
-}
 
-type IngestedDataLoaderData = CalculatedData & {
-  categories: string[]
-}
 export const IngestedData = () => {
   const { categories, debits, credits, reconciledSummary }: IngestedDataLoaderData = useLoaderData();
   const [tabValue, setTabValue] = useState(0);
-  const [transactionColumns, setTransactionColumns] = useState<GridColDef[]>([]);
-  const [reconciledColumns, setReconciledColumns] = useState<GridColDef[]>([]);
+  const [transactionColumns, setTransactionColumns] = useState<GridColDef[]>([
+    {
+      field: 'category', headerName: 'Category',
+      type: 'singleSelect',
+      valueOptions: categories,
+      editable: true,
+      width: 150
+    },
+    { field: 'amount', headerName: 'Amount' },
+    { field: 'date', headerName: 'Date', type: 'date' },
+    { field: 'description', headerName: 'Description', width: 400 },
+    { field: 'bankType', headerName: 'BankType' },
+    { field: 'transactionType', headerName: 'TransactionType' },
+    { field: 'accountName', headerName: 'AccountName', width: 100 },
+    { field: 'accountType', headerName: 'AccountType' },
+    { field: 'checkNum', headerName: 'Check' },
+  ]);
 
-  const [reconciledRows, setReconciledRows] = useState<SummaryRow[]>([]);
-  const [transactionDebitRows, setTransactionDebitRows] = useState<TransactionRow[]>([]);
-  const [transactionCreditRows, setTransactionCreditRows] = useState<TransactionRow[]>([]);
+  const [reconciledColumns, setReconciledColumns] = useState<GridColDef[]>([
+    { field: 'category', headerName: 'Category', width: 150 },
+    { field: 'amount', headerName: 'Amount' },
+  ]);
+
+  const [reconciledRows, setReconciledRows] = useState<SummaryRow[]>(() => createReconciledRows(reconciledSummary));
+  const [transactionDebitRows, setTransactionDebitRows] = useState<TransactionRow[]>(() => debits.map(createTransactionRow));
+  const [transactionCreditRows, setTransactionCreditRows] = useState<TransactionRow[]>(() => credits.map(createTransactionRow));
 
   const [editedDebits, setEditedDebits] = useState<ICategorizedTransaction[]>([]);
   const [editedCredits, setEditedCredits] = useState<ICategorizedTransaction[]>([]);
 
-  console.count('ingestedata')
   const hasChanges = () => editedCredits.length > 0 || editedDebits.length > 0
-
-  useEffect(() => {
-    setReconciledColumns([
-      { field: 'category', headerName: 'Category', width: 150 },
-      { field: 'amount', headerName: 'Amount' },
-    ])
-    setReconciledRows(createReconciledRows(reconciledSummary))
-
-    setTransactionColumns([
-      {
-        field: 'category', headerName: 'Category',
-        type: 'singleSelect',
-        valueOptions: categories,
-        editable: true,
-        width: 150
-      },
-      { field: 'amount', headerName: 'Amount' },
-      { field: 'date', headerName: 'Date', type: 'date' },
-      { field: 'description', headerName: 'Description', width: 400 },
-      { field: 'bankType', headerName: 'BankType' },
-      { field: 'transactionType', headerName: 'TransactionType' },
-      { field: 'accountName', headerName: 'AccountName', width: 100 },
-      { field: 'accountType', headerName: 'AccountType' },
-      { field: 'checkNum', headerName: 'Check' },
-    ])
-
-    setTransactionDebitRows(debits.map(createTransactionRow));
-    setTransactionCreditRows(credits.map(createTransactionRow));
-  }, [categories, credits, debits, reconciledSummary])
-
-  const paginationModel = { page: 0, pageSize: 10 };
-  const reconciledPaginationModel = { page: 0, pageSize: 100 };
 
   const updateCalculated = (data: CalculatedData) => {
     setEditedCredits([])
@@ -126,7 +116,7 @@ export const IngestedData = () => {
   const handleCreditRowUpdate = (updatedRow: TransactionRow, originalRow: TransactionRow) => {
     setEditedCredits([
       ...(editedCredits.filter(d => getRowId(d) !== getRowId(originalRow))),
-      createTransaction(updatedRow)
+      createEditedTransaction(updatedRow)
     ])
     return updatedRow
   }
@@ -134,7 +124,7 @@ export const IngestedData = () => {
   const handleDebitRowUpdate = (updatedRow: TransactionRow, originalRow: TransactionRow) => {
     setEditedDebits([
       ...(editedDebits.filter(d => getRowId(d) !== getRowId(originalRow))),
-      createTransaction(updatedRow)
+      createEditedTransaction(updatedRow)
     ])
     return updatedRow
   }
@@ -150,6 +140,9 @@ export const IngestedData = () => {
   const handleSaveEdits = () => {
     fatch({ path: 'inputs', method: 'patch', body: { editedDebits, editedCredits } }).then(updateCalculated)
   }
+
+  const paginationModel = { page: 0, pageSize: 10 };
+  const reconciledPaginationModel = { page: 0, pageSize: 100 };
 
   return (
     <>

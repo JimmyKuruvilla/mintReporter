@@ -1,77 +1,60 @@
 
-import { useContext, useEffect, useState } from 'react'
-import './styles.css'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { GlobalContext } from '../../contexts/global';
-import Button from '@mui/material/Button';
-import { IUiMatcher } from '@/server/services/summary'
-import { fatch } from '../../utils/fatch';
-import { DataGrid, GridColDef, useGridApiRef } from '@mui/x-data-grid';
-import { IconButton } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { IUiMatcher } from '@/server/services/summary';
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { IconButton } from '@mui/material';
+import Button from '@mui/material/Button';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { useEffect, useState } from 'react';
 import { useLoaderData } from 'react-router';
+import { fatch } from '../../utils/fatch';
+import './styles.css';
 
 type CategoriesLoaderData = {
   umbrellaCategories: string[]
+  matchers: IUiMatcher[]
 }
 
-// should be on this the backend prop?
-type CategoryUIMatcher = IUiMatcher & { id: number, markedForDelete: boolean }
-const createRow = (matcher: CategoryUIMatcher, index: number) => ({
+const createRow = (matcher: IUiMatcher, index: number) => ({
   id: index,
   category: matcher.category,
   query: matcher.query,
-  markedForDelete: false
+  markedForDelete: matcher.markedForDelete
 })
 
-const DATA_GRID_DELETE = { _action: 'delete' }
-
 export const Categories = () => {
-  const { umbrellaCategories }: CategoriesLoaderData = useLoaderData();
-  const [columns, setColumns] = useState<GridColDef[]>([]);
-  const [rows, setRows] = useState<CategoryUIMatcher[]>([])
-  const [rowDeleted, setRowDeleted] = useState<{}>({})
+  const { umbrellaCategories, matchers }: CategoriesLoaderData = useLoaderData();
+  const [columns, setColumns] = useState<GridColDef[]>(() => {
+    return [
+      {
+        field: 'actions',
+        headerName: '',
+        width: 60,
+        renderCell: (params) => {
+          const handleButtonClick = () => {
+            params.row.markedForDelete = true;
+            setRows(rows.filter(row => !row.markedForDelete))
+            setHasChanges(true)
+          };
+
+          return (
+            <IconButton onClick={handleButtonClick} color="primary">
+              <DeleteIcon />
+            </IconButton>
+          );
+        },
+      },
+      {
+        field: 'category', headerName: 'Category', width: 200,
+        type: 'singleSelect',
+        valueOptions: umbrellaCategories,
+        editable: true,
+      },
+      { field: 'query', headerName: 'Matcher', width: 200, editable: true, },
+    ]
+  });
+  const [rows, setRows] = useState<IUiMatcher[]>(() => matchers.map(createRow))
   const [hasChanges, setHasChanges] = useState(false)
-
-  useEffect(() => {
-    fatch({ path: 'categories/matchers', }).then((data) => {
-      console.log('setting categories')
-      setRows(data.matchers.map(createRow))
-
-      setColumns([
-        {
-          field: 'actions',
-          headerName: '',
-          width: 60,
-          renderCell: (params) => {
-            const handleButtonClick = () => {
-              params.row.markedForDelete = true;
-              setRowDeleted({})
-              setHasChanges(true)
-            };
-
-            return (
-              <IconButton onClick={handleButtonClick} color="primary">
-                <DeleteIcon />
-              </IconButton>
-            );
-          },
-        },
-        {
-          field: 'category', headerName: 'Category', width: 200,
-          type: 'singleSelect',
-          valueOptions: umbrellaCategories,
-          editable: true,
-        },
-        { field: 'query', headerName: 'Matcher', width: 200, editable: true, },
-      ])
-    })
-  }, [])
-
-  useEffect(() => {
-    setRows(rows.filter(row => !row.markedForDelete))
-  }, [rowDeleted])
 
   const handleAddRow = () => {
     setHasChanges(true)
@@ -86,7 +69,7 @@ export const Categories = () => {
     )
   }
 
-  const handleRowUpdate = (updatedRow: CategoryUIMatcher, originalRow: CategoryUIMatcher) => {
+  const handleRowUpdate = (updatedRow: IUiMatcher, originalRow: IUiMatcher) => {
     setRows([updatedRow, ...rows.filter(row => row.id !== updatedRow.id)])
     setHasChanges(true)
     return updatedRow
@@ -118,11 +101,13 @@ export const Categories = () => {
   return (
     <div className='categories'>
       <span className='buttons'>
+
         <span className='left'>
           <IconButton onClick={handleAddRow} color="primary" >
             <ControlPointIcon />
           </IconButton>
         </span>
+
         <span className='right'>
           <Button variant="contained" onClick={handleAbandonTempChanges}>Abandon Changes</Button>
           <Button variant="contained" color={hasChanges ? "secondary" : "primary"} onClick={handleSaveTempChanges}>Save Changes</Button>
@@ -139,6 +124,6 @@ export const Categories = () => {
         density="compact"
         showToolbar
       />
-    </div >
+    </div>
   )
 }

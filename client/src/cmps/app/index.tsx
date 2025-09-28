@@ -1,26 +1,23 @@
-import { createRoot } from 'react-dom/client'
-import { createBrowserRouter, Outlet, RouterProvider } from 'react-router';
+import { Container } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { createRoot } from 'react-dom/client';
+import { createBrowserRouter, Outlet, RouterProvider } from 'react-router';
 import { fatch } from '../../utils/fatch';
 import { Categories } from '../categories';
-import { IngestedData } from '../ingestedData';
-import { UploadCSV } from '../uploadCSV';
 import { DisplayCSV } from '../displayCSV';
-import { Container } from '@mui/material';
+import { IngestedData } from '../ingestedData';
 import { Nav } from '../nav';
+import { UploadCSV } from '../uploadCSV';
 
-import './styles.css'
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
-
+import './styles.css';
 
 const App = () => {
-  console.count('render App')
-
   return (
     <div className='app'>
       <Nav></Nav>
@@ -39,8 +36,9 @@ const router = createBrowserRouter([
       {
         path: "/categories",
         loader: async () => {
-          const res = await fatch({ path: 'categories' })
-          return { umbrellaCategories: res }
+          const matchersData = await fatch({ path: 'categories/matchers' })
+
+          return { umbrellaCategories: matchersData.categories, matchers: matchersData.matchers }
         },
         Component: Categories
       },

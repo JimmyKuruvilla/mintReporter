@@ -1,6 +1,6 @@
+import { Button } from '@mui/material'
 import { NavLink } from 'react-router'
 import './styles.css'
-import { Button } from '@mui/material'
 
 export const Nav = () => {
 

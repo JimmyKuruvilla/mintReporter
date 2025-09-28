@@ -1,14 +1,15 @@
-import { useContext, useEffect, useState } from 'react'
-import './styles.css'
-import Button from '@mui/material/Button';
-import { baseUrl, fatch } from '../../utils/fatch';
-import { IconButton } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import SaveIcon from '@mui/icons-material/Save';
+import { IconButton } from '@mui/material';
+import Button from '@mui/material/Button';
+import { useState } from 'react';
+import { baseUrl, fatch } from '../../utils/fatch';
+import './styles.css';
 
 export type CSVData = { creditsCSV: string, debitsCSV: string, summaryCSV: string }
 
 const getDownloadPath = (name: string) => `${baseUrl}/outputs/${name}`
+
 export const DisplayCSV = () => {
   const [outputs, setOutputs] = useState<CSVData>({ creditsCSV: '', debitsCSV: '', summaryCSV: '' })
 
