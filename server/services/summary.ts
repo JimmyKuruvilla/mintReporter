@@ -38,7 +38,7 @@ export const dbMatchersToServiceMatchers = (dbMatchers: IDbMatchers) => {
   }, {})
 }
 
-export type IUiMatcher = { id?: number, category: string, query: string, markedForDelete: boolean}
+export type IUiMatcher = { id?: number, category: string, query: string, markedForDelete: boolean }
 export const serviceMatchersToUiMatchers = (invertedDbMatchers: IInvertedDbMatchers) =>
   Object.entries(invertedDbMatchers).reduce<IUiMatcher[]>((acc, [queries, value]) => {
     queries.split(',').map(m => m.trim()).forEach(query => {
@@ -147,24 +147,20 @@ export const combineSummaries = (debitsSummary: UmbrellaCategoryAccWithTotal, cr
  * Used with ITransaction | ICategorizedTransaction inputs
  */
 export const assignCategories = (buckets: Bucket[]) => (t: any): ICategorizedTransaction => {
-  if (t.permanentCategory) {
-    t.category = t.permanentCategory
-  } else {
-    for (const bucket of buckets) {
-      const { fragments, categoryData } = bucket
+  for (const bucket of buckets) {
+    const { fragments, categoryData } = bucket
 
-      for (const fragment of fragments) {
-        const match = new RegExp(`\\b${fragment}\\b`, 'i').test(t.description)
+    for (const fragment of fragments) {
+      const match = new RegExp(`\\b${fragment}\\b`, 'i').test(t.description)
 
-        if (match) {
-          t.category = categoryData.umbrellaCategory
-          break;
-        }
-      }
-
-      if (t.category) {
+      if (match) {
+        t.category = categoryData.umbrellaCategory
         break;
       }
+    }
+
+    if (t.category) {
+      break;
     }
   }
 

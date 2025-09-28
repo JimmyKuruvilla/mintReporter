@@ -10,7 +10,7 @@ import { DateSelector } from './dateSelector';
 import './styles.css';
 
 // fix this
-type TransactionRow = Omit<ICategorizedTransaction, 'permanentCategory' | 'permanentCategoryQuery' | 'metadata' | 'date'> & {
+type TransactionRow = Omit<ICategorizedTransaction, 'metadata' | 'date'> & {
   id: number,
   date: Date,
   checkNum?: string,

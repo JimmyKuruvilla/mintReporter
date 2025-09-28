@@ -21,8 +21,6 @@ export interface ITransaction {
 
 export interface ICategorizedTransaction extends ITransaction {
   category: string
-  permanentCategory: string
-  permanentCategoryQuery: string
 }
 
 export type ITransactionJson = { [Property in keyof ITransaction]: any }
@@ -44,8 +42,6 @@ export const Transaction = (data: ITransactionJson): ITransaction => {
 export const CategorizedTransaction = (data: ICategorizedTransactionJson): ICategorizedTransaction => {
   return {
     ...Transaction(data),
-    category: data.category,
-    permanentCategory: data.permanentCategory ?? '',
-    permanentCategoryQuery: data.permanentCategoryQuery ?? ''
+    category: data.category
   }
 }

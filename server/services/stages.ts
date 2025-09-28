@@ -13,7 +13,6 @@ const getFields = (t: ICategorizedTransaction) => [
   `date: ${t.date}`,
   `description: ${t.description}`,
   `category: ${t.category}`,
-  `permanentCategory: ${t.permanentCategory}`,
   `amount: ${t.amount}`,
   `accountName: ${t.accountName}`,
   `chaseType: ${t.metadata.chaseType}`
