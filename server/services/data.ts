@@ -15,8 +15,6 @@ export const Read = {
     readJsonFile<ICategorizedTransaction[]>(initialDataFilePath(FILE_NAMES.ALL_DEBITS)),
   allCredits: () =>
     readJsonFile<ICategorizedTransaction[]>(initialDataFilePath(FILE_NAMES.ALL_CREDITS)),
-  uncategorizableDebits: () =>
-    readJsonFile<ICategorizedTransaction[]>(initialDataFilePath(FILE_NAMES.UNCATEGORIZABLE_DEBITS)),
   editedDebits: () =>
     readJsonFile<ICategorizedTransaction[]>(editingFilePath(FILE_NAMES.EDITED_DEBITS)),
   editedCredits: () =>
@@ -34,8 +32,6 @@ export const Write = {
     fs.writeFileSync(initialDataFilePath(FILE_NAMES.ALL_DEBITS), json(data)),
   allCredits: (data: any) =>
     fs.writeFileSync(initialDataFilePath(FILE_NAMES.ALL_CREDITS), json(data)),
-  uncategorizableDebits: (data: any) =>
-    fs.writeFileSync(initialDataFilePath(FILE_NAMES.UNCATEGORIZABLE_DEBITS), json(data)),
   editedDebits: (data: any) =>
     fs.writeFileSync(editingFilePath(FILE_NAMES.EDITED_DEBITS), json(data)),
   editedCredits: (data: any) =>

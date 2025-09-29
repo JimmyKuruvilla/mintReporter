@@ -35,7 +35,6 @@ const writeInitialData = (
 
   console.log('############ UNCATEGORIZABLE DEBITS ###################')
   console.log(uncategorizableDebits.map(getFields))
-  Write.uncategorizableDebits(uncategorizableDebits)
 
   console.log('############ ALL CREDITS IGNORED / ARE CATEGORIZED AS IGNORE ###################')
 }
@@ -74,7 +73,7 @@ export const createInitialData = async (startDate: Date, endDate: Date, fileExts
   return { credits, debits }
 }
 
-export const getReconciledSummary = async ({ changedDebits }: { changedDebits: ICategorizedTransaction[] }) => {
+export const getReconciledSummary = async () => {
   const buckets = await getBuckets()
   const debits = (await Read.allDebits()).map(CategorizedTransaction).map(assignCategories(buckets))
   const credits = (await Read.allCredits()).map(CategorizedTransaction).map(assignCategories(buckets))
@@ -88,8 +87,8 @@ export const getReconciledSummary = async ({ changedDebits }: { changedDebits: I
   return { debits, credits, reconciledSummary }
 }
 
-export const createFinalSummaryCSVs = async ({ changedDebits }: { changedDebits: ICategorizedTransaction[] }) => {
-  const { debits, credits, reconciledSummary } = await getReconciledSummary({ changedDebits })
+export const createFinalSummaryCSVs = async () => {
+  const { debits, credits, reconciledSummary } = await getReconciledSummary()
   const debitsCSV = prepareTransactionCsv(sortBy(debits, 'category'))
   const creditsCSV = prepareTransactionCsv(sortBy(credits, 'description'))
   const summaryCSV = prepareSummaryCsv(reconciledSummary)

@@ -16,7 +16,6 @@ export const FILE_NAMES = {
   EDITED_DEBITS: 'debits.edited',
   EDITED_CREDITS: 'credits.edited',
   SUMMARY: 'summary',
-  UNCATEGORIZABLE_DEBITS: 'debug__debits.uncategorizable',
   IGNORED_DEBITS: 'debug__debits.ignored'
 }
 

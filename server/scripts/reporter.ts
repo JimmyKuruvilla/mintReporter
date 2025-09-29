@@ -22,8 +22,7 @@ const STAGE = (process.env as any).STAGE;
       await createInitialData(new Date(START_DATE), new Date(END_DATE), FILE_EXTS);
       break;
     case 'writeFinalSummary':
-      const changedDebits = await Read.uncategorizableDebits()
-      await createFinalSummaryCSVs({ changedDebits })
+      await createFinalSummaryCSVs() // { changedDebits } and permanent categories removed in favor of UI based direct edits
       break;
     default:
       console.log('NO STAGE PROVIDED')

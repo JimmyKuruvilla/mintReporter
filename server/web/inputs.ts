@@ -75,19 +75,15 @@ inputsRouter.patch(
     try {
       await clearEditingFolder()
       await Write.editedDebits(req.body.editedDebits)
-      await Write.editedCredits(req.body.editedCredits)
+      await Write.editedCredits(req.body.editedCredits) // not needed
 
-      const editedDebits = await Read.editedDebits()
+      const editedDebits = await Read.editedDebits() // not needed, process directly
       const editedCredits = await Read.editedCredits()
       const allDebits = await Read.allDebits()
       const allCredits = await Read.allCredits()
-      const uncategorizableDebits = await Read.uncategorizableDebits()
 
       const editedDebitIds = editedDebits.map(getIdWithoutCategory)
       const editedCreditIds = editedCredits.map(getIdWithoutCategory)
-
-      const modifiedUncategorizableDebits = uncategorizableDebits.filter(u => !editedDebitIds.includes(getIdWithoutCategory(u)))
-      await Write.uncategorizableDebits(modifiedUncategorizableDebits)
 
       const modifiedAllDebits = [...editedDebits, ...allDebits.filter(t => !editedDebitIds.includes(getIdWithoutCategory(t)))]
       await Write.allDebits(modifiedAllDebits)
@@ -95,7 +91,7 @@ inputsRouter.patch(
       const modifiedAllCredits = [...editedCredits, ...allCredits.filter(t => !editedCreditIds.includes(getIdWithoutCategory(t)))]
       await Write.allCredits(modifiedAllCredits)
 
-      const { credits, debits, reconciledSummary, } = await getReconciledSummary({ changedDebits: [] })
+      const { credits, debits, reconciledSummary, } = await getReconciledSummary()
 
       res.json({ credits, debits, reconciledSummary });
     } catch (error: any) {

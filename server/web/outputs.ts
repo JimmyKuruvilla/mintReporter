@@ -9,7 +9,7 @@ outputsRouter.post(
   '/outputs',
   async (req, res, next) => {
     try {
-      const { creditsCSV, debitsCSV, summaryCSV } = await createFinalSummaryCSVs({ changedDebits: [] })
+      const { creditsCSV, debitsCSV, summaryCSV } = await createFinalSummaryCSVs()
       res.json({ creditsCSV, debitsCSV, summaryCSV });
     } catch (error: any) {
       next(error)

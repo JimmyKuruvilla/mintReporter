@@ -9,7 +9,6 @@ import { TabPanel } from '../shared/tabPanel';
 import { DateSelector } from './dateSelector';
 import './styles.css';
 
-// fix this
 type TransactionRow = Omit<ICategorizedTransaction, 'metadata' | 'date'> & {
   id: number,
   date: Date,
@@ -35,7 +34,7 @@ type IngestedDataLoaderData = CalculatedData & {
 
 const getRowId = (row: ICategorizedTransaction | TransactionRow) => `${row.date?.toISOString?.() ?? row.date}-${row.amount}-${row.description}-${row.category}`
 
-const createEditedTransaction = (row: TransactionRow): ICategorizedTransaction => {
+const createEdit = (row: TransactionRow): ICategorizedTransaction => {
   const t: any = structuredClone(row)
 
   delete t.id
@@ -116,7 +115,7 @@ export const IngestedData = () => {
   const handleCreditRowUpdate = (updatedRow: TransactionRow, originalRow: TransactionRow) => {
     setEditedCredits([
       ...(editedCredits.filter(d => getRowId(d) !== getRowId(originalRow))),
-      createEditedTransaction(updatedRow)
+      createEdit(updatedRow)
     ])
     return updatedRow
   }
@@ -124,7 +123,7 @@ export const IngestedData = () => {
   const handleDebitRowUpdate = (updatedRow: TransactionRow, originalRow: TransactionRow) => {
     setEditedDebits([
       ...(editedDebits.filter(d => getRowId(d) !== getRowId(originalRow))),
-      createEditedTransaction(updatedRow)
+      createEdit(updatedRow)
     ])
     return updatedRow
   }
