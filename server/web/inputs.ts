@@ -1,8 +1,8 @@
 import express, { NextFunction, Request, Response } from 'express'
 import * as z from "zod";
 import { getIdWithoutCategory, Read, Write } from '../services/data';
-import { clearEditingFolder, clearInitialData, } from '../services/file';
-import {  ICategorizedTransaction, } from '../services';
+import { clearInitialData, } from '../services/file';
+import { ICategorizedTransaction, } from '../services';
 import { createInitialData, getReconciledSummary } from '../services/stages';
 import { validateMiddleware } from '../middleware';
 
@@ -17,7 +17,7 @@ inputsRouter.get(
 
     try {
       try {
-        const resp = await getReconciledSummary({ changedDebits: [] })
+        const resp = await getReconciledSummary()
         reconciledSummary = resp.reconciledSummary
         credits = resp.credits
         debits = resp.debits
@@ -56,7 +56,7 @@ inputsRouter.post(
       const endDate = req.body.endDate
       await createInitialData(new Date(startDate), new Date(endDate), ['.csv'])
 
-      const { credits, debits, reconciledSummary, } = await getReconciledSummary({ changedDebits: [] })
+      const { credits, debits, reconciledSummary, } = await getReconciledSummary()
 
       res.json({ credits, debits, reconciledSummary });
     } catch (error: any) {
@@ -73,17 +73,13 @@ inputsRouter.patch(
   validateMiddleware(EditsBodySchema, 'body'),
   async (req, res, next) => {
     try {
-      await clearEditingFolder()
-      await Write.editedDebits(req.body.editedDebits)
-      await Write.editedCredits(req.body.editedCredits) // not needed
-
-      const editedDebits = await Read.editedDebits() // not needed, process directly
-      const editedCredits = await Read.editedCredits()
-      const allDebits = await Read.allDebits()
-      const allCredits = await Read.allCredits()
-
+      const editedDebits = req.body.editedDebits
       const editedDebitIds = editedDebits.map(getIdWithoutCategory)
+      const allDebits = await Read.allDebits()
+
+      const editedCredits = req.body.editedCredits
       const editedCreditIds = editedCredits.map(getIdWithoutCategory)
+      const allCredits = await Read.allCredits()
 
       const modifiedAllDebits = [...editedDebits, ...allDebits.filter(t => !editedDebitIds.includes(getIdWithoutCategory(t)))]
       await Write.allDebits(modifiedAllDebits)

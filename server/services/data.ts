@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { initialDataFilePath, FILE_NAMES, editingFilePath, csvOutputFilePath, modifiedMatchersFilePath, finalMatchersFilePath } from '../config'
+import { initialDataFilePath, FILE_NAMES, csvOutputFilePath, modifiedMatchersFilePath, finalMatchersFilePath } from '../config'
 import { ICategorizedTransaction } from './transaction'
 import { readJsonFile } from './file';
 import { IDbMatchers } from './summary';
@@ -14,11 +14,7 @@ export const Read = {
   allDebits: () =>
     readJsonFile<ICategorizedTransaction[]>(initialDataFilePath(FILE_NAMES.ALL_DEBITS)),
   allCredits: () =>
-    readJsonFile<ICategorizedTransaction[]>(initialDataFilePath(FILE_NAMES.ALL_CREDITS)),
-  editedDebits: () =>
-    readJsonFile<ICategorizedTransaction[]>(editingFilePath(FILE_NAMES.EDITED_DEBITS)),
-  editedCredits: () =>
-    readJsonFile<ICategorizedTransaction[]>(editingFilePath(FILE_NAMES.EDITED_CREDITS)),
+    readJsonFile<ICategorizedTransaction[]>(initialDataFilePath(FILE_NAMES.ALL_CREDITS))
 }
 
 export const Write = {
@@ -32,10 +28,6 @@ export const Write = {
     fs.writeFileSync(initialDataFilePath(FILE_NAMES.ALL_DEBITS), json(data)),
   allCredits: (data: any) =>
     fs.writeFileSync(initialDataFilePath(FILE_NAMES.ALL_CREDITS), json(data)),
-  editedDebits: (data: any) =>
-    fs.writeFileSync(editingFilePath(FILE_NAMES.EDITED_DEBITS), json(data)),
-  editedCredits: (data: any) =>
-    fs.writeFileSync(editingFilePath(FILE_NAMES.EDITED_CREDITS), json(data)),
 
   outputDebits: (data: string) =>
     fs.writeFileSync(csvOutputFilePath(FILE_NAMES.ALL_DEBITS), data),

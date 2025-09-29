@@ -52,7 +52,6 @@ fragment: american (american airlines) matches t.description: American Meadows. 
 
 
 TODO
-1. add ui router to return to the same page on refresh
 2. highlight the uncategorized in the reconciled summary. 
 3. clean up component names
 4. data tables should be responsive
@@ -60,3 +59,8 @@ TODO
 
 4. remove script nonsense entirely. including directories for data. 
 2. persist records to db, and update service to use db models
+
+// clean up the server side code: 1. check if all endpoints are needed, and what needs to be removed from the script option
+// use effect Ts at that point. 
+// then start adding in db stuff after another full test. 
+// seems like input should also auto recalc

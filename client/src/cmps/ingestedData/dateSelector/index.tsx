@@ -61,6 +61,7 @@ export const DateSelector = ({ updateCalculated }: DateSelectorProps) => {
       path: 'inputs', method: 'delete',
     }).then((data) => {
       setHasChanges(false)
+      updateCalculated(data)
     })
   }
 
