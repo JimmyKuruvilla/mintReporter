@@ -1,10 +1,10 @@
-import express, { NextFunction, Request, Response } from 'express'
+import express from 'express';
+import { createSummary } from 'server/services/summary';
 import * as z from "zod";
-import { getIdWithoutCategory, Read, Write } from '../services/data';
-import { clearInitialData, } from '../services/file';
-import { ICategorizedTransaction, } from '../services';
-import { createInitialData, getReconciledSummary } from '../services/stages';
 import { validateMiddleware } from '../middleware';
+import { ICategorizedTransaction, } from '../services';
+import { DeleteFiles, getIdWithoutCategory, Read, Write } from '../services/data';
+import { createInitialData } from '../services/ingestion';
 
 export const inputsRouter = express.Router()
 
@@ -17,12 +17,11 @@ inputsRouter.get(
 
     try {
       try {
-        const resp = await getReconciledSummary()
+        const resp = await createSummary()
         reconciledSummary = resp.reconciledSummary
         credits = resp.credits
         debits = resp.debits
-      }
-      catch (error) {
+      } catch (error) {
         console.log(error)
       }
 
@@ -36,7 +35,7 @@ inputsRouter.delete(
   '/inputs',
   async (req, res, next) => {
     try {
-      await clearInitialData()
+      await DeleteFiles.initialData()
       res.status(200).send({ credits: [], debits: [], reconciledSummary: {} });
     } catch (error: any) {
       next(error)
@@ -56,7 +55,7 @@ inputsRouter.post(
       const endDate = req.body.endDate
       await createInitialData(new Date(startDate), new Date(endDate), ['.csv'])
 
-      const { credits, debits, reconciledSummary, } = await getReconciledSummary()
+      const { credits, debits, reconciledSummary, } = await createSummary()
 
       res.json({ credits, debits, reconciledSummary });
     } catch (error: any) {
@@ -87,7 +86,7 @@ inputsRouter.patch(
       const modifiedAllCredits = [...editedCredits, ...allCredits.filter(t => !editedCreditIds.includes(getIdWithoutCategory(t)))]
       await Write.allCredits(modifiedAllCredits)
 
-      const { credits, debits, reconciledSummary, } = await getReconciledSummary()
+      const { credits, debits, reconciledSummary, } = await createSummary()
 
       res.json({ credits, debits, reconciledSummary });
     } catch (error: any) {

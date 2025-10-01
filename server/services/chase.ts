@@ -1,7 +1,7 @@
 import path from 'path';
-import { ACCOUNTS } from './account';
-import { ITransaction, Transaction } from './transaction';
-import { CARRIAGE_RETURN, EMPTY_FIELD, NEW_LINE, TRANSACTION_TYPES } from '../constants';
+import { EMPTY_FIELD, NEW_LINE } from '../constants';
+import { Accounts } from './account';
+import { ITransaction, Transaction, TransactionType } from './transaction';
 
 /*
   problem1: 
@@ -73,10 +73,10 @@ export const ChaseCreditCSVParser = (accountName: string, csv: string): ITransac
 
         if (KNOWN_CHASE_CREDIT_TYPES.includes(type)) {
           let transactionType = CREDIT_TRANSFER_TYPES.includes(type)
-            ? TRANSACTION_TYPES.TRANSFER
+            ? TransactionType.TRANSFER
             : CREDIT_CREDIT_TYPES.includes(type)
-              ? TRANSACTION_TYPES.CREDIT
-              : TRANSACTION_TYPES.DEBIT
+              ? TransactionType.CREDIT
+              : TransactionType.DEBIT
 
           return Transaction({
             date: transactionDate,
@@ -85,7 +85,7 @@ export const ChaseCreditCSVParser = (accountName: string, csv: string): ITransac
             transactionType,
             metadata: { chaseType: type },
             accountName,
-            accountType: ACCOUNTS.CREDIT,
+            accountType: Accounts.CREDIT,
             notes: memo
           })
         }
@@ -98,13 +98,13 @@ export const ChaseCreditCSVParser = (accountName: string, csv: string): ITransac
     })
 }
 
-const getBankTransactionType = (type: string, description: string): TRANSACTION_TYPES => {
+const getBankTransactionType = (type: string, description: string): TransactionType => {
   if (BANK_TRANSFER_TYPES.includes(type) || description.includes(CREDIT_CARD_AUTOPAY)) {
-    return TRANSACTION_TYPES.TRANSFER
+    return TransactionType.TRANSFER
   } else {
     return BANK_CREDIT_TYPES.includes(type)
-      ? TRANSACTION_TYPES.CREDIT
-      : TRANSACTION_TYPES.DEBIT
+      ? TransactionType.CREDIT
+      : TransactionType.DEBIT
   }
 }
 
@@ -127,9 +127,9 @@ export const ChaseBankCSVParser = (accountName: string, csv: string): ITransacti
             description: formatDescription(description),
             amount,
             transactionType: getBankTransactionType(type, description),
-            metadata: { chaseType: type, [ACCOUNTS.BANK]: { checkNumber } },
+            metadata: { chaseType: type, [Accounts.BANK]: { checkNumber } },
             accountName,
-            accountType: ACCOUNTS.BANK,
+            accountType: Accounts.BANK,
             notes: null
           })
         }

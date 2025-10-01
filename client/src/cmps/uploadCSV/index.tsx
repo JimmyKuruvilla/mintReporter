@@ -1,9 +1,9 @@
 import Button from '@mui/material/Button';
 import { useState } from 'react';
 import { useLoaderData } from 'react-router';
-import { IFileOnServer } from '../../../../server/constants';
 import { fatch } from '../../utils/fatch';
 import './styles.css';
+import { IFileOnServer } from '../../../../server/services/file';
 
 type UploadCSVLoaderData = {
   filesOnServer: IFileOnServer[],
@@ -11,6 +11,7 @@ type UploadCSVLoaderData = {
 
 export const UploadCSV = () => {
   const { filesOnServer }: UploadCSVLoaderData = useLoaderData()
+  const [localFilesOnServer, setLocalFilesOnServer] = useState(filesOnServer)
   const [filesToUpload, setFilesToUpload] = useState<FileList | null>(null)
 
   const handleUpload = async (e: React.FormEvent) => {
@@ -21,12 +22,13 @@ export const UploadCSV = () => {
     Array.from(filesToUpload).forEach(f => form.append('files', f))
 
     try {
-      const res = await fatch({
+      const files = await fatch({
         path: 'uploads',
         method: 'postRaw',
         body: form,
         headers: {}
       })
+      setLocalFilesOnServer(files)
 
     } catch (err: any) {
       console.error(err)
@@ -34,8 +36,8 @@ export const UploadCSV = () => {
   }
 
   const handleDeleteCsvs = async () => {
-    fatch({ path: 'uploads', method: 'delete', }).then((status200) => {
-      console.warn('add reactivity and error handling')
+    fatch({ path: 'uploads', method: 'delete', }).then(() => {
+      setLocalFilesOnServer([]);
     })
   }
 
@@ -44,7 +46,6 @@ export const UploadCSV = () => {
       <form onSubmit={handleUpload} encType="multipart/form-data">
         <div>
           <input type="file" multiple onChange={(e) => setFilesToUpload(e.target.files)} />
-          <p>{status}</p>
         </div>
 
         <div>
@@ -55,10 +56,10 @@ export const UploadCSV = () => {
       <Button sx={{ width: '100px' }} variant="contained" onClick={handleDeleteCsvs} color="error">Clear</Button>
 
       {
-        filesOnServer.length > 0 && (
+        localFilesOnServer.length > 0 && (
           <>
             <h3>Uploaded Files</h3>
-            <ol>{filesOnServer.map((file, index) => <li key={index}>{file.filename}</li>)}</ol>
+            <ol>{localFilesOnServer.map((file, index) => <li key={index}>{file.filename}</li>)}</ol>
           </>
         )
       }

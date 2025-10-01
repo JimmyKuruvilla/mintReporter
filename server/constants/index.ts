@@ -8,12 +8,4 @@ export const UNCATEGORIZABLE = 'Uncategorizable';
 export const CHECK = 'Check';
 
 export const EMPTY_FIELD = ',,';
-export enum TRANSACTION_TYPES {
-  DEBIT = 'debit',
-  CREDIT = 'credit',
-  TRANSFER = 'transfer',
-}
-
 export const CATEGORY = 'category';
-
-export type IFileOnServer = { filename: string }

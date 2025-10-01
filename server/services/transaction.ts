@@ -1,9 +1,14 @@
-import { ACCOUNTS } from './account'
-import { TRANSACTION_TYPES } from '../constants'
+import { Accounts } from './account'
+
+export enum TransactionType {
+  DEBIT = 'debit',
+  CREDIT = 'credit',
+  TRANSFER = 'transfer'
+}
 
 interface IMetadata {
   chaseType: string,
-  [ACCOUNTS.BANK]?: {
+  [Accounts.BANK]?: {
     checkNumber?: string
   }
 }
@@ -12,10 +17,10 @@ export interface ITransaction {
   date: Date,
   description: string,
   amount: number,
-  transactionType: TRANSACTION_TYPES,
+  transactionType: TransactionType,
   metadata: IMetadata,
   accountName: string,
-  accountType: ACCOUNTS,
+  accountType: Accounts,
   notes?: string
 }
 
@@ -24,6 +29,7 @@ export interface ICategorizedTransaction extends ITransaction {
 }
 
 export type ITransactionJson = { [Property in keyof ITransaction]: any }
+
 export type ICategorizedTransactionJson = { [Property in keyof ICategorizedTransaction]: any }
 
 export const Transaction = (data: ITransactionJson): ITransaction => {

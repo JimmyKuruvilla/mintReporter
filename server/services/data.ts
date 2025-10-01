@@ -1,10 +1,14 @@
 import fs from 'fs';
-import { initialDataFilePath, FILE_NAMES, csvOutputFilePath, modifiedMatchersFilePath, finalMatchersFilePath } from '../config'
-import { ICategorizedTransaction } from './transaction'
-import { readJsonFile } from './file';
-import { IDbMatchers } from './summary';
+import { FILE_NAMES, csvOutputFilePath, finalMatchersFilePath, initialDataFilePath, initialDataFolder, modifiedMatchersFilePath, uploadsFolder } from '../config';
+import { readJsonFile, recursiveTraverse } from './file';
+import { IDbMatchers } from './matcher';
+import { ICategorizedTransaction } from './transaction';
 
 const json = (data: any) => JSON.stringify(data, null, 2)
+
+export const List = {
+  uploads: async () => fs.readdirSync(uploadsFolder)
+};
 
 export const Read = {
   finalMatchers: () =>
@@ -41,5 +45,16 @@ export const Delete = {
   modifiedMatchers: () => fs.unlinkSync(modifiedMatchersFilePath()),
 }
 
+export const DeleteFiles = {
+  initialData: () => recursiveTraverse(initialDataFolder, ['.json'], console, (path: string) => {
+    fs.unlinkSync(path);
+  }),
+  uploads: () => recursiveTraverse(uploadsFolder, ['ALL'], console, (path: string) => {
+    fs.unlinkSync(path);
+  })
+}
+
 export const getIdWithoutCategory = (data: any) => `${data.date}-${data.amount}-${data.description}`
-export const getFullId = (data: any) => `${getIdWithoutCategory(data)}-${data.category}`
+
+export const getFullId = (data: any) => `${getIdWithoutCategory(data)}-${data.category}`;
+

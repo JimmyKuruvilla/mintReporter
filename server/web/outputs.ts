@@ -1,6 +1,5 @@
-import express, { NextFunction, Request, Response } from 'express'
-import * as z from "zod";
-import { createFinalSummaryCSVs } from '../services/stages';
+import express from 'express';
+import { createFinalCSVs } from 'server/services/csv';
 import { csvOutputFilePath, FILE_NAMES } from '../config';
 
 export const outputsRouter = express.Router()
@@ -9,7 +8,7 @@ outputsRouter.post(
   '/outputs',
   async (req, res, next) => {
     try {
-      const { creditsCSV, debitsCSV, summaryCSV } = await createFinalSummaryCSVs()
+      const { creditsCSV, debitsCSV, summaryCSV } = await createFinalCSVs()
       res.json({ creditsCSV, debitsCSV, summaryCSV });
     } catch (error: any) {
       next(error)

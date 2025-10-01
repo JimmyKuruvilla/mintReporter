@@ -7,7 +7,7 @@ import { createBrowserRouter, Outlet, RouterProvider } from 'react-router';
 import { fatch } from '../../utils/fatch';
 import { Categories } from '../categories';
 import { DisplayCSV } from '../displayCSV';
-import { IngestedData } from '../ingestedData';
+import { Inputs } from '../inputs';
 import { Nav } from '../nav';
 import { UploadCSV } from '../uploadCSV';
 
@@ -30,37 +30,36 @@ const App = () => {
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     Component: App,
     children: [
       {
-        path: "/categories",
+        path: '/categories',
         loader: async () => {
           const matchersData = await fatch({ path: 'categories/matchers' })
-
-          return { umbrellaCategories: matchersData.categories, matchers: matchersData.matchers }
+          return { matchers: matchersData.matchers }
         },
         Component: Categories
       },
       {
-        path: "/uploads",
+        path: '/uploads',
         loader: async () => {
-          const res = await fatch({ path: 'uploads' })
-          return { filesOnServer: res }
+          const files = await fatch({ path: 'uploads' })
+          return { filesOnServer: files }
         },
         Component: UploadCSV
       },
       {
-        path: "/inputs",
+        path: '/inputs',
         loader: async () => {
           const categories = await fatch({ path: 'categories' })
           const { credits, debits, reconciledSummary } = await fatch({ path: 'inputs' })
           return { categories, credits, debits, reconciledSummary }
         },
-        Component: IngestedData,
+        Component: Inputs,
       },
       {
-        path: "/outputs",
+        path: '/outputs',
         Component: DisplayCSV
       },
     ]

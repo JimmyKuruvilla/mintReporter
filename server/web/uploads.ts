@@ -1,8 +1,8 @@
-import express, { NextFunction, Request, Response } from 'express'
-import * as z from "zod";
+import express from 'express';
+import * as z from 'zod';
 
 import { csvUploadMiddleware, validateMiddleware } from 'server/middleware';
-import { clearUploadsFolder, LIST } from '../services/file';
+import { DeleteFiles, List } from 'server/services/data';
 
 export const uploadsRouter = express.Router()
 const UploadBodySchema = z.object({
@@ -12,12 +12,12 @@ const UploadBodySchema = z.object({
 uploadsRouter.post(
   '/uploads',
   csvUploadMiddleware.array('files', 20),
-  validateMiddleware(UploadBodySchema, 'body', clearUploadsFolder),
+  validateMiddleware(UploadBodySchema, 'body', DeleteFiles.uploads),
   async (req, res, next) => {
     const files = (req as any).files || [];
 
     try {
-      res.json((await LIST.uploads()).map(f => ({ filename: f })))
+      res.json((await List.uploads()).map(f => ({ filename: f })))
     } catch (error: any) {
       next(error)
     }
@@ -27,7 +27,7 @@ uploadsRouter.get(
   '/uploads',
   async (req, res, next) => {
     try {
-      res.status(200).send((await LIST.uploads()).map(f => ({ filename: f })));
+      res.status(200).send((await List.uploads()).map(f => ({ filename: f })));
     } catch (error: any) {
       next(error)
     }
@@ -37,7 +37,7 @@ uploadsRouter.delete(
   '/uploads',
   async (req, res, next) => {
     try {
-      await clearUploadsFolder()
+      await DeleteFiles.uploads()
       console.log('CLEARED_UPLOADS_FOLDER')
       res.status(200).send({});
     } catch (error: any) {

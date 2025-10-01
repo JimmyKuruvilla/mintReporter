@@ -1,13 +1,13 @@
 import fs from 'fs';
-import { IGNORE, TRANSACTION_TYPES, UTF8, } from '../constants'
-import { uploadsFolder } from '../config'
-import { CategorizedTransaction, ICategorizedTransaction, ITransaction } from './transaction'
-import { isUncategorizable, isUncategorizableOrCheck, prepareSummaryCsv, prepareTransactionCsv, recursiveTraverse } from './utils';
-import { chain, sortBy } from 'lodash';
-import { ChaseIdToDetails } from '../config';
+import { chain } from 'lodash';
+import { ChaseIdToDetails, uploadsFolder } from '../config';
+import { IGNORE, UTF8, } from '../constants';
+import { assignCategories, getCategoryBuckets } from './category';
 import { getChaseAccountId } from './chase';
-import { isNotTransfer, assignCategories, combineSummaries, summarize, getBuckets, getUmbrellaCategoryAcc } from './summary';
-import { Read, Write } from './data';
+import { Write } from './data';
+import { recursiveTraverse } from './file';
+import { ICategorizedTransaction, ITransaction, TransactionType } from './transaction';
+import { isNotTransfer, isUncategorizableOrCheck } from './utils';
 
 const getFields = (t: ICategorizedTransaction) => [
   `date: ${t.date}`,
@@ -61,44 +61,14 @@ export const createInitialData = async (startDate: Date, endDate: Date, fileExts
     }
   })
 
-  const buckets = await getBuckets()
+  const buckets = await getCategoryBuckets()
   const [debits, credits] = chain(allTransactions)
     .filter(t => objWithinDateRange(t) && isNotTransfer(t))
     .sortBy('date')
     .map(assignCategories(buckets))
-    .partition(['transactionType', TRANSACTION_TYPES.DEBIT])
+    .partition(['transactionType', TransactionType.DEBIT])
     .value()
 
   writeInitialData(credits, debits)
   return { credits, debits }
-}
-
-export const getReconciledSummary = async () => {
-  const buckets = await getBuckets()
-  const debits = (await Read.allDebits()).map(CategorizedTransaction).map(assignCategories(buckets))
-  const credits = (await Read.allCredits()).map(CategorizedTransaction).map(assignCategories(buckets))
-
-  const umbrellaCategoryAcc = await getUmbrellaCategoryAcc()
-  const reconciledSummary = combineSummaries(
-    await summarize(TRANSACTION_TYPES.DEBIT, umbrellaCategoryAcc, debits),
-    await summarize(TRANSACTION_TYPES.CREDIT, umbrellaCategoryAcc, credits)
-  )
-
-  return { debits, credits, reconciledSummary }
-}
-
-export const createFinalSummaryCSVs = async () => {
-  const { debits, credits, reconciledSummary } = await getReconciledSummary()
-  const debitsCSV = prepareTransactionCsv(sortBy(debits, 'category'))
-  const creditsCSV = prepareTransactionCsv(sortBy(credits, 'description'))
-  const summaryCSV = prepareSummaryCsv(reconciledSummary)
-
-  await Write.outputDebits(debitsCSV)
-  await Write.outputCredits(creditsCSV)
-  await Write.outputSummary(summaryCSV)
-
-  console.log('############ REMAINING UNCATEGORIZABLE DEBITS/CHECKS ###################')
-  console.log(debits.filter(isUncategorizableOrCheck))
-
-  return { debitsCSV, creditsCSV, summaryCSV }
 }

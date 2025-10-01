@@ -1,17 +1,17 @@
 
-import { IUiMatcher } from '@/server/services/summary';
+
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { IconButton } from '@mui/material';
 import Button from '@mui/material/Button';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useLoaderData } from 'react-router';
+import { IUiMatcher } from '../../../../server/services/matcher';
 import { fatch } from '../../utils/fatch';
 import './styles.css';
 
 type CategoriesLoaderData = {
-  umbrellaCategories: string[]
   matchers: IUiMatcher[]
 }
 
@@ -23,7 +23,7 @@ const createRow = (matcher: IUiMatcher, index: number) => ({
 })
 
 export const Categories = () => {
-  const { umbrellaCategories, matchers }: CategoriesLoaderData = useLoaderData();
+  const { matchers }: CategoriesLoaderData = useLoaderData();
   const [columns, setColumns] = useState<GridColDef[]>(() => {
     return [
       {
@@ -44,13 +44,11 @@ export const Categories = () => {
           );
         },
       },
+      { field: 'query', headerName: 'Matcher', width: 200, editable: true, },
       {
         field: 'category', headerName: 'Category', width: 200,
-        type: 'singleSelect',
-        valueOptions: umbrellaCategories,
         editable: true,
       },
-      { field: 'query', headerName: 'Matcher', width: 200, editable: true, },
     ]
   });
   const [rows, setRows] = useState<IUiMatcher[]>(() => matchers.map(createRow))

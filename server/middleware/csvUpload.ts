@@ -1,5 +1,5 @@
-import fs from 'node:fs';
 import multer from 'multer';
+import fs from 'node:fs';
 import { uploadsFolder } from 'server/config';
 
 if (!fs.existsSync(uploadsFolder)) {

@@ -53,14 +53,8 @@ fragment: american (american airlines) matches t.description: American Meadows. 
 
 TODO
 2. highlight the uncategorized in the reconciled summary. 
-3. clean up component names
 4. data tables should be responsive
-5. add a ui service to encapsulate all the ui work. 
-
-4. remove script nonsense entirely. including directories for data. 
 2. persist records to db, and update service to use db models
 
-// clean up the server side code: 1. check if all endpoints are needed, and what needs to be removed from the script option
-// use effect Ts at that point. 
+// use effect Ts /neverthrow at that point. 
 // then start adding in db stuff after another full test. 
-// seems like input should also auto recalc

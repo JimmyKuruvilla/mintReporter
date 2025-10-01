@@ -1,9 +1,9 @@
 import { ICategorizedTransaction } from '@/server/services/transaction';
 import { Button, Tab, Tabs } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useLoaderData } from 'react-router';
-import { ICombinedSummary } from '../../../../server/services/summary';
+import { IReconciledSummary } from '../../../../server/services/summary';
 import { fatch } from '../../utils/fatch';
 import { TabPanel } from '../shared/tabPanel';
 import { DateSelector } from './dateSelector';
@@ -25,10 +25,10 @@ type SummaryRow = {
 type CalculatedData = {
   debits: ICategorizedTransaction[]
   credits: ICategorizedTransaction[]
-  reconciledSummary: ICombinedSummary
+  reconciledSummary: IReconciledSummary
 }
 
-type IngestedDataLoaderData = CalculatedData & {
+type InputsLoaderData = CalculatedData & {
   categories: string[]
 }
 
@@ -63,14 +63,14 @@ const createTransactionRow = (i: ICategorizedTransaction, index: number): Transa
   accountType: i.accountType
 })
 
-const createReconciledRows = (reconciledSummary: ICombinedSummary) =>
+const createReconciledRows = (reconciledSummary: IReconciledSummary) =>
   Object
     .entries(reconciledSummary)
     .map(([category, amount], index) => ({ id: index, category, amount: amount.toFixed(2) }))
 
 
-export const IngestedData = () => {
-  const { categories, debits, credits, reconciledSummary }: IngestedDataLoaderData = useLoaderData();
+export const Inputs = () => {
+  const { categories, debits, credits, reconciledSummary }: InputsLoaderData = useLoaderData();
   const [tabValue, setTabValue] = useState(0);
   const [transactionColumns, setTransactionColumns] = useState<GridColDef[]>([
     {

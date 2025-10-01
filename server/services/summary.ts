@@ -1,172 +1,52 @@
-import { COMMA, IGNORE, TRANSACTION_TYPES, UNCATEGORIZABLE } from '../constants';
-import { ICategorizedTransaction, ITransaction } from './transaction';
 import { chain } from 'lodash';
+import { IGNORE } from '../constants';
+import { assignCategories, getCategoryBuckets, getUmbrellaCategoryAcc, IUmbrellaCategoryAcc } from './category';
 import { Read } from './data';
-import { isTest } from '../config';
+import { CategorizedTransaction, ICategorizedTransaction, TransactionType } from './transaction';
 
-export const getDbMatchers = async (): Promise<IDbMatchers> => {
-  let matchers;
-
-  try {
-    matchers = await Read.modifiedMatchers()
-  } catch (error: any) {
-    if (error.code = 'ENOENT') {
-      console.warn(`NO_MODIFIED_MATCHERS_USING_FINAL_MATCHERS`)
-      matchers = await Read.finalMatchers()
-    } else {
-      throw error
-    }
-  }
-
-  return matchers
-}
-
-export const getServiceMatchers = async (): Promise<IInvertedDbMatchers> => {
-  return isTest ? testSummary : dbMatchersToServiceMatchers(await getDbMatchers())
-}
-
-export const getUiMatchers = async () => {
-  return serviceMatchersToUiMatchers(await getServiceMatchers())
-}
-
-export type IDbMatchers = { [umbrellaCategory: string]: string }
-export type IInvertedDbMatchers = { [csvQueries: string]: { umbrellaCategory: string } }
-export const dbMatchersToServiceMatchers = (dbMatchers: IDbMatchers) => {
-  return Object.entries(dbMatchers).reduce<IInvertedDbMatchers>((acc, [umbrellaCategory, queries]) => {
-    acc[queries] = { umbrellaCategory }
-    return acc
-  }, {})
-}
-
-export type IUiMatcher = { id?: number, category: string, query: string, markedForDelete: boolean }
-export const serviceMatchersToUiMatchers = (invertedDbMatchers: IInvertedDbMatchers) =>
-  Object.entries(invertedDbMatchers).reduce<IUiMatcher[]>((acc, [queries, value]) => {
-    queries.split(',').map(m => m.trim()).forEach(query => {
-      acc.push({
-        category: value.umbrellaCategory,
-        query,
-        markedForDelete: false
-      })
-    })
-    return acc
-  }, [])
-
-export const uiMatchersToDbMatchers = (uiMatchers: IUiMatcher[]) => {
-  const arrayMatchers = uiMatchers.reduce((acc, matcher: IUiMatcher) => {
-    acc[matcher.category] = (acc[matcher.category] ?? []).concat(matcher.query)
-    return acc
-  }, {} as { [key: string]: string[] })
-
-  const dbMatchers = Object.entries(arrayMatchers).reduce((acc, [category, queries]) => {
-    acc[category] = queries.join(',')
-    return acc
-  }, {} as IDbMatchers)
-
-  return dbMatchers
-}
-
-const testSummary = {
-  'has-dash': { umbrellaCategory: 'has dash', },
-  'has number sign': { umbrellaCategory: 'has number sign', },
-  'has star': { umbrellaCategory: 'with removed asterisk', },
-  'website': { umbrellaCategory: 'contains .com', },
-  'some company.com': { umbrellaCategory: 'website with removed asterisk', },
-  'some_and_company': { umbrellaCategory: 'ampersand replacement', },
-  'override-category': { umbrellaCategory: 'overridden category', },
-  'ignore-test': { umbrellaCategory: IGNORE, }
-};
-
-export const isNotTransfer = (transaction: ITransaction) => transaction.transactionType !== TRANSACTION_TYPES.TRANSFER
-export const isDebit = (transaction: ITransaction) => transaction.transactionType === TRANSACTION_TYPES.DEBIT
-export const isIgnore = (transaction: ICategorizedTransaction) => transaction.category === IGNORE
-export const isNotIgnore = (transaction: ICategorizedTransaction) => !isIgnore(transaction)
-
-type UmbrellaCategoryAcc = { [umbrellaCategory: string]: number }
-export const getUmbrellaCategoryAcc = async () => {
-  const matchers = await getServiceMatchers()
-  const cats: UmbrellaCategoryAcc = Object.values(matchers).reduce((acc, next) =>
-    ({ ...acc, ... { [next.umbrellaCategory]: 0 } }), {})
-  cats[UNCATEGORIZABLE] = 0
-  cats[IGNORE] = 0
-  return cats;
-}
-
-export const getUmbrellaCategories = async () => {
-  const matchers = await getDbMatchers()
-  return Object.keys(matchers)
-}
-
-export const getUiUmbrellaCategories = async () => {
-  return [...(await getUmbrellaCategories()), UNCATEGORIZABLE, IGNORE]
-}
-
-export type Bucket = { fragments: string[], categoryData: { umbrellaCategory: string } }
-export const getBuckets: () => Promise<Bucket[]> = async () => {
-  const matchers = await getServiceMatchers()
-  return Object.entries(matchers)
-    .map(([csvQueries, data]) =>
-    ({
-      fragments: csvQueries.toLowerCase().split(COMMA).map(fragment => fragment.trim()).filter(Boolean),
-      categoryData: data
-    }))
-}
-
-export type UmbrellaCategoryAccWithTotal = UmbrellaCategoryAcc & { total: number }
-export const summarize = (type: TRANSACTION_TYPES, umbrellaCategoryAcc: UmbrellaCategoryAcc, transactions: ICategorizedTransaction[]): UmbrellaCategoryAccWithTotal => {
+export type IUmbrellaCategoryAccWithTotal = IUmbrellaCategoryAcc & { total: number; };
+export const summarizeTransactionCategories = (type: TransactionType, umbrellaCategoryAcc: IUmbrellaCategoryAcc, transactions: ICategorizedTransaction[]): IUmbrellaCategoryAccWithTotal => {
   const summarizedTransactions = transactions.reduce((acc, t) => {
     const currentValue = acc[t.category] ?? 0;
 
-    return { ...acc, ...({ [t.category]: currentValue + t.amount }) }
+    return { ...acc, ...({ [t.category]: currentValue + t.amount }) };
   }, umbrellaCategoryAcc);
 
   let total;
 
-  if (type === TRANSACTION_TYPES.DEBIT) {
+  if (type === TransactionType.DEBIT) {
     total = chain(summarizedTransactions).omit(IGNORE).reduce((acc, v) => acc + v, 0).value();
   } else {
     total = chain(summarizedTransactions).reduce((acc, v) => acc + v, 0).value();
   }
   return { ...summarizedTransactions, total };
-}
+};
 
-export type ICombinedSummary = Omit<UmbrellaCategoryAccWithTotal, 'total'> & { _TotalOutgoing: number, _totalIncoming: number, _Net: number }
-export const combineSummaries = (debitsSummary: UmbrellaCategoryAccWithTotal, creditsSummary: UmbrellaCategoryAccWithTotal) => {
-  const mergedCategories: any = {}
+export type IReconciledSummary = Omit<IUmbrellaCategoryAccWithTotal, 'total'> & { _TotalOutgoing: number; _totalIncoming: number; _Net: number; };
+export const createReconciledSummary = (debitsSummary: IUmbrellaCategoryAccWithTotal, creditsSummary: IUmbrellaCategoryAccWithTotal) => {
+  const mergedCategories: any = {};
   Object.entries(debitsSummary).forEach(([category, value]) => {
-    mergedCategories[category] = debitsSummary[category] + creditsSummary[category]
-  })
+    mergedCategories[category] = debitsSummary[category] + creditsSummary[category];
+  });
 
-  mergedCategories['_TotalOutgoing'] = debitsSummary.total
-  mergedCategories['_TotalIncoming'] = creditsSummary.total
+  mergedCategories['_TotalOutgoing'] = debitsSummary.total;
+  mergedCategories['_TotalIncoming'] = creditsSummary.total;
   mergedCategories['_Net'] = mergedCategories.total;
   delete mergedCategories.total;
-  return mergedCategories as ICombinedSummary
-}
+  return mergedCategories as IReconciledSummary;
+};
 
-/**
- * Used with ITransaction | ICategorizedTransaction inputs
- */
-export const assignCategories = (buckets: Bucket[]) => (t: any): ICategorizedTransaction => {
-  for (const bucket of buckets) {
-    const { fragments, categoryData } = bucket
+export const createSummary = async () => {
+  const buckets = await getCategoryBuckets();
+  const debits = (await Read.allDebits()).map(CategorizedTransaction).map(assignCategories(buckets));
+  const credits = (await Read.allCredits()).map(CategorizedTransaction).map(assignCategories(buckets));
 
-    for (const fragment of fragments) {
-      const match = new RegExp(`\\b${fragment}\\b`, 'i').test(t.description)
+  const umbrellaCategoryAcc = await getUmbrellaCategoryAcc();
+  const reconciledSummary = createReconciledSummary(
+    summarizeTransactionCategories(TransactionType.DEBIT, umbrellaCategoryAcc, debits),
+    summarizeTransactionCategories(TransactionType.CREDIT, umbrellaCategoryAcc, credits)
+  );
 
-      if (match) {
-        t.category = categoryData.umbrellaCategory
-        break;
-      }
-    }
+  return { debits, credits, reconciledSummary };
+};
 
-    if (t.category) {
-      break;
-    }
-  }
-
-  if (!t.category) {
-    t.category = t.transactionType === TRANSACTION_TYPES.DEBIT ? UNCATEGORIZABLE : IGNORE
-  }
-
-  return t;
-}
