@@ -15,6 +15,9 @@
 
     .right {
       margin-left: auto;
+      button {
+        margin: 0 8px;
+      }
     }
   }
 }

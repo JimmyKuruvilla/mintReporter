@@ -1,5 +1,6 @@
 import { Container } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { createRoot } from 'react-dom/client';
@@ -17,11 +18,13 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import './styles.css';
 
+const theme = createTheme({ cssVariables: true });
+
 const App = () => {
   return (
     <div className='app'>
       <Nav></Nav>
-      <Container className='mainPanel' maxWidth={false}>
+      <Container className='mainPanel'>
         <Outlet></Outlet>
       </Container>
     </div >
@@ -70,8 +73,10 @@ const router = createBrowserRouter([
 createRoot(document.getElementById('root')!).render(
   <>
     <CssBaseline />
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <RouterProvider router={router} />
-    </LocalizationProvider >
+    <ThemeProvider theme={theme}>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <RouterProvider router={router} />
+      </LocalizationProvider >
+    </ThemeProvider>
   </>
 )

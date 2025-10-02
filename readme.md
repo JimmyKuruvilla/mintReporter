@@ -53,7 +53,6 @@ fragment: american (american airlines) matches t.description: American Meadows. 
 
 TODO
 2. highlight the uncategorized in the reconciled summary. 
-4. data tables should be responsive
 2. persist records to db, and update service to use db models
 
 // use effect Ts /neverthrow at that point. 

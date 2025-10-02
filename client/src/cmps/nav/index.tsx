@@ -7,19 +7,19 @@ export const Nav = () => {
   return (
     <div className="nav">
       <NavLink to="/categories">
-        <Button variant="contained">Categories</Button>
+        <Button variant="outlined">Categories</Button>
       </NavLink>
 
       <NavLink to="/uploads">
-        <Button variant="contained">Uploads</Button>
+        <Button variant="outlined">Uploads</Button>
       </NavLink>
 
       <NavLink to="/inputs">
-        <Button variant="contained">Inputs</Button>
+        <Button variant="outlined">Inputs</Button>
       </NavLink>
 
       <NavLink to="/outputs">
-        <Button variant="contained">Outputs</Button>
+        <Button variant="outlined">Outputs</Button>
       </NavLink>
     </div>
   )

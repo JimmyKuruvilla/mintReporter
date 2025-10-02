@@ -66,15 +66,16 @@ export const DateSelector = ({ updateCalculated }: DateSelectorProps) => {
   }
 
   return (
-    <div className='inputs'>
-      <div>
-        <DatePicker defaultValue={startDate} onChange={handleSetStartDate}></DatePicker>
+    <div className='dateInputs'>
+      <div className='buttons'>
+        <DatePicker className='datepicker' defaultValue={startDate} onChange={handleSetStartDate}></DatePicker>
+        <DatePicker className='datepicker endDate' defaultValue={endDate} onChange={handleSetEndDate}></DatePicker>
+
+        <div className='right'>
+          <Button variant="contained" color={hasChanges ? "secondary" : "primary"} onClick={handleCalculate}>Calculate</Button>
+          <Button variant="contained" onClick={handleDeleteInitialData} color="error">Clear</Button>
+        </div>
       </div>
-      <div>
-        <DatePicker defaultValue={endDate} onChange={handleSetEndDate}></DatePicker>
-      </div>
-      <Button variant="contained" color={hasChanges ? "secondary" : "primary"} onClick={handleCalculate}>Calculate</Button>
-      <Button variant="contained" onClick={handleDeleteInitialData} color="error">Clear</Button>
     </div>
   )
 }

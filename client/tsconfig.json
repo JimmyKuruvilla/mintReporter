@@ -8,7 +8,8 @@
     "strict": true,
     "skipLibCheck": true,
     "baseUrl": ".",
-    "paths": { "@/*": ["../*"] }
+    "paths": { "@/*": ["../*"] },
+    "experimentalDecorators": true
   },
   "include": ["src"]
 }

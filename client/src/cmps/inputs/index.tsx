@@ -1,5 +1,6 @@
 import { ICategorizedTransaction } from '@/server/services/transaction';
-import { Button, Tab, Tabs } from '@mui/material';
+import { Button, IconButton, Tab, Tabs } from '@mui/material';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useState } from 'react';
 import { useLoaderData } from 'react-router';
@@ -144,68 +145,69 @@ export const Inputs = () => {
   const reconciledPaginationModel = { page: 0, pageSize: 100 };
 
   return (
-    <>
+    <div className='inputs'>
       <DateSelector updateCalculated={updateCalculated}></DateSelector>
 
-      <Tabs
-        value={tabValue}
-        onChange={handleTabChange}
-        indicatorColor="secondary"
-        textColor="inherit"
-      >
-        <Tab label="Debits" />
-        <Tab label="Credits" />
-        <Tab label="Reconciled" />
-      </Tabs>
+      <div className='tabs'>
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          indicatorColor="secondary"
+          textColor="inherit"
+        >
+          <Tab label="Debits" />
+          <Tab label="Credits" />
+          <Tab label="Reconciled" />
+        </Tabs>
 
-      <Button
-        variant="contained"
-        sx={{ margin: '10px 10px 10px 0' }}
-        color={hasChanges() ? "secondary" : "primary"}
-        onClick={handleSaveEdits}
-      >
-        Save
-      </Button>
+        <IconButton
+          sx={{ margin: '10px 10px 10px 0' }}
+          color={hasChanges() ? "secondary" : "primary"}
+          onClick={handleSaveEdits}
+        >
+          <SaveOutlinedIcon />
+        </IconButton>
 
-      <TabPanel value={tabValue} index={0}>
-        <DataGrid
-          rows={transactionDebitRows}
-          columns={transactionColumns}
-          processRowUpdate={handleDebitRowUpdate}
-          onProcessRowUpdateError={handleProcessRowUpdateError}
-          initialState={{ pagination: { paginationModel } }}
-          pageSizeOptions={[10, 1000]}
-          density="compact"
-          showToolbar
-          disableRowSelectionOnClick
-        />
-      </TabPanel>
+        <TabPanel value={tabValue} index={0}>
+          <DataGrid
+            rows={transactionDebitRows}
+            columns={transactionColumns}
+            processRowUpdate={handleDebitRowUpdate}
+            onProcessRowUpdateError={handleProcessRowUpdateError}
+            initialState={{ pagination: { paginationModel } }}
+            pageSizeOptions={[10, 1000]}
+            density="compact"
+            showToolbar
+            disableRowSelectionOnClick
+          />
+        </TabPanel>
 
-      <TabPanel value={tabValue} index={1}>
-        <DataGrid
-          rows={transactionCreditRows}
-          columns={transactionColumns}
-          processRowUpdate={handleCreditRowUpdate}
-          onProcessRowUpdateError={handleProcessRowUpdateError}
-          initialState={{ pagination: { paginationModel } }}
-          pageSizeOptions={[10, 1000]}
-          density="compact"
-          showToolbar
-          disableRowSelectionOnClick
-        />
-      </TabPanel>
+        <TabPanel value={tabValue} index={1}>
+          <DataGrid
+            rows={transactionCreditRows}
+            columns={transactionColumns}
+            processRowUpdate={handleCreditRowUpdate}
+            onProcessRowUpdateError={handleProcessRowUpdateError}
+            initialState={{ pagination: { paginationModel } }}
+            pageSizeOptions={[10, 1000]}
+            density="compact"
+            showToolbar
+            disableRowSelectionOnClick
+          />
+        </TabPanel>
 
-      <TabPanel value={tabValue} index={2}>
-        <DataGrid
-          rows={reconciledRows}
-          columns={reconciledColumns}
-          initialState={{ pagination: { paginationModel: reconciledPaginationModel } }}
-          pageSizeOptions={[10, 100]}
-          density="compact"
-          showToolbar
-          disableRowSelectionOnClick
-        />
-      </TabPanel>
-    </>
+        <TabPanel value={tabValue} index={2}>
+          <DataGrid
+            rows={reconciledRows}
+            columns={reconciledColumns}
+            initialState={{ pagination: { paginationModel: reconciledPaginationModel } }}
+            pageSizeOptions={[10, 100]}
+            density="compact"
+            showToolbar
+            disableRowSelectionOnClick
+          />
+        </TabPanel>
+      </div>
+    </div>
   )
 }

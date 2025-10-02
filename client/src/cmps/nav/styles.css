@@ -14,7 +14,7 @@ a {
 
   &.active {
     button {
-      border-bottom: 5px solid rebeccapurple;
+      border-right: 5px solid var(--mui-palette-secondary-main);
     }
   }
 }

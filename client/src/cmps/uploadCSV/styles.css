@@ -1,0 +1,19 @@
+.uploadCSV {
+  .buttons {
+    display: flex;
+
+    input {
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 8px;
+    }
+
+    .right {
+      margin-left: auto;
+
+      button {
+        margin: 0 8px;
+      }
+    }
+  }
+}

@@ -44,16 +44,15 @@ export const UploadCSV = () => {
   return (
     <div className='uploadCSV'>
       <form onSubmit={handleUpload} encType="multipart/form-data">
-        <div>
+        <div className='buttons'>
           <input type="file" multiple onChange={(e) => setFilesToUpload(e.target.files)} />
-        </div>
 
-        <div>
-          <Button sx={{ width: '100px' }} variant="contained" type="submit">Upload</Button>
+          <div className='right'>
+            <Button sx={{ width: '100px' }} variant="contained" type="submit">Upload</Button>
+            <Button sx={{ width: '100px' }} variant="contained" onClick={handleDeleteCsvs} color="error">Clear</Button>
+          </div>
         </div>
       </form>
-
-      <Button sx={{ width: '100px' }} variant="contained" onClick={handleDeleteCsvs} color="error">Clear</Button>
 
       {
         localFilesOnServer.length > 0 && (
