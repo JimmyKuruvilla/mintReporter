@@ -1,6 +1,5 @@
 import 'reflect-metadata'
 import { DataSource } from 'typeorm';
-import { IDbMatchers } from '../services';
 import { Matcher } from './entity/matcher';
 import { FINAL, MODIFIED } from './constants';
 

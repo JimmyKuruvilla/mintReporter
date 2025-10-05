@@ -1,10 +1,10 @@
-import 'reflect-metadata'
 import { Matcher, Persistence } from '../persistence';
 import { FINAL } from '../persistence/constants';
 import { Read } from '../services';
 
 await Persistence.db.initialize()
 const finalMatchers = await Read.finalMatchers()
+await Persistence.matchers.final.clear()
 
 const matchers = Object.entries(finalMatchers).flatMap(([category, queryStr]) => {
   const queries = queryStr.split(',')
@@ -19,4 +19,4 @@ const matchers = Object.entries(finalMatchers).flatMap(([category, queryStr]) =>
 })
 
 await Persistence.matchers.final.write(matchers)
-console.log(`Inserted ${matchers.length} final matchers`)
+console.log(`Cleared final matched and inserted ${matchers.length} new final matchers`)

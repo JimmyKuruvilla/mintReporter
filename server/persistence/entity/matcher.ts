@@ -1,4 +1,3 @@
-import 'reflect-metadata'
 import { Entity, Column, PrimaryGeneratedColumn, Index } from 'typeorm'
 export type MatcherType = 'final' | 'modified'
 
