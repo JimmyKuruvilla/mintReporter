@@ -1,4 +1,5 @@
-import { chain } from 'lodash';
+
+import { chain } from 'lodash-es';
 import { IGNORE } from '../constants';
 import { assignCategories, getCategoryBuckets, getUmbrellaCategoryAcc, IUmbrellaCategoryAcc } from './category';
 import { Read } from './data';

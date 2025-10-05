@@ -1,4 +1,4 @@
-import { sortBy } from 'lodash';
+import { sortBy } from 'lodash-es';
 import { IGNORE, NEW_LINE, UNCATEGORIZABLE } from '../constants';
 import { Write } from './data';
 import { createSummary, IReconciledSummary } from './summary';

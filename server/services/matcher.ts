@@ -1,5 +1,6 @@
 import { isTest } from '../config';
-import { IGNORE } from '../constants';
+import { IGNORE, UNCATEGORIZABLE } from '../constants';
+import { Matcher, MatcherType, Persistence } from '../persistence';
 import { Read } from './data';
 
 const TestMatchers = {
@@ -13,21 +14,46 @@ const TestMatchers = {
   'ignore-test': { umbrellaCategory: IGNORE, }
 };
 
-export const getDbMatchers = async (): Promise<IDbMatchers> => {
+// export const getDbMatchers = async (): Promise<IDbMatchers> => {
+//   let matchers;
+
+//   try {
+//     matchers = await Read.modifiedMatchers()
+//   } catch (error: any) {
+//     if (error.code = 'ENOENT') {
+//       console.warn(`NO_MODIFIED_MATCHERS_USING_FINAL_MATCHERS`)
+//       matchers = await Read.finalMatchers()
+//     } else {
+//       throw error
+//     }
+//   }
+
+//   return matchers
+// }
+
+export const getAvailableDbMatchers = async () => {
   let matchers;
 
-  try {
-    matchers = await Read.modifiedMatchers()
-  } catch (error: any) {
-    if (error.code = 'ENOENT') {
-      console.warn(`NO_MODIFIED_MATCHERS_USING_FINAL_MATCHERS`)
-      matchers = await Read.finalMatchers()
-    } else {
-      throw error
-    }
+  matchers = await Persistence.matchers.modified.read()
+  if (!matchers.length) {
+    console.warn(`NO_MODIFIED_MATCHERS_USING_FINAL_MATCHERS`)
+    matchers = await Persistence.matchers.final.read()
   }
 
   return matchers
+}
+
+export const getDbMatchers = async (): Promise<IDbMatchers> => {
+  let dbMatchers: IDbMatchers = {}
+
+  const matchers = await getAvailableDbMatchers()
+
+  dbMatchers = matchers.reduce((acc, matcher) => {
+    acc[matcher.category] = `${acc[matcher.category] ? acc[matcher.category] + ',' : ''}${matcher.query}`
+    return acc
+  }, dbMatchers)
+
+  return dbMatchers
 }
 
 export const getServiceMatchers = async (): Promise<IInvertedDbMatchers> => {
@@ -35,7 +61,13 @@ export const getServiceMatchers = async (): Promise<IInvertedDbMatchers> => {
 }
 
 export const getUiMatchers = async () => {
-  return serviceMatchersToUiMatchers(await getServiceMatchers())
+  const dbMatchers = await getAvailableDbMatchers()
+  return dbMatchers.map(i => ({
+    id: i.id,
+    category: i.category,
+    query: i.query,
+    markedForDelete: false
+  }))
 }
 
 export type IDbMatchers = { [umbrellaCategory: string]: string }
@@ -47,29 +79,36 @@ export const dbMatchersToServiceMatchers = (dbMatchers: IDbMatchers) => {
   }, {})
 }
 
-export type IUiMatcher = { id?: number, category: string, query: string, markedForDelete: boolean }
-export const serviceMatchersToUiMatchers = (invertedDbMatchers: IInvertedDbMatchers) =>
-  Object.entries(invertedDbMatchers).reduce<IUiMatcher[]>((acc, [queries, value]) => {
-    queries.split(',').map(m => m.trim()).forEach(query => {
-      acc.push({
-        category: value.umbrellaCategory,
-        query,
-        markedForDelete: false
-      })
-    })
-    return acc
-  }, [])
+export type IUiMatcher = Omit<Matcher, 'type'> & { markedForDelete: boolean }
+export const uiMatchersToDbMatchers = (
+  uiMatchers: IUiMatcher[]
+) => uiMatchers
+  .map((matcher: IUiMatcher) => new Matcher({ ...matcher, type: undefined }))
 
-export const uiMatchersToDbMatchers = (uiMatchers: IUiMatcher[]) => {
-  const arrayMatchers = uiMatchers.reduce((acc, matcher: IUiMatcher) => {
-    acc[matcher.category] = (acc[matcher.category] ?? []).concat(matcher.query)
-    return acc
-  }, {} as { [key: string]: string[] })
+  
+// export const serviceMatchersToUiMatchers = (invertedDbMatchers: IInvertedDbMatchers) =>
+//   Object.entries(invertedDbMatchers).reduce<IUiMatcher[]>((acc, [queries, value]) => {
+//     queries.split(',').map(m => m.trim()).forEach(query => {
+  //       acc.push({
+    //         category: value.umbrellaCategory,
+    //         query,
+    //         markedForDelete: false
+    //       })
+    //     })
+    //     return acc
+    //   }, [])
 
-  const dbMatchers = Object.entries(arrayMatchers).reduce((acc, [category, queries]) => {
-    acc[category] = queries.join(',')
-    return acc
-  }, {} as IDbMatchers)
-
-  return dbMatchers
-}
+// export const uiMatchersToDbMatchers = (uiMatchers: IUiMatcher[]) => {
+  //   const arrayMatchers = uiMatchers.reduce((acc, matcher: IUiMatcher) => {
+    //     acc[matcher.category] = (acc[matcher.category] ?? []).concat(matcher.query)
+    //     return acc
+    //   }, {} as { [key: string]: string[] })
+    
+    //   const dbMatchers = Object.entries(arrayMatchers).reduce((acc, [category, queries]) => {
+      //     acc[category] = queries.join(',')
+      //     return acc
+      //   }, {} as IDbMatchers)
+      
+      //   return dbMatchers
+      // }
+          

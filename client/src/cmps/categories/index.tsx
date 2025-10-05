@@ -15,8 +15,8 @@ type CategoriesLoaderData = {
   matchers: IUiMatcher[]
 }
 
-const createRow = (matcher: IUiMatcher, index: number) => ({
-  id: index,
+const createRow = (matcher: IUiMatcher) => ({
+  id: matcher.id,
   category: matcher.category,
   query: matcher.query,
   markedForDelete: matcher.markedForDelete
@@ -44,6 +44,7 @@ export const Categories = () => {
           );
         },
       },
+      { field: 'id', headerName: 'Id' },
       { field: 'query', headerName: 'Matcher', width: 200, editable: true, },
       {
         field: 'category', headerName: 'Category', width: 200,
@@ -58,7 +59,7 @@ export const Categories = () => {
     setHasChanges(true)
     setRows(
       [{
-        id: Math.round(1e7 + Math.random() * 1000),
+        id: Math.round(1e7 + Math.random() * 1000), //here
         category: 'New Category',
         query: 'New Matcher',
         markedForDelete: false

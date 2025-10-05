@@ -12,7 +12,9 @@
     "noUnusedLocals": false,
     "outDir": "dist",
     "baseUrl": "./",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
   },
   "include": [
     "server/**/*"

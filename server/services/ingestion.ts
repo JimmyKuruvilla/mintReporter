@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { chain } from 'lodash';
+import { chain } from 'lodash-es';
 import { ChaseIdToDetails, uploadsFolder } from '../config';
 import { IGNORE, UTF8, } from '../constants';
 import { assignCategories, getCategoryBuckets } from './category';

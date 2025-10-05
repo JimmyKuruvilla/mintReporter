@@ -7,18 +7,32 @@ import { uploadsRouter } from './web/uploads'
 import { categoriesRouter } from './web/categories'
 import { inputsRouter } from './web/inputs'
 import { outputsRouter } from './web/outputs'
+import { Persistence } from './persistence'
 
-const app = express()
-app.use(cors())
-app.use(express.json({ limit: '10mb' }))
-const PORT = process.env.PORT || 4000
+try {
+  try {
+    await Persistence.db.initialize()
+    console.log('DATA_SOURCE_READY')
+  } catch (error) {
+    console.error('DATA_SOURCE_ERROR', error)
+    throw error
+  }
 
-app.use(uploadsRouter)
-app.use(inputsRouter)
-app.use(categoriesRouter)
-app.use(outputsRouter)
-app.use(errorMiddleware)
+  const app = express()
+  app.use(cors())
+  app.use(express.json({ limit: '10mb' }))
+  const PORT = process.env.PORT || 4000
 
-app.listen(PORT, () => {
-  console.log(`Server listening on http://localhost:${PORT}, uploads at ${uploadsFolder}`);
-});
+  app.use(uploadsRouter)
+  app.use(inputsRouter)
+  app.use(categoriesRouter)
+  app.use(outputsRouter)
+  app.use(errorMiddleware)
+
+  app.listen(PORT, () => {
+    console.log(`SERVER_READY http://localhost:${PORT}, uploads at ${uploadsFolder}`);
+  });
+
+} catch (error) {
+  console.error('INIT_ERROR', error)
+}

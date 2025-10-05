@@ -67,7 +67,7 @@ const createTransactionRow = (i: ICategorizedTransaction, index: number): Transa
 const createReconciledRows = (reconciledSummary: IReconciledSummary) =>
   Object
     .entries(reconciledSummary)
-    .map(([category, amount], index) => ({ id: index, category, amount: amount.toFixed(2) }))
+    .map(([category, amount], index) => ({ id: index, category, amount: amount?.toFixed(2) }))
 
 
 export const Inputs = () => {

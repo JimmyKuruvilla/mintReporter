@@ -9,3 +9,4 @@ modifiedBaseForReview.json
 
 config/chaseIdtoDetails.ts
 server/data
+db.sqlite

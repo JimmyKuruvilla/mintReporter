@@ -1,14 +1,14 @@
+import 'reflect-metadata'
 import express from 'express';
 import { getUiUmbrellaCategories } from 'server/services/category';
 import * as z from "zod";
 import { validateMiddleware } from '../middleware';
 import { Delete, Write } from '../services/data';
 import { getUiMatchers, uiMatchersToDbMatchers } from '../services/matcher';
+import { Persistence } from '../persistence';
+import { FINAL, MODIFIED } from '../persistence/constants';
 
 export const categoriesRouter = express.Router()
-
-const FINAL = 'final'
-const MODIFIED = 'modified'
 
 categoriesRouter.get(
   '/categories',
@@ -42,9 +42,11 @@ categoriesRouter.post(
   async (req, res, next) => {
     try {
       if (req.params.type === FINAL) {
-        await Write.finalMatchers(uiMatchersToDbMatchers(req.body))
+        await Persistence.matchers.final.write(uiMatchersToDbMatchers(req.body))
+        // await Write.finalMatchers(uiMatchersToDbMatchers(req.body))
       } else {
-        await Write.modifiedMatchers(uiMatchersToDbMatchers(req.body))
+        await Persistence.matchers.modified.write(uiMatchersToDbMatchers(req.body))
+        // await Write.modifiedMatchers(uiMatchersToDbMatchers(req.body))
       }
       res.json({
         categories: (await getUiUmbrellaCategories()),
@@ -60,7 +62,8 @@ categoriesRouter.delete(
   async (req, res, next) => {
     try {
       try {
-        await Delete.modifiedMatchers()
+        // await Delete.modifiedMatchers()
+        await Persistence.matchers.modified.clear()
       } catch (error) {
         console.warn(`No modified file to delete`)
       }
