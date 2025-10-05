@@ -27,15 +27,26 @@ export const Persistence = {
   matchers: {
     final: {
       read: () => MatcherRepo.find({ where: { type: FINAL } }),
+      clear: () => MatcherRepo.delete({ type: FINAL }),
       write: async (matchers: Matcher[]) => {
-        await MatcherRepo.save(matchers.map(m => { m.type = FINAL; return m }))
+        await Persistence.matchers.final.clear()
+        await MatcherRepo.save(matchers.map(m => {
+          m.type = FINAL;
+          m.id = undefined
+          return m
+        }))
       },
     },
     modified: {
       read: () => MatcherRepo.find({ where: { type: MODIFIED } }),
       clear: () => MatcherRepo.delete({ type: MODIFIED }),
       write: async (matchers: Matcher[]) => {
-        await MatcherRepo.save(matchers.map(m => { m.type = MODIFIED; return m }))
+        await Persistence.matchers.modified.clear()
+        await MatcherRepo.save(matchers.map(m => {
+          m.type = MODIFIED
+          m.id = undefined
+          return m
+        }))
       }
     }
   }

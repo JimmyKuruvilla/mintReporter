@@ -6,7 +6,7 @@ export type MatcherType = 'final' | 'modified'
 export class Matcher {
   @Index('matcher_id_unique', { unique: true })
   @PrimaryGeneratedColumn()
-  id!: number
+  id: number | undefined
 
   @Column('text')
   category!: string

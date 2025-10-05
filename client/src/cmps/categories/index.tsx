@@ -119,7 +119,7 @@ export const Categories = () => {
         columns={columns}
         processRowUpdate={handleRowUpdate}
         initialState={{ pagination: { paginationModel } }}
-        pageSizeOptions={[10, 1000]}
+        pageSizeOptions={[10, 100]}
         density="compact"
         showToolbar
       />

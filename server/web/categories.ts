@@ -3,7 +3,6 @@ import express from 'express';
 import { getUiUmbrellaCategories } from 'server/services/category';
 import * as z from "zod";
 import { validateMiddleware } from '../middleware';
-import { Delete, Write } from '../services/data';
 import { getUiMatchers, uiMatchersToDbMatchers } from '../services/matcher';
 import { Persistence } from '../persistence';
 import { FINAL, MODIFIED } from '../persistence/constants';
@@ -42,11 +41,10 @@ categoriesRouter.post(
   async (req, res, next) => {
     try {
       if (req.params.type === FINAL) {
+        await Persistence.matchers.modified.clear()
         await Persistence.matchers.final.write(uiMatchersToDbMatchers(req.body))
-        // await Write.finalMatchers(uiMatchersToDbMatchers(req.body))
       } else {
         await Persistence.matchers.modified.write(uiMatchersToDbMatchers(req.body))
-        // await Write.modifiedMatchers(uiMatchersToDbMatchers(req.body))
       }
       res.json({
         categories: (await getUiUmbrellaCategories()),
@@ -62,7 +60,6 @@ categoriesRouter.delete(
   async (req, res, next) => {
     try {
       try {
-        // await Delete.modifiedMatchers()
         await Persistence.matchers.modified.clear()
       } catch (error) {
         console.warn(`No modified file to delete`)

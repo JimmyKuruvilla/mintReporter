@@ -1,7 +1,6 @@
 import { isTest } from '../config';
-import { IGNORE, UNCATEGORIZABLE } from '../constants';
-import { Matcher, MatcherType, Persistence } from '../persistence';
-import { Read } from './data';
+import { IGNORE } from '../constants';
+import { Matcher, Persistence } from '../persistence';
 
 const TestMatchers = {
   'has-dash': { umbrellaCategory: 'has dash', },
@@ -13,23 +12,6 @@ const TestMatchers = {
   'override-category': { umbrellaCategory: 'overridden category', },
   'ignore-test': { umbrellaCategory: IGNORE, }
 };
-
-// export const getDbMatchers = async (): Promise<IDbMatchers> => {
-//   let matchers;
-
-//   try {
-//     matchers = await Read.modifiedMatchers()
-//   } catch (error: any) {
-//     if (error.code = 'ENOENT') {
-//       console.warn(`NO_MODIFIED_MATCHERS_USING_FINAL_MATCHERS`)
-//       matchers = await Read.finalMatchers()
-//     } else {
-//       throw error
-//     }
-//   }
-
-//   return matchers
-// }
 
 export const getAvailableDbMatchers = async () => {
   let matchers;
@@ -84,31 +66,3 @@ export const uiMatchersToDbMatchers = (
   uiMatchers: IUiMatcher[]
 ) => uiMatchers
   .map((matcher: IUiMatcher) => new Matcher({ ...matcher, type: undefined }))
-
-  
-// export const serviceMatchersToUiMatchers = (invertedDbMatchers: IInvertedDbMatchers) =>
-//   Object.entries(invertedDbMatchers).reduce<IUiMatcher[]>((acc, [queries, value]) => {
-//     queries.split(',').map(m => m.trim()).forEach(query => {
-  //       acc.push({
-    //         category: value.umbrellaCategory,
-    //         query,
-    //         markedForDelete: false
-    //       })
-    //     })
-    //     return acc
-    //   }, [])
-
-// export const uiMatchersToDbMatchers = (uiMatchers: IUiMatcher[]) => {
-  //   const arrayMatchers = uiMatchers.reduce((acc, matcher: IUiMatcher) => {
-    //     acc[matcher.category] = (acc[matcher.category] ?? []).concat(matcher.query)
-    //     return acc
-    //   }, {} as { [key: string]: string[] })
-    
-    //   const dbMatchers = Object.entries(arrayMatchers).reduce((acc, [category, queries]) => {
-      //     acc[category] = queries.join(',')
-      //     return acc
-      //   }, {} as IDbMatchers)
-      
-      //   return dbMatchers
-      // }
-          
