@@ -23,7 +23,7 @@ const del = (url: string, headers: any) => {
 
 export const baseUrl = 'http://localhost:4000'
 
-type FatchOptions = {
+export type FatchOptions = {
   path: string,
   method?: string,
   body?: any,
@@ -61,12 +61,16 @@ export const fatch = async (options: FatchOptions) => {
     }
 
     const response = await fetchFn();
+    const json = await response.json()
+
     if (!response.ok) {
-      throw new Error('Network response was not ok.');
+      throw new Error(`Network response was not ok. ${JSON.stringify(json)}`);
     }
-    return response.json();
+    return json;
   } catch (error: any) {
     console.error(`There has been a problem with your fetch operation: ${error.message}`);
     throw error;
   }
 };
+
+export const fatchWithAlert = (options: FatchOptions) => fatch(options).catch((e) => alert(e))

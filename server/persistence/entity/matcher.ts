@@ -3,6 +3,7 @@ import { Entity, Column, PrimaryGeneratedColumn, Index } from 'typeorm'
 export type MatcherType = 'final' | 'modified'
 
 @Entity()
+@Index('matcher_compound_unique', ['category', 'query', 'type'], { unique: true })
 export class Matcher {
   @Index('matcher_id_unique', { unique: true })
   @PrimaryGeneratedColumn()

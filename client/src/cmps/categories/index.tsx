@@ -8,7 +8,7 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useState } from 'react';
 import { useLoaderData } from 'react-router';
 import { IUiMatcher } from '../../../../server/services/matcher';
-import { fatch } from '../../utils/fatch';
+import { fatchWithAlert } from '../../utils/fatch';
 import './styles.css';
 
 type CategoriesLoaderData = {
@@ -75,21 +75,21 @@ export const Categories = () => {
   }
 
   const handleSaveTempChanges = () => {
-    fatch({ path: 'categories/matchers/modified', method: 'post', body: rows }).then((data) => {
+    fatchWithAlert({ path: 'categories/matchers/modified', method: 'post', body: rows }).then((data) => {
       setRows(data.matchers.map(createRow))
       setHasChanges(false)
     })
   }
 
   const handleAbandonTempChanges = () => {
-    fatch({ path: 'categories/matchers/modified', method: 'delete' }).then((data) => {
+    fatchWithAlert({ path: 'categories/matchers/modified', method: 'delete' }).then((data) => {
       setRows(data.matchers.map(createRow))
       setHasChanges(false)
     })
   }
 
   const handleSavePermanently = () => {
-    fatch({ path: 'categories/matchers/final', method: 'post', body: rows }).then((data) => {
+    fatchWithAlert({ path: 'categories/matchers/final', method: 'post', body: rows }).then((data) => {
       setRows(data.matchers.map(createRow))
       setHasChanges(false)
     })
