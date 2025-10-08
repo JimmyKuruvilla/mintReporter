@@ -2,7 +2,7 @@ import path from 'path';
 import { EMPTY_FIELD, NEW_LINE } from '../constants';
 
 import { ITransaction, Transaction } from './transaction';
-import { TransactionType, AccountType } from '../persistence/entity/transaction';
+import { TransactionType, AccountType } from '../persistence/transaction/transaction.entity';
 
 /*
   problem1: 

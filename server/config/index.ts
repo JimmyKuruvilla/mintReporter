@@ -13,8 +13,7 @@ export const FILE_NAMES = {
   },
   ALL_DEBITS: 'debits.all',
   ALL_CREDITS: 'credits.all',
-  SUMMARY: 'summary',
-  IGNORED_DEBITS: 'debug__debits.ignored'
+  SUMMARY: 'summary'
 }
 
 export const categoriesFolder = path.join(process.cwd(), 'server', 'categories')

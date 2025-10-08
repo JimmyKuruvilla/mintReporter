@@ -1,4 +1,4 @@
-import { AccountType, TransactionType } from '../persistence/entity/transaction'
+import { AccountType, TransactionType } from '../persistence/transaction/transaction.entity'
 
 interface IMetadata {
   chaseType: string,

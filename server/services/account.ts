@@ -1,4 +1,4 @@
-import { AccountType } from '../persistence/entity/transaction';
+import { AccountType } from '../persistence/transaction/transaction.entity';
 import { ITransaction } from './transaction';
 
 export interface AccountDetails {

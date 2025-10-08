@@ -26,8 +26,6 @@ export const Write = {
     fs.writeFileSync(finalMatchersFilePath(), json(data)),
   modifiedMatchers: (data: any) =>
     fs.writeFileSync(modifiedMatchersFilePath(), json(data)),
-  ignoredDebits: (data: any) =>
-    fs.writeFileSync(initialDataFilePath(FILE_NAMES.IGNORED_DEBITS), json(data)),
   allDebits: (data: any) =>
     fs.writeFileSync(initialDataFilePath(FILE_NAMES.ALL_DEBITS), json(data)),
   allCredits: (data: any) =>

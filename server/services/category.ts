@@ -1,5 +1,5 @@
 import { COMMA, IGNORE, UNCATEGORIZABLE } from '../constants';
-import { TransactionType } from '../persistence/entity/transaction';
+import { TransactionType } from '../persistence/transaction/transaction.entity';
 import { getDbMatchers, getServiceMatchers } from './matcher';
 import { ICategorizedTransaction } from './transaction';
 

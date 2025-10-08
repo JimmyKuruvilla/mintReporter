@@ -8,7 +8,7 @@ import { Write } from './data';
 import { recursiveTraverse } from './file';
 import { ICategorizedTransaction, ITransaction } from './transaction';
 import { isNotTransfer, isUncategorizableOrCheck } from './utils';
-import { TransactionType } from '../persistence/entity/transaction';
+import { TransactionType } from '../persistence/transaction/transaction.entity';
 
 const getFields = (t: ICategorizedTransaction) => [
   `date: ${t.date}`,
@@ -32,7 +32,6 @@ const writeInitialData = (
 
   console.log('############ KNOWN IGNORED DEBITS ###################')
   console.log(ignoredDebits.map(getFields))
-  Write.ignoredDebits(ignoredDebits)
 
   console.log('############ UNCATEGORIZABLE DEBITS ###################')
   console.log(uncategorizableDebits.map(getFields))
