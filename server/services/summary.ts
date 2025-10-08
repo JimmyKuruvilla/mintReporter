@@ -3,7 +3,8 @@ import { chain } from 'lodash-es';
 import { IGNORE } from '../constants';
 import { assignCategories, getCategoryBuckets, getUmbrellaCategoryAcc, IUmbrellaCategoryAcc } from './category';
 import { Read } from './data';
-import { CategorizedTransaction, ICategorizedTransaction, TransactionType } from './transaction';
+import { CategorizedTransaction, ICategorizedTransaction } from './transaction';
+import { TransactionType } from '../persistence/entity/transaction';
 
 export type IUmbrellaCategoryAccWithTotal = IUmbrellaCategoryAcc & { total: number; };
 export const summarizeTransactionCategories = (type: TransactionType, umbrellaCategoryAcc: IUmbrellaCategoryAcc, transactions: ICategorizedTransaction[]): IUmbrellaCategoryAccWithTotal => {

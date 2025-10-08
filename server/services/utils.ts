@@ -1,5 +1,6 @@
 import { CHECK, IGNORE, UNCATEGORIZABLE } from '../constants';
-import { ICategorizedTransaction, ITransaction, TransactionType } from './transaction';
+import { TransactionType } from '../persistence/entity/transaction';
+import { ICategorizedTransaction, ITransaction } from './transaction';
 
 export const isUncategorizable = (i: { category: string }) => i.category === UNCATEGORIZABLE
 

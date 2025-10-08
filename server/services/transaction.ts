@@ -1,14 +1,8 @@
-import { Accounts } from './account'
-
-export enum TransactionType {
-  DEBIT = 'debit',
-  CREDIT = 'credit',
-  TRANSFER = 'transfer'
-}
+import { AccountType, TransactionType } from '../persistence/entity/transaction'
 
 interface IMetadata {
   chaseType: string,
-  [Accounts.BANK]?: {
+  [AccountType.BANK]?: {
     checkNumber?: string
   }
 }
@@ -20,7 +14,7 @@ export interface ITransaction {
   transactionType: TransactionType,
   metadata: IMetadata,
   accountName: string,
-  accountType: Accounts,
+  accountType: AccountType,
   notes?: string
 }
 

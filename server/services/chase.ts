@@ -1,7 +1,8 @@
 import path from 'path';
 import { EMPTY_FIELD, NEW_LINE } from '../constants';
-import { Accounts } from './account';
-import { ITransaction, Transaction, TransactionType } from './transaction';
+
+import { ITransaction, Transaction } from './transaction';
+import { TransactionType, AccountType } from '../persistence/entity/transaction';
 
 /*
   problem1: 
@@ -85,7 +86,7 @@ export const ChaseCreditCSVParser = (accountName: string, csv: string): ITransac
             transactionType,
             metadata: { chaseType: type },
             accountName,
-            accountType: Accounts.CREDIT,
+            accountType: AccountType.CREDIT,
             notes: memo
           })
         }
@@ -127,9 +128,9 @@ export const ChaseBankCSVParser = (accountName: string, csv: string): ITransacti
             description: formatDescription(description),
             amount,
             transactionType: getBankTransactionType(type, description),
-            metadata: { chaseType: type, [Accounts.BANK]: { checkNumber } },
+            metadata: { chaseType: type, [AccountType.BANK]: { checkNumber } },
             accountName,
-            accountType: Accounts.BANK,
+            accountType: AccountType.BANK,
             notes: null
           })
         }

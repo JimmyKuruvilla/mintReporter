@@ -1,6 +1,7 @@
 import { COMMA, IGNORE, UNCATEGORIZABLE } from '../constants';
+import { TransactionType } from '../persistence/entity/transaction';
 import { getDbMatchers, getServiceMatchers } from './matcher';
-import { ICategorizedTransaction, TransactionType } from './transaction';
+import { ICategorizedTransaction } from './transaction';
 
 export type IUmbrellaCategoryAcc = { [umbrellaCategory: string]: number; };
 export const getUmbrellaCategoryAcc = async () => {

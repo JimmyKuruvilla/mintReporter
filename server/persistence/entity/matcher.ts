@@ -17,10 +17,7 @@ export class Matcher {
   @Column('text')
   type!: MatcherType
 
-  constructor(data: { [Property in keyof Matcher]: any }) {
-    this.category = data?.category
-    this.query = data?.query
-    this.type = data?.type
-    this.id = data?.id
+  constructor(data: Partial<Matcher>) {
+    Object.assign(this, data)
   }
 }

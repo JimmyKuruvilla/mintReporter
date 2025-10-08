@@ -6,8 +6,9 @@ import { assignCategories, getCategoryBuckets } from './category';
 import { getChaseAccountId } from './chase';
 import { Write } from './data';
 import { recursiveTraverse } from './file';
-import { ICategorizedTransaction, ITransaction, TransactionType } from './transaction';
+import { ICategorizedTransaction, ITransaction } from './transaction';
 import { isNotTransfer, isUncategorizableOrCheck } from './utils';
+import { TransactionType } from '../persistence/entity/transaction';
 
 const getFields = (t: ICategorizedTransaction) => [
   `date: ${t.date}`,

@@ -55,5 +55,7 @@ TODO
 2. highlight the uncategorized in the reconciled summary. 
 2. persist records to db, and update service to use db models
 
+1. clean up the db, service and ui matcher creation. 
+
 // use effect Ts /neverthrow at that point. 
 // then start adding in db stuff after another full test. 
