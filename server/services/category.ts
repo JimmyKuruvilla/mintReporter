@@ -1,7 +1,7 @@
 import { COMMA, IGNORE, UNCATEGORIZABLE } from '../constants';
 import { TransactionType } from '../persistence/transaction/transaction.entity';
 import { getDbMatchers, getServiceMatchers } from './matcher';
-import { ICategorizedTransaction } from './transaction';
+import { ICategorizedTransactionDTO } from './transaction';
 
 export type IUmbrellaCategoryAcc = { [umbrellaCategory: string]: number; };
 export const getUmbrellaCategoryAcc = async () => {
@@ -34,7 +34,7 @@ export const getCategoryBuckets: () => Promise<ICategoryBucket[]> = async () => 
 /**
  * Used with ITransaction | ICategorizedTransaction inputs
  */
-export const assignCategories = (buckets: ICategoryBucket[]) => (t: any): ICategorizedTransaction => {
+export const assignCategories = (buckets: ICategoryBucket[]) => (t: any): ICategorizedTransactionDTO => {
   for (const bucket of buckets) {
     const { fragments, categoryData } = bucket;
 

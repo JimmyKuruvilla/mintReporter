@@ -1,4 +1,4 @@
-import { ICategorizedTransaction } from '@/server/services/transaction';
+import { ICategorizedTransactionDTO } from '@/server/services/transaction';
 import { Button, IconButton, Tab, Tabs } from '@mui/material';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
@@ -10,10 +10,10 @@ import { TabPanel } from '../shared/tabPanel';
 import { DateSelector } from './dateSelector';
 import './styles.css';
 
-type TransactionRow = Omit<ICategorizedTransaction, 'metadata' | 'date'> & {
+type TransactionRow = Omit<ICategorizedTransactionDTO, 'metadata' | 'date'> & {
   id: number,
   date: Date,
-  checkNum?: string,
+  checkNum?: number,
   bankType?: string
 }
 
@@ -24,8 +24,8 @@ type SummaryRow = {
 }
 
 type CalculatedData = {
-  debits: ICategorizedTransaction[]
-  credits: ICategorizedTransaction[]
+  debits: ICategorizedTransactionDTO[]
+  credits: ICategorizedTransactionDTO[]
   reconciledSummary: IReconciledSummary
 }
 
@@ -33,12 +33,11 @@ type InputsLoaderData = CalculatedData & {
   categories: string[]
 }
 
-const getRowId = (row: ICategorizedTransaction | TransactionRow) => `${row.date?.toISOString?.() ?? row.date}-${row.amount}-${row.description}-${row.category}`
+const getRowId = (row: ICategorizedTransactionDTO | TransactionRow) => `${row.date?.toISOString?.() ?? row.date}-${row.amount}-${row.description}-${row.category}`
 
-const createCategorizedTransactionFromRow = (row: TransactionRow): ICategorizedTransaction => {
+const createCategorizedTransactionFromRow = (row: TransactionRow): ICategorizedTransactionDTO => {
   const t: any = structuredClone(row)
 
-  delete t.id
   delete t.checkNum
   delete t.bankType
   t.date = t.date.toISOString()
@@ -51,8 +50,8 @@ const createCategorizedTransactionFromRow = (row: TransactionRow): ICategorizedT
   return t
 }
 
-const createTransactionRow = (i: ICategorizedTransaction, index: number): TransactionRow => ({
-  id: index,
+const createTransactionRow = (i: ICategorizedTransactionDTO): TransactionRow => ({
+  id: i.id,
   category: i.category,
   amount: i.amount,
   date: new Date(i.date),
@@ -74,6 +73,7 @@ export const Inputs = () => {
   const { categories, debits, credits, reconciledSummary }: InputsLoaderData = useLoaderData();
   const [tabValue, setTabValue] = useState(0);
   const [transactionColumns, setTransactionColumns] = useState<GridColDef[]>([
+    { field: 'id', headerName: 'Id' },
     {
       field: 'category', headerName: 'Category',
       type: 'singleSelect',
@@ -100,8 +100,8 @@ export const Inputs = () => {
   const [transactionDebitRows, setTransactionDebitRows] = useState<TransactionRow[]>(() => debits.map(createTransactionRow));
   const [transactionCreditRows, setTransactionCreditRows] = useState<TransactionRow[]>(() => credits.map(createTransactionRow));
 
-  const [editedDebits, setEditedDebits] = useState<ICategorizedTransaction[]>([]);
-  const [editedCredits, setEditedCredits] = useState<ICategorizedTransaction[]>([]);
+  const [editedDebits, setEditedDebits] = useState<ICategorizedTransactionDTO[]>([]);
+  const [editedCredits, setEditedCredits] = useState<ICategorizedTransactionDTO[]>([]);
 
   const hasChanges = () => editedCredits.length > 0 || editedDebits.length > 0
 
@@ -115,7 +115,7 @@ export const Inputs = () => {
 
   const handleCreditRowUpdate = (updatedRow: TransactionRow, originalRow: TransactionRow) => {
     setEditedCredits([
-      ...(editedCredits.filter(d => getRowId(d) !== getRowId(originalRow))),
+      ...(editedCredits.filter(t => t.id !== originalRow.id)),
       createCategorizedTransactionFromRow(updatedRow)
     ])
     return updatedRow
@@ -123,7 +123,7 @@ export const Inputs = () => {
 
   const handleDebitRowUpdate = (updatedRow: TransactionRow, originalRow: TransactionRow) => {
     setEditedDebits([
-      ...(editedDebits.filter(d => getRowId(d) !== getRowId(originalRow))),
+      ...(editedDebits.filter(t => t.id !== originalRow.id)),
       createCategorizedTransactionFromRow(updatedRow)
     ])
     return updatedRow

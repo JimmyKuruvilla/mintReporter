@@ -1,13 +1,13 @@
 
 import { chain } from 'lodash-es';
 import { IGNORE } from '../constants';
-import { assignCategories, getCategoryBuckets, getUmbrellaCategoryAcc, IUmbrellaCategoryAcc } from './category';
-import { Read } from './data';
-import { CategorizedTransaction, ICategorizedTransaction } from './transaction';
+import { Persistence } from '../persistence';
 import { TransactionType } from '../persistence/transaction/transaction.entity';
+import { getUmbrellaCategoryAcc, IUmbrellaCategoryAcc } from './category';
+import { ICategorizedTransactionDTO } from './transaction';
 
 export type IUmbrellaCategoryAccWithTotal = IUmbrellaCategoryAcc & { total: number; };
-export const summarizeTransactionCategories = (type: TransactionType, umbrellaCategoryAcc: IUmbrellaCategoryAcc, transactions: ICategorizedTransaction[]): IUmbrellaCategoryAccWithTotal => {
+export const summarizeTransactionCategories = (type: TransactionType, umbrellaCategoryAcc: IUmbrellaCategoryAcc, transactions: ICategorizedTransactionDTO[]): IUmbrellaCategoryAccWithTotal => {
   const summarizedTransactions = transactions.reduce((acc, t) => {
     const currentValue = acc[t.category] ?? 0;
 
@@ -38,11 +38,10 @@ export const createReconciledSummary = (debitsSummary: IUmbrellaCategoryAccWithT
   return mergedCategories as IReconciledSummary;
 };
 
+// TODO: this also needs to take a date range
 export const createSummary = async () => {
-  const buckets = await getCategoryBuckets();
-  const debits = (await Read.allDebits()).map(CategorizedTransaction).map(assignCategories(buckets));
-  const credits = (await Read.allCredits()).map(CategorizedTransaction).map(assignCategories(buckets));
-
+  const debits = await Persistence.transactions.debits.read()
+  const credits = await Persistence.transactions.credits.read()
   const umbrellaCategoryAcc = await getUmbrellaCategoryAcc();
   const reconciledSummary = createReconciledSummary(
     summarizeTransactionCategories(TransactionType.DEBIT, umbrellaCategoryAcc, debits),

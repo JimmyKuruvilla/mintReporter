@@ -1,23 +1,39 @@
 import { Entity, Column, PrimaryGeneratedColumn, Index } from 'typeorm'
-export type MatcherType = 'final' | 'modified'
+import { IMatcher } from '../../services'
+export enum MatcherType {
+  FINAL = 'final',
+  MODIFIED = 'modified'
+}
 
 @Entity()
 @Index('matcher_compound_unique', ['category', 'query', 'type'], { unique: true })
 export class Matcher {
   @Index('matcher_id_unique', { unique: true })
   @PrimaryGeneratedColumn()
-  id: number | undefined
+  id?: number
 
   @Column('text')
-  category!: string
+  category: string
 
   @Column('text')
-  query!: string
+  query: string
 
   @Column('text')
-  type!: MatcherType
+  type: MatcherType
 
-  constructor(data: Partial<Matcher>) {
-    Object.assign(this, data)
+  constructor(data: IMatcher) {
+    this.id = data?.id
+    this.category = data?.category
+    this.query = data?.query
+    this.type = data?.type
+  }
+
+  toDTO() {
+    return {
+      id: this.id,
+      category: this.category,
+      query: this.query,
+      type: this.type
+    }
   }
 }

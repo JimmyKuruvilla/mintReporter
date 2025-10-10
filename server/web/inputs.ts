@@ -2,8 +2,8 @@ import express from 'express';
 import { createSummary } from 'server/services/summary';
 import * as z from "zod";
 import { validateMiddleware } from '../middleware';
-import { ICategorizedTransaction, } from '../services';
-import { DeleteFiles, getIdWithoutCategory, Read, Write } from '../services/data';
+import { CategorizedTransaction, Persistence } from '../persistence';
+import { CategorizedTransactionDTO, ICategorizedTransactionDTO, } from '../services';
 import { createInitialData } from '../services/ingestion';
 
 export const inputsRouter = express.Router()
@@ -12,11 +12,12 @@ inputsRouter.get(
   '/inputs',
   async (req, res, next) => {
     let reconciledSummary = {}
-    let credits: ICategorizedTransaction[] = []
-    let debits: ICategorizedTransaction[] = []
+    let credits: ICategorizedTransactionDTO[] = []
+    let debits: ICategorizedTransactionDTO[] = []
 
     try {
       try {
+        // TODO: make this take a date range so we can just summarize on some of the data. 
         const resp = await createSummary()
         reconciledSummary = resp.reconciledSummary
         credits = resp.credits
@@ -31,18 +32,18 @@ inputsRouter.get(
     }
   });
 
+// TODO: make this take a date range so we can just wipe some of the data. 
 inputsRouter.delete(
   '/inputs',
   async (req, res, next) => {
     try {
-      await DeleteFiles.initialData()
+      await Persistence.transactions.all.clear()
       res.status(200).send({ credits: [], debits: [], reconciledSummary: {} });
     } catch (error: any) {
       next(error)
     }
   });
 
-  // / start here
 const InputsBodySchema = z.object({
   startDate: z.string(),
   endDate: z.string(),
@@ -73,20 +74,12 @@ inputsRouter.patch(
   validateMiddleware(EditsBodySchema, 'body'),
   async (req, res, next) => {
     try {
-      const editedDebits = req.body.editedDebits
-      const editedDebitIds = editedDebits.map(getIdWithoutCategory)
-      const allDebits = await Read.allDebits()
+      const editedDebits: ICategorizedTransactionDTO[] = req.body.editedDebits
+      const editedCredits: ICategorizedTransactionDTO[] = req.body.editedCredits
 
-      const editedCredits = req.body.editedCredits
-      const editedCreditIds = editedCredits.map(getIdWithoutCategory)
-      const allCredits = await Read.allCredits()
-
-      const modifiedAllDebits = [...editedDebits, ...allDebits.filter(t => !editedDebitIds.includes(getIdWithoutCategory(t)))]
-      await Write.allDebits(modifiedAllDebits)
-
-      const modifiedAllCredits = [...editedCredits, ...allCredits.filter(t => !editedCreditIds.includes(getIdWithoutCategory(t)))]
-      await Write.allCredits(modifiedAllCredits)
-
+      await Persistence.transactions.credits.write(editedCredits.map(t => new CategorizedTransaction(CategorizedTransactionDTO(t))))
+      await Persistence.transactions.debits.write(editedDebits.map(t => new CategorizedTransaction(CategorizedTransactionDTO(t))))
+      
       const { credits, debits, reconciledSummary, } = await createSummary()
 
       res.json({ credits, debits, reconciledSummary });

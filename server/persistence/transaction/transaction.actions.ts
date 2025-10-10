@@ -1,18 +1,44 @@
+import { EntityManager } from 'typeorm';
+import { Persistence } from '..';
+import { ICategorizedTransactionDTO } from '../../services/transaction';
 import { db } from '../db';
-import { Transaction } from './transaction.entity';
+import { CategorizedTransaction, TransactionType } from './transaction.entity';
 
-const TransactionRepo = db.getRepository(Transaction)
+const CategorizedTransactionRepo = db.getRepository(CategorizedTransaction)
+const getManager = (manager?: EntityManager): any => {
+  if (manager) {
+    return manager
+  } else {
+    return CategorizedTransactionRepo
+  }
+}
 
 export const debitActions = {
-    // read: () => TransactionRepo.find({ where: { type: FINAL } }),
-    // clear: () => TransactionRepo.delete({ type: FINAL }),
-    // write: async (matchers: Transaction[]) => {
-      // await Persistence.matchers.final.clear()
-      // await TransactionRepo.save(matchers.map(m => {
-      //   m.type = FINAL;
-      //   m.id = undefined
-      //   return m
-      // }))
-    // },
+  read: async (): Promise<ICategorizedTransactionDTO[]> => {
+    return (await CategorizedTransactionRepo.find({ where: { type: TransactionType.DEBIT } })).map(m => m.toDTO())
+  },
+  // clear: () => CategorizedTransactionRepo.delete({ type: TransactionType.DEBIT }),
+  write: async (transactions: CategorizedTransaction[], manager?: EntityManager) => {
+    await getManager(manager).save(transactions.map(t => {
+      t.type = TransactionType.DEBIT;
+      return t
+    }))
+  },
 }
-export const creditActions = {}
+
+export const creditActions = {
+  read: async (): Promise<ICategorizedTransactionDTO[]> => {
+    return (await CategorizedTransactionRepo.find({ where: { type: TransactionType.CREDIT } })).map(m => m.toDTO())
+  },
+  // clear: () => CategorizedTransactionRepo.delete({ type: TransactionType.CREDIT }),
+  write: async (transactions: CategorizedTransaction[], manager?: EntityManager) => {
+    await getManager(manager).save(transactions.map(t => {
+      t.type = TransactionType.CREDIT;
+      return t
+    }))
+  },
+}
+
+export const allActions = {
+  clear: () => CategorizedTransactionRepo.clear(),
+}

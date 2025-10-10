@@ -1,7 +1,7 @@
 import path from 'path';
 import { EMPTY_FIELD, NEW_LINE } from '../constants';
 
-import { ITransaction, Transaction } from './transaction';
+import { ITransactionDTO, TransactionDTO } from './transaction';
 import { TransactionType, AccountType } from '../persistence/transaction/transaction.entity';
 
 /*
@@ -61,7 +61,7 @@ export const getChaseAccountId = (filename: string) => {
 }
 
 // headers: Transaction Date,Post Date,Description,Category,Type,Amount,Memo
-export const ChaseCreditCSVParser = (accountName: string, csv: string): ITransaction[] => {
+export const ChaseCreditCSVParser = (accountName: string, csv: string): ITransactionDTO[] => {
   const [headers, ...lines] = csv.split(NEW_LINE);
   return lines
     .filter(Boolean)
@@ -79,7 +79,7 @@ export const ChaseCreditCSVParser = (accountName: string, csv: string): ITransac
               ? TransactionType.CREDIT
               : TransactionType.DEBIT
 
-          return Transaction({
+          return TransactionDTO({
             date: transactionDate,
             description: formatDescription(description),
             amount,
@@ -111,7 +111,7 @@ const getBankTransactionType = (type: string, description: string): TransactionT
 
 // headers: Details,Posting Date,Description,Amount,Type,Balance,Check or Slip #
 // Details or transactionType: DEBIT or CREDIT
-export const ChaseBankCSVParser = (accountName: string, csv: string): ITransaction[] => {
+export const ChaseBankCSVParser = (accountName: string, csv: string): ITransactionDTO[] => {
   const [headers, ...lines] = csv.split(NEW_LINE);
   return lines
     .filter(Boolean)
@@ -123,7 +123,7 @@ export const ChaseBankCSVParser = (accountName: string, csv: string): ITransacti
         const type = _type.toLowerCase()
 
         if (KNOWN_CHASE_BANK_TYPES.includes(type)) {
-          return Transaction({
+          return TransactionDTO({
             date: postDate,
             description: formatDescription(description),
             amount,

@@ -3,30 +3,33 @@ import { AccountType, TransactionType } from '../persistence/transaction/transac
 interface IMetadata {
   chaseType: string,
   [AccountType.BANK]?: {
-    checkNumber?: string
+    checkNumber?: number
   }
 }
 
-export interface ITransaction {
-  date: Date,
-  description: string,
-  amount: number,
-  transactionType: TransactionType,
-  metadata: IMetadata,
+export interface ITransactionDTO {
+  id?: number,
   accountName: string,
   accountType: AccountType,
+  amount: number,
+  date: Date,
+  description: string,
+  metadata: IMetadata,
   notes?: string
+  transactionType: TransactionType,
 }
 
-export interface ICategorizedTransaction extends ITransaction {
+export interface ICategorizedTransactionDTO extends ITransactionDTO {
+  id: number
   category: string
 }
 
-export type ITransactionJson = { [Property in keyof ITransaction]: any }
-
-export type ICategorizedTransactionJson = { [Property in keyof ICategorizedTransaction]: any }
-
-export const Transaction = (data: ITransactionJson): ITransaction => {
+// TODO convert to actual classes 
+// ui -> server :: json -> service DTO  - need this
+// server -> db :: serviceDTO -> db DAO - got this
+// db -> server :: db DAO -> serviceDTO - got this
+// server -> ui :: serviceDTO -> json   - implicit json handling
+export const TransactionDTO = (data: any): ITransactionDTO => {
   return {
     date: new Date(data.date),
     amount: parseFloat(data.amount),
@@ -39,9 +42,10 @@ export const Transaction = (data: ITransactionJson): ITransaction => {
   }
 }
 
-export const CategorizedTransaction = (data: ICategorizedTransactionJson): ICategorizedTransaction => {
+export const CategorizedTransactionDTO = (data: any): ICategorizedTransactionDTO => {
   return {
-    ...Transaction(data),
-    category: data.category
+    ...TransactionDTO(data),
+    category: data.category,
+    id: data.id
   }
 }

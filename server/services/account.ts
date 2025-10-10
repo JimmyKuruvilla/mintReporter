@@ -1,8 +1,8 @@
 import { AccountType } from '../persistence/transaction/transaction.entity';
-import { ITransaction } from './transaction';
+import { ITransactionDTO } from './transaction';
 
 export interface AccountDetails {
   name: string,
-  parser: (accountName: string, csv: string) => ITransaction[],
+  parser: (accountName: string, csv: string) => ITransactionDTO[],
   type: AccountType
 }

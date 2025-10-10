@@ -4,8 +4,7 @@ import { getUiUmbrellaCategories } from 'server/services/category';
 import * as z from "zod";
 import { validateMiddleware } from '../middleware';
 import { getUiMatchers, uiMatchersToDbMatchers } from '../services/matcher';
-import { Persistence } from '../persistence';
-import { FINAL, MODIFIED } from '../persistence/constants';
+import { MatcherType, Persistence } from '../persistence';
 
 export const categoriesRouter = express.Router()
 
@@ -33,14 +32,14 @@ categoriesRouter.get(
   });
 
 const MatchersParamsSchema = z.object({
-  type: z.enum([FINAL, MODIFIED])
+  type: z.enum([MatcherType.FINAL, MatcherType.MODIFIED])
 });
 categoriesRouter.post(
   '/categories/matchers/:type',
   validateMiddleware(MatchersParamsSchema, 'params'),
   async (req, res, next) => {
     try {
-      if (req.params.type === FINAL) {
+      if (req.params.type === MatcherType.FINAL) {
         await Persistence.matchers.modified.clear()
         await Persistence.matchers.final.write(uiMatchersToDbMatchers(req.body))
       } else {
@@ -73,3 +72,5 @@ categoriesRouter.delete(
       next(error)
     }
   });
+
+  // TODO: move all business logic into services that handle clearly defined actions

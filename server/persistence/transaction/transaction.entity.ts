@@ -1,4 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, Index } from 'typeorm'
+import { ICategorizedTransactionDTO } from '../../services/transaction'
 
 export enum TransactionType {
   DEBIT = 'debit',
@@ -12,42 +13,74 @@ export enum AccountType {
 }
 
 @Entity()
-export class Transaction {
-  @Index('transaction_id_unique', { unique: true })
+@Index('multi_column_unique', ['category', 'date', 'amount', 'type', 'description', 'accountName', 'accountType'], { unique: true })
+export class CategorizedTransaction {
+  @Index('categorized_transaction_id_unique', { unique: true })
   @PrimaryGeneratedColumn()
-  id: number | undefined
+  id?: number
 
   @Column('text')
-  category!: string
+  category: string
 
   @Column('text')
-  date!: string
+  date: string
 
   @Column('real')
-  amount!: number
+  amount: number
 
   @Column('text')
-  type!: TransactionType
+  type: TransactionType
 
   @Column('text')
-  description!: string
+  description: string
 
   @Column('text')
-  accountName!: string
-  
+  accountName: string
+
   @Column('text')
-  accountType!: AccountType
-  
+  accountType: AccountType
+
   @Column('text')
-  institutionTransactionType!: string // metadata.chaseType
-  
+  institutionTransactionType: string // metadata.chaseType
+
   @Column({ type: 'int', nullable: true })
-  checkId!: number // metadata.bank_account.checkNumber
-  
-  @Column({ type: 'text', nullable: true })
-  notes!: string
+  checkNumber?: number // metadata.bank_account.checkNumber
 
-  constructor(data: Partial<Transaction>) {
-    Object.assign(this, data)
+  @Column({ type: 'text', nullable: true })
+  notes?: string
+
+  constructor(data: ICategorizedTransactionDTO) {
+    this.id = data?.id
+    this.category = data?.category
+    this.notes = data?.notes
+    this.accountName = data?.accountName
+    this.accountType = data?.accountType
+    this.amount = data?.amount
+    this.date = data?.date.toISOString()
+    this.description = data?.description
+    this.institutionTransactionType = data?.metadata.chaseType
+    this.checkNumber = data?.metadata?.[AccountType.BANK]?.checkNumber
+    this.type = data?.transactionType
+  }
+
+  toDTO(): ICategorizedTransactionDTO {
+    return {
+      id: this.id!,
+      category: this.category,
+
+      notes: this.notes,
+      accountName: this.accountName,
+      accountType: this.accountType,
+      amount: this.amount,
+      date: new Date(this.date),
+      description: this.description,
+      metadata: {
+        chaseType: this.institutionTransactionType, // TODO: rename globally
+        [AccountType.BANK]: {
+          checkNumber: this.checkNumber
+        }
+      },
+      transactionType: this.type,
+    }
   }
 }

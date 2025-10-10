@@ -1,6 +1,6 @@
 import { isTest } from '../config';
 import { IGNORE } from '../constants';
-import { Matcher, Persistence } from '../persistence';
+import { Matcher, MatcherType, Persistence } from '../persistence';
 
 const TestMatchers = {
   'has-dash': { umbrellaCategory: 'has dash', },
@@ -65,3 +65,10 @@ export type IUiMatcher = Omit<Matcher, 'type'> & { markedForDelete: boolean }
 export const uiMatchersToDbMatchers = (
   uiMatchers: IUiMatcher[]
 ) => uiMatchers.map((matcher: IUiMatcher) => new Matcher({ ...matcher, type: undefined }))
+
+export type IMatcher = {
+  id?: number,
+  category: string,
+  query: string,
+  type: MatcherType
+}
