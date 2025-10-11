@@ -1,8 +1,7 @@
 import fs from 'fs';
-import { FILE_NAMES, csvOutputFilePath, finalMatchersFilePath, initialDataFilePath, initialDataFolder, modifiedMatchersFilePath, uploadsFolder } from '../config';
+import { FILE_NAMES, csvOutputFilePath, finalMatchersFilePath, modifiedMatchersFilePath, uploadsFolder } from '../config';
 import { readJsonFile, recursiveTraverse } from './file';
-import { IDbMatchers } from './matcher';
-import { ISvcCategorizedTransactionDTO } from './svcTransaction';
+export type IDbMatchers = { [umbrellaCategory: string]: string }
 
 const json = (data: any) => JSON.stringify(data, null, 2)
 
@@ -17,12 +16,8 @@ export const Read = {
     readJsonFile<IDbMatchers>(modifiedMatchersFilePath()),
 }
 
-export const Write = {
-  finalMatchers: (data: any) =>
-    fs.writeFileSync(finalMatchersFilePath(), json(data)),
-  modifiedMatchers: (data: any) =>
-    fs.writeFileSync(modifiedMatchersFilePath(), json(data)),
 
+export const Write = {
   outputDebits: (data: string) =>
     fs.writeFileSync(csvOutputFilePath(FILE_NAMES.ALL_DEBITS), data),
   outputCredits: (data: string) =>
@@ -31,9 +26,7 @@ export const Write = {
     fs.writeFileSync(csvOutputFilePath(FILE_NAMES.SUMMARY), data)
 }
 
-export const Delete = {
-  modifiedMatchers: () => fs.unlinkSync(modifiedMatchersFilePath()),
-}
+export const Delete = {}
 
 export const DeleteFiles = {
   uploads: () => recursiveTraverse(uploadsFolder, ['ALL'], console, (path: string) => {

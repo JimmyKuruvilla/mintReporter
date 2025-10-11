@@ -2,10 +2,9 @@ import { sortBy } from 'lodash-es';
 import { IGNORE, NEW_LINE, UNCATEGORIZABLE } from '../constants';
 import { Write } from './data';
 import { createSummary, IReconciledSummary } from './summary';
-import { ISvcCategorizedTransactionDTO } from './svcTransaction';
-import { isUncategorizableOrCheck } from './utils';
+import { SvcTransaction } from './svcTransaction';
 
-export const prepareTransactionCsv = (transactions: ISvcCategorizedTransactionDTO[]) => {
+export const prepareTransactionCsv = (transactions: SvcTransaction[]) => {
   return transactions
     .map(_ => `${_.date.toLocaleDateString()}, ${_.description.replace(/ +/g, ' ')}, ${_.amount}, ${_.category}, ${_.accountName}`)
     .join(NEW_LINE);
@@ -38,7 +37,7 @@ export const createFinalCSVs = async () => {
   await Write.outputSummary(summaryCSV);
 
   console.log('############ REMAINING UNCATEGORIZABLE DEBITS/CHECKS ###################');
-  console.log(debits.filter(isUncategorizableOrCheck));
+  console.log(debits.filter(d => d.isUncategorizableOrCheck()));
 
   return { debitsCSV, creditsCSV, summaryCSV };
 };

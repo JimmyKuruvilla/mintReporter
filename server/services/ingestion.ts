@@ -3,10 +3,10 @@ import { chain } from 'lodash-es';
 import { ChaseIdToDetails, uploadsFolder } from '../config';
 import { UTF8 } from '../constants';
 import { Persistence } from '../persistence';
-import { getCategoryBuckets } from './category';
 import { getChaseAccountId } from './chase';
 import { recursiveTraverse } from './file';
 import { SvcTransaction } from './svcTransaction';
+import { getAvailableMatchers } from './matcher';
 
 export const createInitialData = async (startDate: Date, endDate: Date, fileExts: string[]) => {
   console.log(`Running reports from ${startDate} to ${endDate} using ${fileExts}`)
@@ -28,10 +28,11 @@ export const createInitialData = async (startDate: Date, endDate: Date, fileExts
     }
   })
 
-  const buckets = await getCategoryBuckets()
+  const matchers = await getAvailableMatchers()
+
   const transactions = chain(allTransactions)
     .filter(t => t.isWithinDateRange(startDate, endDate) && t.isNotTransfer())
-    .map(t => t.assignCategory(buckets))
+    .map(t => t.assignCategoryV2(matchers))
     .value()
 
   await Persistence.transactions.all.write(transactions)

@@ -3,7 +3,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import { IconButton } from '@mui/material';
 import Button from '@mui/material/Button';
 import { useState } from 'react';
-import { baseUrl, } from '../../utils/fatch';
+import { baseUrl, fatchWithAlert} from '../../utils/fatch';
 import './styles.css';
 
 export type CSVData = { creditsCSV: string, debitsCSV: string, summaryCSV: string }
@@ -14,7 +14,7 @@ export const DisplayCSV = () => {
   const [outputs, setOutputs] = useState<CSVData>({ creditsCSV: '', debitsCSV: '', summaryCSV: '' })
 
   const handleRun = () => {
-    fatch({ path: 'outputs', method: 'post' }).then(data => {
+    fatchWithAlert({ path: 'outputs', method: 'post' }).then(data => {
       setOutputs(data)
     })
   }
@@ -37,7 +37,7 @@ export const DisplayCSV = () => {
 
   return (
     <div className='displayCSV'>
-      <Button variant="contained" sx={{ marginBottom: '10px' }} onClick={handleRun}>Generate</Button>
+      <Button variant="contained" sx={{ marginBottom: '10px' }} onClick={handleRun}>Generate Using Permanent Categories</Button>
 
       <div>
         {outputs.summaryCSV && <>

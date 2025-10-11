@@ -1,15 +1,8 @@
 import { CHECK, IGNORE, UNCATEGORIZABLE } from '../constants'
 import { AccountType, TransactionType } from '../persistence/transaction/transaction.dao'
-import { ICategoryBucket } from './category'
+import { SvcMatcher } from './matcher'
 
 const UNKNOWN = 'UNKNOWN'
-
-interface SvcTransactionMetadata {
-  chaseType: string,
-  [AccountType.BANK]?: {
-    checkNumber?: number
-  }
-}
 
 export type UiTransaction = Omit<SvcTransactionCtorArgs, 'date'> & {
   date: Date
@@ -19,17 +12,24 @@ export type UiTransaction = Omit<SvcTransactionCtorArgs, 'date'> & {
 
 export type SvcTransactionCtorArgs = {
   id?: number
-  category: string
+  category?: string
 
   date: string | Date
   amount: string | number
-  
+
   notes?: string
   transactionType: TransactionType
   accountName: string
   accountType: AccountType
   description: string
   metadata: any
+}
+
+type SvcTransactionMetadata = {
+  chaseType: string,
+  [AccountType.BANK]?: {
+    checkNumber?: number
+  }
 }
 
 /*
@@ -59,20 +59,14 @@ export class SvcTransaction {
     }
   }
 
-  assignCategory = (buckets: ICategoryBucket[]) => {
-    for (const bucket of buckets) {
-      const { fragments, categoryData } = bucket;
+  assignCategoryV2 = (matchers: SvcMatcher[]) => {
+    for (const matcher of matchers) {
+      const { query, category } = matcher;
 
-      for (const fragment of fragments) {
-        const match = new RegExp(`\\b${fragment}\\b`, 'i').test(this.description);
+      const match = new RegExp(`\\b${query.toLowerCase().trim()}\\b`, 'i').test(this.description);
 
-        if (match) {
-          this.category = categoryData.umbrellaCategory;
-          break;
-        }
-      }
-
-      if (this.category !== UNKNOWN) {
+      if (match) {
+        this.category = category
         break;
       }
     }
@@ -83,7 +77,7 @@ export class SvcTransaction {
 
     return this;
   };
-
+  
   isWithinDateRange = (startDate: Date, endDate: Date) => this.date >= startDate && this.date <= endDate
 
   isUncategorizable = () => this.category === UNCATEGORIZABLE
