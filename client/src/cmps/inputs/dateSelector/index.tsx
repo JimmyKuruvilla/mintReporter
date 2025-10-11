@@ -3,7 +3,7 @@ import Button from '@mui/material/Button';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
 import { useState } from 'react';
-import { fatch } from '../../../utils/fatch';
+import { fatchWithAlert } from '../../../utils/fatch';
 import './styles.css';
 
 const START_DATE = 'startDate'
@@ -44,7 +44,7 @@ export const DateSelector = ({ updateCalculated }: DateSelectorProps) => {
     localStorage.setItem(START_DATE, formattedStartDate)
     localStorage.setItem(END_DATE, formattedEndDate)
 
-    fatch({
+    fatchWithAlert({
       path: 'inputs', method: 'post',
       body: {
         startDate: formattedStartDate,
@@ -57,7 +57,7 @@ export const DateSelector = ({ updateCalculated }: DateSelectorProps) => {
   }
 
   const handleDeleteInitialData = async () => {
-    fatch({
+    fatchWithAlert({
       path: 'inputs', method: 'delete',
     }).then((data) => {
       setHasChanges(false)

@@ -5,7 +5,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router';
-import { fatch } from '../../utils/fatch';
+import { fatchWithAlert } from '../../utils/fatch';
 import { Categories } from '../categories';
 import { DisplayCSV } from '../displayCSV';
 import { Inputs } from '../inputs';
@@ -39,7 +39,7 @@ const router = createBrowserRouter([
       {
         path: '/categories',
         loader: async () => {
-          const matchersData = await fatch({ path: 'categories/matchers' })
+          const matchersData = await fatchWithAlert({ path: 'categories/matchers' })
           return { matchers: matchersData.matchers }
         },
         Component: Categories
@@ -47,7 +47,7 @@ const router = createBrowserRouter([
       {
         path: '/uploads',
         loader: async () => {
-          const files = await fatch({ path: 'uploads' })
+          const files = await fatchWithAlert({ path: 'uploads' })
           return { filesOnServer: files }
         },
         Component: UploadCSV
@@ -55,8 +55,8 @@ const router = createBrowserRouter([
       {
         path: '/inputs',
         loader: async () => {
-          const categories = await fatch({ path: 'categories' })
-          const { credits, debits, reconciledSummary } = await fatch({ path: 'inputs' })
+          const categories = await fatchWithAlert({ path: 'categories' })
+          const { credits, debits, reconciledSummary } = await fatchWithAlert({ path: 'inputs' })
           return { categories, credits, debits, reconciledSummary }
         },
         Component: Inputs,

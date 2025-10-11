@@ -1,7 +1,7 @@
 import Button from '@mui/material/Button';
 import { useState } from 'react';
 import { useLoaderData } from 'react-router';
-import { fatch } from '../../utils/fatch';
+import { fatchWithAlert } from '../../utils/fatch';
 import './styles.css';
 import { IFileOnServer } from '../../../../server/services/file';
 
@@ -22,7 +22,7 @@ export const UploadCSV = () => {
     Array.from(filesToUpload).forEach(f => form.append('files', f))
 
     try {
-      const files = await fatch({
+      const files = await fatchWithAlert({
         path: 'uploads',
         method: 'postRaw',
         body: form,
@@ -36,7 +36,7 @@ export const UploadCSV = () => {
   }
 
   const handleDeleteCsvs = async () => {
-    fatch({ path: 'uploads', method: 'delete', }).then(() => {
+    fatchWithAlert({ path: 'uploads', method: 'delete', }).then(() => {
       setLocalFilesOnServer([]);
     })
   }
