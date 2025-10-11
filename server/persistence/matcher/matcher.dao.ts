@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, Index } from 'typeorm'
-import { IMatcherDTO } from '../../services'
+import { SvcMatcher } from '../../services'
+
 export enum MatcherType {
   FINAL = 'final',
   MODIFIED = 'modified',
@@ -22,7 +23,7 @@ export class MatcherDAO {
   @Column('text')
   type: MatcherType
 
-  constructor(data: IMatcherDTO) {
+  constructor(data: SvcMatcher) {
     this.id = data?.id
     this.category = data?.category
     this.query = data?.query
@@ -33,12 +34,12 @@ export class MatcherDAO {
     }
   }
 
-  toDTO() {
-    return {
+  toSvc(): SvcMatcher {
+    return new SvcMatcher({
       id: this.id,
       category: this.category,
       query: this.query,
       type: this.type
-    }
+    })
   }
 }

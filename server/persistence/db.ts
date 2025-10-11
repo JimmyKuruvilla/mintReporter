@@ -9,7 +9,7 @@ const __dirname = dirname(__filename);
 export const db = new DataSource({
   type: 'better-sqlite3',
   database: "db.sqlite",
-  entities: [`${__dirname}/**/*.entity.ts`],
+  entities: [`${__dirname}/**/*.dao.ts`],
   synchronize: true,
   logging: false
 })

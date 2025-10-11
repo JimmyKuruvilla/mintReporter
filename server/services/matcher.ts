@@ -60,15 +60,24 @@ export const dbMatchersToServiceMatchers = (dbMatchers: IDbMatchers) => {
     return acc
   }, {})
 }
+// TODO all this is pretty complicated - is it neccessary still?
 
-export type IUiMatcher = Omit<IMatcherDTO, 'type'> & { markedForDelete: boolean }
-export const uiMatchersToDbMatchers = (
-  uiMatchers: IUiMatcher[]
-) => uiMatchers.map((matcher: IUiMatcher) => new MatcherDAO({ ...matcher, type: MatcherType.EMPTY }))
+export type UiMatcher = Omit<SvcMatcherCtorArgs, 'type'> & { markedForDelete: boolean }
 
-export type IMatcherDTO = { //TODO dto
+export type SvcMatcherCtorArgs = {
   id?: number,
   category: string,
   query: string,
   type: MatcherType
+}
+
+export class SvcMatcher {
+  id?: number
+  category!: string
+  query!: string
+  type!: MatcherType
+
+  constructor(data: SvcMatcherCtorArgs) {
+    Object.assign(this, data)
+  }
 }

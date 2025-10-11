@@ -2,8 +2,8 @@ import express from 'express';
 import { createSummary } from 'server/services/summary';
 import * as z from "zod";
 import { validateMiddleware } from '../middleware';
-import { CategorizedTransactionDAO, Persistence } from '../persistence';
-import { CategorizedTransactionDTO, ICategorizedTransactionDTO, } from '../services';
+import { Persistence } from '../persistence';
+import { SvcTransaction, SvcTransactionCtorArgs, } from '../services';
 import { createInitialData } from '../services/ingestion';
 
 export const inputsRouter = express.Router()
@@ -12,8 +12,8 @@ inputsRouter.get(
   '/inputs',
   async (req, res, next) => {
     let reconciledSummary = {}
-    let credits: ICategorizedTransactionDTO[] = []
-    let debits: ICategorizedTransactionDTO[] = []
+    let credits: SvcTransaction[] = []
+    let debits: SvcTransaction[] = []
 
     try {
       try {
@@ -74,12 +74,12 @@ inputsRouter.patch(
   validateMiddleware(EditsBodySchema, 'body'),
   async (req, res, next) => {
     try {
-      const editedDebits: ICategorizedTransactionDTO[] = req.body.editedDebits
-      const editedCredits: ICategorizedTransactionDTO[] = req.body.editedCredits
+      const editedDebits: SvcTransactionCtorArgs[] = req.body.editedDebits
+      const editedCredits: SvcTransactionCtorArgs[] = req.body.editedCredits
 
-      await Persistence.transactions.credits.write(editedCredits.map(t => new CategorizedTransactionDAO(CategorizedTransactionDTO(t))))
-      await Persistence.transactions.debits.write(editedDebits.map(t => new CategorizedTransactionDAO(CategorizedTransactionDTO(t))))
-      
+      await Persistence.transactions.debits.write(editedDebits.map(t => new SvcTransaction(t)))
+      await Persistence.transactions.credits.write(editedCredits.map(t => new SvcTransaction(t)))
+
       const { credits, debits, reconciledSummary, } = await createSummary()
 
       res.json({ credits, debits, reconciledSummary });

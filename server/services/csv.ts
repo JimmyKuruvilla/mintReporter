@@ -2,10 +2,10 @@ import { sortBy } from 'lodash-es';
 import { IGNORE, NEW_LINE, UNCATEGORIZABLE } from '../constants';
 import { Write } from './data';
 import { createSummary, IReconciledSummary } from './summary';
-import { ICategorizedTransactionDTO } from './transaction';
+import { ISvcCategorizedTransactionDTO } from './svcTransaction';
 import { isUncategorizableOrCheck } from './utils';
 
-export const prepareTransactionCsv = (transactions: ICategorizedTransactionDTO[]) => {
+export const prepareTransactionCsv = (transactions: ISvcCategorizedTransactionDTO[]) => {
   return transactions
     .map(_ => `${_.date.toLocaleDateString()}, ${_.description.replace(/ +/g, ' ')}, ${_.amount}, ${_.category}, ${_.accountName}`)
     .join(NEW_LINE);

@@ -2,7 +2,7 @@ import fs from 'fs';
 import { FILE_NAMES, csvOutputFilePath, finalMatchersFilePath, initialDataFilePath, initialDataFolder, modifiedMatchersFilePath, uploadsFolder } from '../config';
 import { readJsonFile, recursiveTraverse } from './file';
 import { IDbMatchers } from './matcher';
-import { ICategorizedTransactionDTO } from './transaction';
+import { ISvcCategorizedTransactionDTO } from './svcTransaction';
 
 const json = (data: any) => JSON.stringify(data, null, 2)
 

@@ -2,12 +2,12 @@
 import { chain } from 'lodash-es';
 import { IGNORE } from '../constants';
 import { Persistence } from '../persistence';
-import { TransactionType } from '../persistence/transaction/transaction.entity';
+import { TransactionType } from '../persistence/transaction/transaction.dao';
 import { getUmbrellaCategoryAcc, IUmbrellaCategoryAcc } from './category';
-import { ICategorizedTransactionDTO } from './transaction';
+import { SvcTransaction } from './svcTransaction';
 
 export type IUmbrellaCategoryAccWithTotal = IUmbrellaCategoryAcc & { total: number; };
-export const summarizeTransactionCategories = (type: TransactionType, umbrellaCategoryAcc: IUmbrellaCategoryAcc, transactions: ICategorizedTransactionDTO[]): IUmbrellaCategoryAccWithTotal => {
+export const summarizeTransactionCategories = (type: TransactionType, umbrellaCategoryAcc: IUmbrellaCategoryAcc, transactions: SvcTransaction[]): IUmbrellaCategoryAccWithTotal => {
   const summarizedTransactions = transactions.reduce((acc, t) => {
     const currentValue = acc[t.category] ?? 0;
 
@@ -47,7 +47,7 @@ export const createSummary = async () => {
     summarizeTransactionCategories(TransactionType.DEBIT, umbrellaCategoryAcc, debits),
     summarizeTransactionCategories(TransactionType.CREDIT, umbrellaCategoryAcc, credits)
   );
-
+//TODO reconciledSummary should be a class!
   return { debits, credits, reconciledSummary };
 };
 

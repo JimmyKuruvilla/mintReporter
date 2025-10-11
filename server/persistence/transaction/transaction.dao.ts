@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, Index } from 'typeorm'
-import { ICategorizedTransactionDTO } from '../../services/transaction'
+import { SvcTransaction } from '../../services/svcTransaction'
 
 export enum TransactionType {
   DEBIT = 'debit',
@@ -49,7 +49,7 @@ export class CategorizedTransactionDAO {
   @Column({ type: 'text', nullable: true })
   notes?: string
 
-  constructor(data: ICategorizedTransactionDTO) {
+  constructor(data: SvcTransaction) {
     this.id = data?.id
     this.category = data?.category
     this.notes = data?.notes
@@ -63,8 +63,8 @@ export class CategorizedTransactionDAO {
     this.type = data?.transactionType
   }
 
-  toDTO(): ICategorizedTransactionDTO {
-    return {
+  toSvc() {
+    return new SvcTransaction({
       id: this.id!,
       category: this.category,
 
@@ -81,6 +81,6 @@ export class CategorizedTransactionDAO {
         }
       },
       transactionType: this.type,
-    }
+    })
   }
 }

@@ -1,4 +1,4 @@
-import { AccountType } from '../persistence/transaction/transaction.entity';
+import { AccountType } from '../persistence/transaction/transaction.dao';
 import { AccountDetails } from '../services/account';
 import { ChaseBankCSVParser, ChaseCreditCSVParser } from '../services/chase';
 

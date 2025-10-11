@@ -1,4 +1,3 @@
-import { ICategorizedTransactionDTO } from '@/server/services/transaction';
 import { Button, IconButton, Tab, Tabs } from '@mui/material';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
@@ -9,13 +8,7 @@ import { fatch } from '../../utils/fatch';
 import { TabPanel } from '../shared/tabPanel';
 import { DateSelector } from './dateSelector';
 import './styles.css';
-
-type TransactionRow = Omit<ICategorizedTransactionDTO, 'metadata' | 'date'> & {
-  id: number,
-  date: Date,
-  checkNum?: number,
-  bankType?: string
-}
+import { SvcTransactionCtorArgs, UiTransaction } from '../../../../server/services';
 
 type SummaryRow = {
   id: number,
@@ -24,8 +17,8 @@ type SummaryRow = {
 }
 
 type CalculatedData = {
-  debits: ICategorizedTransactionDTO[]
-  credits: ICategorizedTransactionDTO[]
+  debits: UiTransaction[]
+  credits: UiTransaction[]
   reconciledSummary: IReconciledSummary
 }
 
@@ -33,10 +26,8 @@ type InputsLoaderData = CalculatedData & {
   categories: string[]
 }
 
-const getRowId = (row: ICategorizedTransactionDTO | TransactionRow) => `${row.date?.toISOString?.() ?? row.date}-${row.amount}-${row.description}-${row.category}`
-
-const createCategorizedTransactionFromRow = (row: TransactionRow): ICategorizedTransactionDTO => {
-  const t: any = structuredClone(row)
+const createEdit = (row: UiTransaction): SvcTransactionCtorArgs => {
+  const t = structuredClone(row) as any
 
   delete t.checkNum
   delete t.bankType
@@ -50,7 +41,7 @@ const createCategorizedTransactionFromRow = (row: TransactionRow): ICategorizedT
   return t
 }
 
-const createTransactionRow = (i: ICategorizedTransactionDTO): TransactionRow => ({
+const createTransactionRow = (i: SvcTransactionCtorArgs): UiTransaction => ({
   id: i.id,
   category: i.category,
   amount: i.amount,
@@ -60,7 +51,8 @@ const createTransactionRow = (i: ICategorizedTransactionDTO): TransactionRow => 
   bankType: i.metadata?.chaseType,
   transactionType: i.transactionType,
   accountName: i.accountName,
-  accountType: i.accountType
+  accountType: i.accountType,
+  metadata: i.metadata
 })
 
 const createReconciledRows = (reconciledSummary: IReconciledSummary) =>
@@ -97,11 +89,11 @@ export const Inputs = () => {
   ]);
 
   const [reconciledRows, setReconciledRows] = useState<SummaryRow[]>(() => createReconciledRows(reconciledSummary));
-  const [transactionDebitRows, setTransactionDebitRows] = useState<TransactionRow[]>(() => debits.map(createTransactionRow));
-  const [transactionCreditRows, setTransactionCreditRows] = useState<TransactionRow[]>(() => credits.map(createTransactionRow));
+  const [transactionDebitRows, setTransactionDebitRows] = useState<UiTransaction[]>(() => debits.map(createTransactionRow));
+  const [transactionCreditRows, setTransactionCreditRows] = useState<UiTransaction[]>(() => credits.map(createTransactionRow));
 
-  const [editedDebits, setEditedDebits] = useState<ICategorizedTransactionDTO[]>([]);
-  const [editedCredits, setEditedCredits] = useState<ICategorizedTransactionDTO[]>([]);
+  const [editedDebits, setEditedDebits] = useState<SvcTransactionCtorArgs[]>([]);
+  const [editedCredits, setEditedCredits] = useState<SvcTransactionCtorArgs[]>([]);
 
   const hasChanges = () => editedCredits.length > 0 || editedDebits.length > 0
 
@@ -113,18 +105,18 @@ export const Inputs = () => {
     setReconciledRows(createReconciledRows(data.reconciledSummary))
   }
 
-  const handleCreditRowUpdate = (updatedRow: TransactionRow, originalRow: TransactionRow) => {
+  const handleCreditRowUpdate = (updatedRow: UiTransaction, originalRow: UiTransaction) => {
     setEditedCredits([
       ...(editedCredits.filter(t => t.id !== originalRow.id)),
-      createCategorizedTransactionFromRow(updatedRow)
+      createEdit(updatedRow)
     ])
     return updatedRow
   }
 
-  const handleDebitRowUpdate = (updatedRow: TransactionRow, originalRow: TransactionRow) => {
+  const handleDebitRowUpdate = (updatedRow: UiTransaction, originalRow: UiTransaction) => {
     setEditedDebits([
       ...(editedDebits.filter(t => t.id !== originalRow.id)),
-      createCategorizedTransactionFromRow(updatedRow)
+      createEdit(updatedRow)
     ])
     return updatedRow
   }

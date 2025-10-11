@@ -1,6 +1,5 @@
-import { MatcherDAO, Persistence } from '../persistence';
-import { FINAL } from '../persistence/constants';
-import { Read } from '../services';
+import { MatcherType, Persistence } from '../persistence';
+import { Read, SvcMatcher } from '../services';
 
 await Persistence.db.initialize()
 const finalMatchers = await Read.finalMatchers()
@@ -9,10 +8,10 @@ await Persistence.matchers.final.clear()
 const matchers = Object.entries(finalMatchers).flatMap(([category, queryStr]) => {
   const queries = queryStr.split(',')
   return queries.map(query => {
-    return new MatcherDAO({
+    return new SvcMatcher({
       category: category,
       query: query,
-      type: FINAL,
+      type: MatcherType.FINAL,
       id: undefined
     })
   })

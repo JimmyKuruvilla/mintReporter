@@ -1,10 +1,10 @@
-import 'reflect-metadata'
 import express from 'express';
+import 'reflect-metadata';
 import { getUiUmbrellaCategories } from 'server/services/category';
 import * as z from "zod";
 import { validateMiddleware } from '../middleware';
-import { getUiMatchers, uiMatchersToDbMatchers } from '../services/matcher';
 import { MatcherType, Persistence } from '../persistence';
+import { getUiMatchers, SvcMatcher, SvcMatcherCtorArgs } from '../services/matcher';
 
 export const categoriesRouter = express.Router()
 
@@ -41,9 +41,13 @@ categoriesRouter.post(
     try {
       if (req.params.type === MatcherType.FINAL) {
         await Persistence.matchers.modified.clear()
-        await Persistence.matchers.final.write(uiMatchersToDbMatchers(req.body))
+        await Persistence.matchers.final.write(
+          req.body.map((matcher: SvcMatcherCtorArgs) => new SvcMatcher({ ...matcher, type: MatcherType.EMPTY }))
+        )
       } else {
-        await Persistence.matchers.modified.write(uiMatchersToDbMatchers(req.body))
+        await Persistence.matchers.modified.write(
+          req.body.map((matcher: SvcMatcherCtorArgs) => new SvcMatcher({ ...matcher, type: MatcherType.EMPTY }))
+        )
       }
       res.json({
         categories: (await getUiUmbrellaCategories()),
@@ -73,4 +77,4 @@ categoriesRouter.delete(
     }
   });
 
-  // TODO: move all business logic into services that handle clearly defined actions
+// TODO: move all business logic into services that handle clearly defined actions

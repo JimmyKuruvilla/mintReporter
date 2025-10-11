@@ -2,8 +2,8 @@ import 'reflect-metadata'
 import { db } from './db'
 import { finalActions, modifiedActions } from './matcher/matcher.actions'
 import { debitActions, creditActions, allActions } from './transaction/transaction.actions'
-export * from './matcher/matcher.entity'
-export * from './transaction/transaction.entity'
+export * from './matcher/matcher.dao'
+export * from './transaction/transaction.dao'
 
 export const Persistence = {
   db,

@@ -3,20 +3,15 @@ import { chain } from 'lodash-es';
 import { ChaseIdToDetails, uploadsFolder } from '../config';
 import { UTF8 } from '../constants';
 import { Persistence } from '../persistence';
-import { db } from '../persistence/db';
-import { CategorizedTransactionDAO, TransactionType } from '../persistence/transaction/transaction.entity';
-import { assignCategories, getCategoryBuckets } from './category';
+import { getCategoryBuckets } from './category';
 import { getChaseAccountId } from './chase';
 import { recursiveTraverse } from './file';
-import { ITransactionDTO } from './transaction';
-import { isNotTransfer } from './utils';
+import { SvcTransaction } from './svcTransaction';
 
 export const createInitialData = async (startDate: Date, endDate: Date, fileExts: string[]) => {
   console.log(`Running reports from ${startDate} to ${endDate} using ${fileExts}`)
 
-  const objWithinDateRange = (obj: { date: Date }) => obj.date >= startDate && obj.date <= endDate
-
-  const allTransactions: ITransactionDTO[] = []
+  const allTransactions: SvcTransaction[] = []
 
   await recursiveTraverse(uploadsFolder, fileExts, console, (path: string) => {
     const id = getChaseAccountId(path)
@@ -34,14 +29,10 @@ export const createInitialData = async (startDate: Date, endDate: Date, fileExts
   })
 
   const buckets = await getCategoryBuckets()
-  const [debits, credits] = chain(allTransactions)
-    .filter(t => objWithinDateRange(t) && isNotTransfer(t))
-    .map(assignCategories(buckets))
-    .partition(['transactionType', TransactionType.DEBIT])
+  const transactions = chain(allTransactions)
+    .filter(t => t.isWithinDateRange(startDate, endDate) && t.isNotTransfer())
+    .map(t => t.assignCategory(buckets))
     .value()
 
-  await db.transaction(async (trxManager) => {
-    await Persistence.transactions.credits.write(credits.map(t => new CategorizedTransactionDAO(t)), trxManager)
-    await Persistence.transactions.debits.write(debits.map(t => new CategorizedTransactionDAO(t)), trxManager)
-  })
+  await Persistence.transactions.all.write(transactions)
 }

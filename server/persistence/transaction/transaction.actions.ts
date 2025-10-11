@@ -1,8 +1,7 @@
 import { EntityManager } from 'typeorm';
-import { Persistence } from '..';
-import { ICategorizedTransactionDTO } from '../../services/transaction';
+import { SvcTransaction } from '../../services/svcTransaction';
 import { db } from '../db';
-import { CategorizedTransactionDAO, TransactionType } from './transaction.entity';
+import { CategorizedTransactionDAO, TransactionType } from './transaction.dao';
 
 const CategorizedTransactionRepo = db.getRepository(CategorizedTransactionDAO)
 const getManager = (manager?: EntityManager): any => {
@@ -14,31 +13,34 @@ const getManager = (manager?: EntityManager): any => {
 }
 
 export const debitActions = {
-  read: async (): Promise<ICategorizedTransactionDTO[]> => {
-    return (await CategorizedTransactionRepo.find({ where: { type: TransactionType.DEBIT } })).map(m => m.toDTO())
+  read: async (): Promise<SvcTransaction[]> => {
+    return (await CategorizedTransactionRepo.find({ where: { type: TransactionType.DEBIT } })).map(m => m.toSvc())
   },
   // clear: () => CategorizedTransactionRepo.delete({ type: TransactionType.DEBIT }),
-  write: async (transactions: CategorizedTransactionDAO[], manager?: EntityManager) => {
-    await getManager(manager).save(transactions.map(t => {
-      t.type = TransactionType.DEBIT;
-      return t
-    }))
+  write: async (transactions: SvcTransaction[], manager?: EntityManager) => {
+    await getManager(manager).save(transactions.map(t =>
+      new CategorizedTransactionDAO({ ...t, transactionType: TransactionType.DEBIT })
+    ))
   },
 }
 
 export const creditActions = {
-  read: async (): Promise<ICategorizedTransactionDTO[]> => {
-    return (await CategorizedTransactionRepo.find({ where: { type: TransactionType.CREDIT } })).map(m => m.toDTO())
+  read: async (): Promise<SvcTransaction[]> => {
+    return (await CategorizedTransactionRepo.find({ where: { type: TransactionType.CREDIT } })).map(m => m.toSvc())
   },
   // clear: () => CategorizedTransactionRepo.delete({ type: TransactionType.CREDIT }),
-  write: async (transactions: CategorizedTransactionDAO[], manager?: EntityManager) => {
-    await getManager(manager).save(transactions.map(t => {
-      t.type = TransactionType.CREDIT;
-      return t
-    }))
+  write: async (transactions: SvcTransaction[], manager?: EntityManager) => {
+    await getManager(manager).save(transactions.map(t =>
+      new CategorizedTransactionDAO({ ...t, transactionType: TransactionType.CREDIT })
+    ))
   },
 }
 
 export const allActions = {
   clear: () => CategorizedTransactionRepo.clear(),
+  write: async (transactions: SvcTransaction[], manager?: EntityManager) => {
+    await getManager(manager).save(transactions.map(t =>
+      new CategorizedTransactionDAO(t)
+    ))
+  }
 }

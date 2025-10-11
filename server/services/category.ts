@@ -1,7 +1,7 @@
 import { COMMA, IGNORE, UNCATEGORIZABLE } from '../constants';
-import { TransactionType } from '../persistence/transaction/transaction.entity';
+import { TransactionType } from '../persistence/transaction/transaction.dao';
 import { getDbMatchers, getServiceMatchers } from './matcher';
-import { ICategorizedTransactionDTO } from './transaction';
+import { SvcTransaction } from './svcTransaction';
 
 export type IUmbrellaCategoryAcc = { [umbrellaCategory: string]: number; };
 export const getUmbrellaCategoryAcc = async () => {
@@ -29,33 +29,5 @@ export const getCategoryBuckets: () => Promise<ICategoryBucket[]> = async () => 
       fragments: csvQueries.toLowerCase().split(COMMA).map(fragment => fragment.trim()).filter(Boolean),
       categoryData: data
     }));
-};
-
-/**
- * Used with ITransaction | ICategorizedTransaction inputs
- */
-export const assignCategories = (buckets: ICategoryBucket[]) => (t: any): ICategorizedTransactionDTO => {
-  for (const bucket of buckets) {
-    const { fragments, categoryData } = bucket;
-
-    for (const fragment of fragments) {
-      const match = new RegExp(`\\b${fragment}\\b`, 'i').test(t.description);
-
-      if (match) {
-        t.category = categoryData.umbrellaCategory;
-        break;
-      }
-    }
-
-    if (t.category) {
-      break;
-    }
-  }
-
-  if (!t.category) {
-    t.category = t.transactionType === TransactionType.DEBIT ? UNCATEGORIZABLE : IGNORE;
-  }
-
-  return t;
 };
 
