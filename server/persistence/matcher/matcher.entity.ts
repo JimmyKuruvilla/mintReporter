@@ -1,13 +1,14 @@
 import { Entity, Column, PrimaryGeneratedColumn, Index } from 'typeorm'
-import { IMatcher } from '../../services'
+import { IMatcherDTO } from '../../services'
 export enum MatcherType {
   FINAL = 'final',
-  MODIFIED = 'modified'
+  MODIFIED = 'modified',
+  EMPTY = 'empty'
 }
 
-@Entity()
+@Entity('matcher')
 @Index('matcher_compound_unique', ['category', 'query', 'type'], { unique: true })
-export class Matcher {
+export class MatcherDAO {
   @Index('matcher_id_unique', { unique: true })
   @PrimaryGeneratedColumn()
   id?: number
@@ -21,11 +22,15 @@ export class Matcher {
   @Column('text')
   type: MatcherType
 
-  constructor(data: IMatcher) {
+  constructor(data: IMatcherDTO) {
     this.id = data?.id
     this.category = data?.category
     this.query = data?.query
-    this.type = data?.type
+    if (data?.type === MatcherType.EMPTY) {
+      throw new Error(`ILLEGAL_MATCHER_TYPE ${data.type}`)
+    } else {
+      this.type = data?.type
+    }
   }
 
   toDTO() {

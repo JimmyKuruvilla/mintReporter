@@ -2,7 +2,7 @@ import express from 'express';
 import { createSummary } from 'server/services/summary';
 import * as z from "zod";
 import { validateMiddleware } from '../middleware';
-import { CategorizedTransaction, Persistence } from '../persistence';
+import { CategorizedTransactionDAO, Persistence } from '../persistence';
 import { CategorizedTransactionDTO, ICategorizedTransactionDTO, } from '../services';
 import { createInitialData } from '../services/ingestion';
 
@@ -77,8 +77,8 @@ inputsRouter.patch(
       const editedDebits: ICategorizedTransactionDTO[] = req.body.editedDebits
       const editedCredits: ICategorizedTransactionDTO[] = req.body.editedCredits
 
-      await Persistence.transactions.credits.write(editedCredits.map(t => new CategorizedTransaction(CategorizedTransactionDTO(t))))
-      await Persistence.transactions.debits.write(editedDebits.map(t => new CategorizedTransaction(CategorizedTransactionDTO(t))))
+      await Persistence.transactions.credits.write(editedCredits.map(t => new CategorizedTransactionDAO(CategorizedTransactionDTO(t))))
+      await Persistence.transactions.debits.write(editedDebits.map(t => new CategorizedTransactionDAO(CategorizedTransactionDTO(t))))
       
       const { credits, debits, reconciledSummary, } = await createSummary()
 

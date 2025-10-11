@@ -1,4 +1,4 @@
-import { Matcher, Persistence } from '../persistence';
+import { MatcherDAO, Persistence } from '../persistence';
 import { FINAL } from '../persistence/constants';
 import { Read } from '../services';
 
@@ -9,7 +9,7 @@ await Persistence.matchers.final.clear()
 const matchers = Object.entries(finalMatchers).flatMap(([category, queryStr]) => {
   const queries = queryStr.split(',')
   return queries.map(query => {
-    return new Matcher({
+    return new MatcherDAO({
       category: category,
       query: query,
       type: FINAL,

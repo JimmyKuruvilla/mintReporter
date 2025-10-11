@@ -1,16 +1,16 @@
 import { Persistence } from '..';
-import { IMatcher } from '../../services';
+import { IMatcherDTO } from '../../services';
 import { db } from '../db';
-import { Matcher, MatcherType } from './matcher.entity';
+import { MatcherDAO, MatcherType } from './matcher.entity';
 
-const MatcherRepo = db.getRepository(Matcher)
+const MatcherRepo = db.getRepository(MatcherDAO)
 
 export const finalActions = {
-  read: async (): Promise<IMatcher[]> => {
+  read: async (): Promise<IMatcherDTO[]> => {
     return (await MatcherRepo.find({ where: { type: MatcherType.FINAL } })).map(m => m.toDTO())
   },
   clear: () => MatcherRepo.delete({ type: MatcherType.FINAL }),
-  write: async (matchers: Matcher[]) => {
+  write: async (matchers: MatcherDAO[]) => {
     await Persistence.matchers.final.clear()
     await MatcherRepo.save(matchers.map(m => {
       m.type = MatcherType.FINAL;
@@ -21,11 +21,11 @@ export const finalActions = {
 }
 
 export const modifiedActions = {
-  read: async (): Promise<IMatcher[]> => {
+  read: async (): Promise<IMatcherDTO[]> => {
     return (await MatcherRepo.find({ where: { type: MatcherType.MODIFIED } })).map(m => m.toDTO())
   },
   clear: () => MatcherRepo.delete({ type: MatcherType.MODIFIED }),
-  write: async (matchers: Matcher[]) => {
+  write: async (matchers: MatcherDAO[]) => {
     await Persistence.matchers.modified.clear()
     await MatcherRepo.save(matchers.map(m => {
       m.type = MatcherType.MODIFIED

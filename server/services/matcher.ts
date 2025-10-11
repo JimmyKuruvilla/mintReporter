@@ -1,6 +1,6 @@
 import { isTest } from '../config';
 import { IGNORE } from '../constants';
-import { Matcher, MatcherType, Persistence } from '../persistence';
+import { MatcherDAO, MatcherType, Persistence } from '../persistence';
 
 const TestMatchers = {
   'has-dash': { umbrellaCategory: 'has dash', },
@@ -61,14 +61,14 @@ export const dbMatchersToServiceMatchers = (dbMatchers: IDbMatchers) => {
   }, {})
 }
 
-export type IUiMatcher = Omit<IMatcher, 'type'> & { markedForDelete: boolean }
+export type IUiMatcher = Omit<IMatcherDTO, 'type'> & { markedForDelete: boolean }
 export const uiMatchersToDbMatchers = (
   uiMatchers: IUiMatcher[]
-) => uiMatchers.map((matcher: IUiMatcher) => new Matcher({ ...matcher, type: undefined }))
+) => uiMatchers.map((matcher: IUiMatcher) => new MatcherDAO({ ...matcher, type: MatcherType.EMPTY }))
 
-export type IMatcher = { //TODO dto
+export type IMatcherDTO = { //TODO dto
   id?: number,
   category: string,
   query: string,
-  type?: MatcherType
+  type: MatcherType
 }

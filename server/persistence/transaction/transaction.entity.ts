@@ -12,9 +12,9 @@ export enum AccountType {
   CREDIT = 'credit_card_account',
 }
 
-@Entity()
+@Entity('categorized_transaction')
 @Index('multi_column_unique', ['category', 'date', 'amount', 'type', 'description', 'accountName', 'accountType'], { unique: true })
-export class CategorizedTransaction {
+export class CategorizedTransactionDAO {
   @Index('categorized_transaction_id_unique', { unique: true })
   @PrimaryGeneratedColumn()
   id?: number

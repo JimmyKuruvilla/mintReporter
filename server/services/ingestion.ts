@@ -4,7 +4,7 @@ import { ChaseIdToDetails, uploadsFolder } from '../config';
 import { UTF8 } from '../constants';
 import { Persistence } from '../persistence';
 import { db } from '../persistence/db';
-import { CategorizedTransaction, TransactionType } from '../persistence/transaction/transaction.entity';
+import { CategorizedTransactionDAO, TransactionType } from '../persistence/transaction/transaction.entity';
 import { assignCategories, getCategoryBuckets } from './category';
 import { getChaseAccountId } from './chase';
 import { recursiveTraverse } from './file';
@@ -41,7 +41,7 @@ export const createInitialData = async (startDate: Date, endDate: Date, fileExts
     .value()
 
   await db.transaction(async (trxManager) => {
-    await Persistence.transactions.credits.write(credits.map(t => new CategorizedTransaction(t)), trxManager)
-    await Persistence.transactions.debits.write(debits.map(t => new CategorizedTransaction(t)), trxManager)
+    await Persistence.transactions.credits.write(credits.map(t => new CategorizedTransactionDAO(t)), trxManager)
+    await Persistence.transactions.debits.write(debits.map(t => new CategorizedTransactionDAO(t)), trxManager)
   })
 }

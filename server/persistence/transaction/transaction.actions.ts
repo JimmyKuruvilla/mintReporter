@@ -2,9 +2,9 @@ import { EntityManager } from 'typeorm';
 import { Persistence } from '..';
 import { ICategorizedTransactionDTO } from '../../services/transaction';
 import { db } from '../db';
-import { CategorizedTransaction, TransactionType } from './transaction.entity';
+import { CategorizedTransactionDAO, TransactionType } from './transaction.entity';
 
-const CategorizedTransactionRepo = db.getRepository(CategorizedTransaction)
+const CategorizedTransactionRepo = db.getRepository(CategorizedTransactionDAO)
 const getManager = (manager?: EntityManager): any => {
   if (manager) {
     return manager
@@ -18,7 +18,7 @@ export const debitActions = {
     return (await CategorizedTransactionRepo.find({ where: { type: TransactionType.DEBIT } })).map(m => m.toDTO())
   },
   // clear: () => CategorizedTransactionRepo.delete({ type: TransactionType.DEBIT }),
-  write: async (transactions: CategorizedTransaction[], manager?: EntityManager) => {
+  write: async (transactions: CategorizedTransactionDAO[], manager?: EntityManager) => {
     await getManager(manager).save(transactions.map(t => {
       t.type = TransactionType.DEBIT;
       return t
@@ -31,7 +31,7 @@ export const creditActions = {
     return (await CategorizedTransactionRepo.find({ where: { type: TransactionType.CREDIT } })).map(m => m.toDTO())
   },
   // clear: () => CategorizedTransactionRepo.delete({ type: TransactionType.CREDIT }),
-  write: async (transactions: CategorizedTransaction[], manager?: EntityManager) => {
+  write: async (transactions: CategorizedTransactionDAO[], manager?: EntityManager) => {
     await getManager(manager).save(transactions.map(t => {
       t.type = TransactionType.CREDIT;
       return t
