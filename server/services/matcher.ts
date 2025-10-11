@@ -61,14 +61,14 @@ export const dbMatchersToServiceMatchers = (dbMatchers: IDbMatchers) => {
   }, {})
 }
 
-export type IUiMatcher = Omit<Matcher, 'type'> & { markedForDelete: boolean }
+export type IUiMatcher = Omit<IMatcher, 'type'> & { markedForDelete: boolean }
 export const uiMatchersToDbMatchers = (
   uiMatchers: IUiMatcher[]
 ) => uiMatchers.map((matcher: IUiMatcher) => new Matcher({ ...matcher, type: undefined }))
 
-export type IMatcher = {
+export type IMatcher = { //TODO dto
   id?: number,
   category: string,
   query: string,
-  type: MatcherType
+  type?: MatcherType
 }

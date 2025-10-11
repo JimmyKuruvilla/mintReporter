@@ -59,7 +59,7 @@ export const Categories = () => {
     setHasChanges(true)
     setRows(
       [{
-        id: Math.round(1e7 + Math.random() * 1000), //here
+        id: new Date().valueOf(),
         category: 'New Category',
         query: 'New Matcher',
         markedForDelete: false
@@ -67,9 +67,8 @@ export const Categories = () => {
       ...rows]
     )
   }
-//TODO start here. New rows should not have ids, but we need them for the datatable. So add some, then delete those before it hits the backend
-// also use fatchWithAlert in categories
-// rename inputs component to be called transactions?
+  
+//TODO rename inputs component to be called transactions?
   const handleRowUpdate = (updatedRow: IUiMatcher, originalRow: IUiMatcher) => {
     setRows([updatedRow, ...rows.filter(row => row.id !== updatedRow.id)])
     setHasChanges(true)
