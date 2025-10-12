@@ -54,6 +54,10 @@ fragment: american (american airlines) matches t.description: American Meadows. 
 TODO
 2. highlight the uncategorized in the reconciled summary. 
 2. persist records to db, and update service to use db models
+reorganize into domains
+- inputs/transactions the routes, types, daos in one place 
+- etc. 
+
 add tests vitest
 add pino logger
 add eslint
@@ -62,4 +66,3 @@ add ability to ingest historical csv from sheets and turn it into a data archive
 add graphs?
 
 // use effect Ts /neverthrow at that point. 
-// then start adding in db stuff after another full test. 

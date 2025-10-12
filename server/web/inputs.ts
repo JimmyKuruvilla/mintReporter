@@ -1,9 +1,9 @@
 import express from 'express';
-import { createSummary } from 'server/services/summary';
+
 import * as z from "zod";
 import { validateMiddleware } from '../middleware';
 import { Persistence } from '../persistence';
-import { SvcTransaction, SvcTransactionCtorArgs, } from '../services';
+import { SvcReconciliation, SvcTransaction, SvcTransactionCtorArgs, } from '../services';
 import { createInitialData } from '../services/ingestion';
 
 export const inputsRouter = express.Router()
@@ -18,8 +18,8 @@ inputsRouter.get(
     try {
       try {
         // TODO: make this take a date range so we can just summarize on some of the data. 
-        const resp = await createSummary()
-        reconciledSummary = resp.reconciledSummary
+        const resp = await new SvcReconciliation().calc()
+        reconciledSummary = resp.reconciliation
         credits = resp.credits
         debits = resp.debits
       } catch (error) {
@@ -57,7 +57,7 @@ inputsRouter.post(
       const endDate = req.body.endDate
       await createInitialData(new Date(startDate), new Date(endDate), ['.csv'])
 
-      const { credits, debits, reconciledSummary, } = await createSummary()
+      const { credits, debits, reconciliation: reconciledSummary, } = await new SvcReconciliation().calc()
 
       res.json({ credits, debits, reconciledSummary });
     } catch (error: any) {
@@ -80,7 +80,7 @@ inputsRouter.patch(
       await Persistence.transactions.debits.write(editedDebits.map(t => new SvcTransaction(t)))
       await Persistence.transactions.credits.write(editedCredits.map(t => new SvcTransaction(t)))
 
-      const { credits, debits, reconciledSummary, } = await createSummary()
+      const { credits, debits, reconciliation: reconciledSummary, } = await new SvcReconciliation().calc()
 
       res.json({ credits, debits, reconciledSummary });
     } catch (error: any) {

@@ -1,7 +1,7 @@
 import { sortBy } from 'lodash-es';
 import { IGNORE, NEW_LINE, UNCATEGORIZABLE } from '../constants';
 import { Write } from './file';
-import { createSummary, IReconciledSummary } from './summary';
+import { IReconciliation, SvcReconciliation } from '../domains/reconciliation/reconciliation.svc';
 import { SvcTransaction } from './transaction.svc';
 
 export const prepareTransactionCsv = (transactions: SvcTransaction[]) => {
@@ -10,7 +10,7 @@ export const prepareTransactionCsv = (transactions: SvcTransaction[]) => {
     .join(NEW_LINE);
 };
 
-export const prepareSummaryCsv = (summary: IReconciledSummary) => {
+export const prepareSummaryCsv = (summary: IReconciliation) => {
   const ignoreTotal = summary[IGNORE];
   const uncategorizableTotal = summary[UNCATEGORIZABLE];
   const cleanList = Object.fromEntries(
@@ -27,7 +27,7 @@ export const prepareSummaryCsv = (summary: IReconciledSummary) => {
 };
 
 export const createFinalCSVs = async () => {
-  const { debits, credits, reconciledSummary } = await createSummary();
+  const { debits, credits, reconciliation: reconciledSummary } = await new SvcReconciliation().calc();
   const debitsCSV = prepareTransactionCsv(sortBy(debits, 'category'));
   const creditsCSV = prepareTransactionCsv(sortBy(credits, 'description'));
   const summaryCSV = prepareSummaryCsv(reconciledSummary);
@@ -35,9 +35,6 @@ export const createFinalCSVs = async () => {
   await Write.outputDebits(debitsCSV);
   await Write.outputCredits(creditsCSV);
   await Write.outputSummary(summaryCSV);
-
-  console.log('############ REMAINING UNCATEGORIZABLE DEBITS/CHECKS ###################');
-  console.log(debits.filter(d => d.isUncategorizableOrCheck()));
 
   return { debitsCSV, creditsCSV, summaryCSV };
 };

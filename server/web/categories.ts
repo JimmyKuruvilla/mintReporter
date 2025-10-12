@@ -1,6 +1,6 @@
 import express from 'express';
 import 'reflect-metadata';
-import { getUiUmbrellaCategories } from 'server/services/category';
+import { getUiCategories } from 'server/services/category';
 import * as z from "zod";
 import { validateMiddleware } from '../middleware';
 import { MatcherType, Persistence } from '../persistence';
@@ -12,7 +12,7 @@ categoriesRouter.get(
   '/categories',
   async (req, res, next) => {
     try {
-      res.json((await getUiUmbrellaCategories()));
+      res.json((await getUiCategories()));
     } catch (error: any) {
       next(error)
     }
@@ -23,7 +23,7 @@ categoriesRouter.get(
   async (req, res, next) => {
     try {
       res.json({
-        categories: (await getUiUmbrellaCategories()),
+        categories: (await getUiCategories()),
         matchers: await getUiMatchers()
       });
     } catch (error: any) {
@@ -50,7 +50,7 @@ categoriesRouter.post(
         )
       }
       res.json({
-        categories: (await getUiUmbrellaCategories()),
+        categories: (await getUiCategories()),
         matchers: await getUiMatchers()
       });
     } catch (error: any) {
@@ -69,7 +69,7 @@ categoriesRouter.delete(
       }
 
       res.json({
-        categories: (await getUiUmbrellaCategories()),
+        categories: (await getUiCategories()),
         matchers: await getUiMatchers()
       });
     } catch (error: any) {
