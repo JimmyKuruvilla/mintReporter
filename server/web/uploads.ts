@@ -2,7 +2,7 @@ import express from 'express';
 import * as z from 'zod';
 
 import { csvUploadMiddleware, validateMiddleware } from 'server/middleware';
-import { DeleteFiles, List } from 'server/services/data';
+import { DeleteFiles, List } from 'server/services/file';
 
 export const uploadsRouter = express.Router()
 const UploadBodySchema = z.object({

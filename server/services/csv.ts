@@ -1,8 +1,8 @@
 import { sortBy } from 'lodash-es';
 import { IGNORE, NEW_LINE, UNCATEGORIZABLE } from '../constants';
-import { Write } from './data';
+import { Write } from './file';
 import { createSummary, IReconciledSummary } from './summary';
-import { SvcTransaction } from './svcTransaction';
+import { SvcTransaction } from './transaction.svc';
 
 export const prepareTransactionCsv = (transactions: SvcTransaction[]) => {
   return transactions

@@ -1,6 +1,7 @@
+import fs from 'node:fs'
 import express from 'express'
 import cors from 'cors'
-import { uploadsFolder } from './config'
+import { csvOutputFolder, uploadsFolder } from './config'
 import { errorMiddleware } from './middleware'
 
 import { uploadsRouter } from './web/uploads'
@@ -16,6 +17,13 @@ try {
   } catch (error) {
     console.error('DATA_SOURCE_ERROR', error)
     throw error
+  }
+
+  try {
+    fs.mkdirSync(uploadsFolder, { recursive: true })
+    fs.mkdirSync(csvOutputFolder, { recursive: true })
+  } catch (error) {
+    console.log(`DIRECTORY_CREATION_ERROR, ${error}`)
   }
 
   const app = express()

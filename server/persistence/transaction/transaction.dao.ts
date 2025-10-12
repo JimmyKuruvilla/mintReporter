@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, Index } from 'typeorm'
-import { SvcTransaction } from '../../services/svcTransaction'
+import { SvcTransaction } from '../../services/transaction.svc'
 
 export enum TransactionType {
   DEBIT = 'debit',

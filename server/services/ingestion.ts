@@ -5,8 +5,8 @@ import { UTF8 } from '../constants';
 import { Persistence } from '../persistence';
 import { getChaseAccountId } from './chase';
 import { recursiveTraverse } from './file';
-import { SvcTransaction } from './svcTransaction';
-import { getAvailableMatchers } from './matcher';
+import { SvcTransaction } from './transaction.svc';
+import { getAvailableMatchers } from './matcher.svc';
 
 export const createInitialData = async (startDate: Date, endDate: Date, fileExts: string[]) => {
   console.log(`Running reports from ${startDate} to ${endDate} using ${fileExts}`)
@@ -32,7 +32,7 @@ export const createInitialData = async (startDate: Date, endDate: Date, fileExts
 
   const transactions = chain(allTransactions)
     .filter(t => t.isWithinDateRange(startDate, endDate) && t.isNotTransfer())
-    .map(t => t.assignCategoryV2(matchers))
+    .map(t => t.assignCategory(matchers))
     .value()
 
   await Persistence.transactions.all.write(transactions)

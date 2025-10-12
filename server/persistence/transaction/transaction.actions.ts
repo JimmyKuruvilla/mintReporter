@@ -1,5 +1,5 @@
 import { EntityManager } from 'typeorm';
-import { SvcTransaction } from '../../services/svcTransaction';
+import { SvcTransaction } from '../../services/transaction.svc';
 import { db } from '../db';
 import { CategorizedTransactionDAO, TransactionType } from './transaction.dao';
 

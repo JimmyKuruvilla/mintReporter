@@ -21,16 +21,16 @@ outputsRouter.get('/outputs/:filename',
 
     switch (req.params.filename) {
       case 'debit':
-        filename = FILE_NAMES.ALL_DEBITS
+        filename = FILE_NAMES.CSV.DEBITS
         break
       case 'credit':
-        filename = FILE_NAMES.ALL_CREDITS
+        filename = FILE_NAMES.CSV.CREDITS
         break
       case 'summary':
-        filename = FILE_NAMES.SUMMARY
+        filename = FILE_NAMES.CSV.SUMMARY
         break
       default:
-        filename = FILE_NAMES.SUMMARY
+        filename = FILE_NAMES.CSV.SUMMARY
     }
 
     res.download(csvOutputFilePath(filename));

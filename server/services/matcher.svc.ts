@@ -26,8 +26,8 @@ export const getAvailableMatchers = async () => {
 }
 
 export const getUiMatchers = async () => {
-  const dbMatchers = await getAvailableMatchers()
-  return dbMatchers.map(i => ({
+  const matchers = await getAvailableMatchers()
+  return matchers.map(i => ({
     id: i.id,
     category: i.category,
     query: i.query,

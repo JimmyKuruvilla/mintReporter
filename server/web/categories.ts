@@ -4,7 +4,7 @@ import { getUiUmbrellaCategories } from 'server/services/category';
 import * as z from "zod";
 import { validateMiddleware } from '../middleware';
 import { MatcherType, Persistence } from '../persistence';
-import { getUiMatchers, SvcMatcher, SvcMatcherCtorArgs } from '../services/matcher';
+import { getUiMatchers, SvcMatcher, SvcMatcherCtorArgs } from '../services/matcher.svc';
 
 export const categoriesRouter = express.Router()
 

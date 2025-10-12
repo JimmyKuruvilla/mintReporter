@@ -1,6 +1,6 @@
 import { CHECK, IGNORE, UNCATEGORIZABLE } from '../constants'
 import { AccountType, TransactionType } from '../persistence/transaction/transaction.dao'
-import { SvcMatcher } from './matcher'
+import { SvcMatcher } from './matcher.svc'
 
 const UNKNOWN = 'UNKNOWN'
 
@@ -59,7 +59,7 @@ export class SvcTransaction {
     }
   }
 
-  assignCategoryV2 = (matchers: SvcMatcher[]) => {
+  assignCategory = (matchers: SvcMatcher[]) => {
     for (const matcher of matchers) {
       const { query, category } = matcher;
 

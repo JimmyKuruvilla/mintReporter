@@ -4,7 +4,7 @@ import { IGNORE } from '../constants';
 import { Persistence } from '../persistence';
 import { TransactionType } from '../persistence/transaction/transaction.dao';
 import { getUmbrellaCategoryAcc, IUmbrellaCategoryAcc } from './category';
-import { SvcTransaction } from './svcTransaction';
+import { SvcTransaction } from './transaction.svc';
 
 export type IUmbrellaCategoryAccWithTotal = IUmbrellaCategoryAcc & { total: number; };
 export const summarizeTransactionCategories = (type: TransactionType, umbrellaCategoryAcc: IUmbrellaCategoryAcc, transactions: SvcTransaction[]): IUmbrellaCategoryAccWithTotal => {

@@ -1,7 +1,7 @@
 import path from 'path';
 import { EMPTY_FIELD, NEW_LINE } from '../constants';
 
-import { SvcTransaction } from './svcTransaction';
+import { SvcTransaction } from './transaction.svc';
 import { TransactionType, AccountType } from '../persistence/transaction/transaction.dao';
 
 /*

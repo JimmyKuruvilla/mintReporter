@@ -8,5 +8,5 @@ dist
 modifiedBaseForReview.json
 
 config/chaseIdtoDetails.ts
-server/data
+server/tmp
 db.sqlite

@@ -54,8 +54,12 @@ fragment: american (american airlines) matches t.description: American Meadows. 
 TODO
 2. highlight the uncategorized in the reconciled summary. 
 2. persist records to db, and update service to use db models
-
-1. clean up the db, service and ui matcher creation. 
+add tests vitest
+add pino logger
+add eslint
+add backup to s3 script
+add ability to ingest historical csv from sheets and turn it into a data archive
+add graphs?
 
 // use effect Ts /neverthrow at that point. 
 // then start adding in db stuff after another full test. 
