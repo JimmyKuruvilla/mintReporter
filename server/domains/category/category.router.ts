@@ -2,11 +2,13 @@ import express from 'express';
 import * as z from "zod";
 
 import { validateMiddleware } from '../../middleware';
+import { db } from '../../persistence';
 import { CategoryService } from './category.service';
+import { DAOMatcher } from './dao.matcher';
 import { MatcherType } from './matcherType';
 import { SvcMatcherCtorArgs } from './svc.matcher';
 
-const svc = new CategoryService()
+const svc = new CategoryService({ repository: db.getRepository(DAOMatcher) })
 export const categoriesRouter = express.Router()
 
 categoriesRouter.get(

@@ -1,13 +1,14 @@
 import express from 'express';
 import { ChaseIdToDetails, csvOutputFilePath, FILE_NAMES } from '../../config';
-import { CategoryService } from '../category';
+import { db } from '../../persistence';
+import { CategoryService, DAOMatcher } from '../category';
 import { FileService } from '../file';
-import { TransactionService } from '../transaction';
+import { DAOTransaction, TransactionService } from '../transaction';
 import { OutputService } from './output.service';
 
-const categoryService = new CategoryService()
+const categoryService = new CategoryService({ repository: db.getRepository(DAOMatcher) })
 const fileService = new FileService()
-const transactionService = new TransactionService({ accounts: ChaseIdToDetails, fileService, categoryService })
+const transactionService = new TransactionService({ repository: db.getRepository(DAOTransaction), accounts: ChaseIdToDetails, fileService, categoryService })
 const svc = new OutputService({ fileService, transactionService })
 
 export const outputsRouter = express.Router()

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { chain } from 'lodash-es';
-import { EntityManager } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { AccountIdToDetails, uploadsFolder } from '../../config';
 import { UTF8 } from '../../constants';
 import { db } from '../../persistence/dataSource';
@@ -12,23 +12,21 @@ import { DAOTransaction } from './dao.transaction';
 import { SvcTransaction, SvcTransactionCtorArgs } from './svc.transaction';
 import { TransactionType } from './transactionType';
 
-const repo = () => db.getRepository(DAOTransaction)
-
 const getManager = (manager?: EntityManager): any => {
   if (manager) {
     return manager
   } else {
-    return repo()
+    return db.getRepository(DAOTransaction)
   }
 }
 
-// TODO should this take FS and db as deps?
 export class TransactionService {
+  repository!: Repository<DAOTransaction>
   fileService!: FileService
   categoryService!: CategoryService
   accounts!: AccountIdToDetails
 
-  constructor(data: { accounts: AccountIdToDetails, fileService: FileService, categoryService: CategoryService }) {
+  constructor(data: { repository: Repository<DAOTransaction>, accounts: AccountIdToDetails, fileService: FileService, categoryService: CategoryService }) {
     Object.assign(this, data)
   }
 
@@ -85,9 +83,8 @@ export class TransactionService {
 
   debitDbActions = {
     read: async (): Promise<SvcTransaction[]> => {
-      return (await repo().find({ where: { type: TransactionType.DEBIT } })).map(m => m.toSvc())
+      return (await this.repository.find({ where: { type: TransactionType.DEBIT } })).map(m => m.toSvc())
     },
-    // clear: () => CategorizedTransactionRepo.delete({ type: TransactionType.DEBIT }),
     write: async (transactions: SvcTransaction[], manager?: EntityManager) => {
       await getManager(manager).save(transactions.map(t =>
         new DAOTransaction({ ...t, transactionType: TransactionType.DEBIT })
@@ -97,9 +94,8 @@ export class TransactionService {
 
   crediDbActions = {
     read: async (): Promise<SvcTransaction[]> => {
-      return (await repo().find({ where: { type: TransactionType.CREDIT } })).map(m => m.toSvc())
+      return (await this.repository.find({ where: { type: TransactionType.CREDIT } })).map(m => m.toSvc())
     },
-    // clear: () => CategorizedTransactionRepo.delete({ type: TransactionType.CREDIT }),
     write: async (transactions: SvcTransaction[], manager?: EntityManager) => {
       await getManager(manager).save(transactions.map(t =>
         new DAOTransaction({ ...t, transactionType: TransactionType.CREDIT })
@@ -108,7 +104,7 @@ export class TransactionService {
   }
 
   allDbActions = {
-    clear: () => repo().clear(),
+    clear: () => this.repository.clear(),
     write: async (transactions: SvcTransaction[], manager?: EntityManager) => {
       await getManager(manager).save(transactions.map(t =>
         new DAOTransaction(t)

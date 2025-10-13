@@ -1,10 +1,13 @@
 
 import { chain } from 'lodash-es';
 import { IGNORE } from '../../constants';
-import { CategoryService, ICategoryAcc } from '../category';
+import { CategoryService, DAOMatcher, ICategoryAcc } from '../category';
 import { SvcTransaction } from '../transaction';
 import { TransactionType } from '../transaction/transactionType';
-const categoryService = new CategoryService()
+
+import { db } from '../../persistence';
+
+const categoryService  = new CategoryService({ repository: db.getRepository(DAOMatcher) })
 
 export type ICategoryAccWithTotal = ICategoryAcc & { total: number; };
 const reconcileTransactionCategories = (type: TransactionType, umbrellaCategoryAcc: ICategoryAcc, transactions: SvcTransaction[]): ICategoryAccWithTotal => {

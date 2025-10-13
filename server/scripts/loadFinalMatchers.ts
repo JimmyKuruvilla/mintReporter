@@ -1,12 +1,12 @@
-import { CategoryService, MatcherType, SvcMatcher } from '../domains/category'
+import { CategoryService, DAOMatcher, MatcherType, SvcMatcher } from '../domains/category'
 import { FileService } from '../domains/file'
 import { db } from '../persistence'
 
 await db.initialize()
 const fileService = new FileService()
-const categoryService =new CategoryService()
+const categoryService = new CategoryService({ repository: db.getRepository(DAOMatcher) })
 const finalMatchers = await fileService.read.finalMatchers()
-await categoryService.finalMatcherDbActions.clear()
+await categoryService.db.final.clear()
 
 const matchers = Object.entries(finalMatchers).flatMap(([category, queryStr]) => {
   const queries = queryStr.split(',')
@@ -20,5 +20,5 @@ const matchers = Object.entries(finalMatchers).flatMap(([category, queryStr]) =>
   })
 })
 
-await categoryService.finalMatcherDbActions.write(matchers)
+await categoryService.db.final.write(matchers)
 console.log(`Cleared final matched and inserted ${matchers.length} new final matchers`)

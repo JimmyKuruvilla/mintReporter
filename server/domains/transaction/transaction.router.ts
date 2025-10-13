@@ -3,14 +3,18 @@ import express from 'express';
 import * as z from "zod";
 import { ChaseIdToDetails } from '../../config/chaseIdtoDetails';
 import { validateMiddleware } from '../../middleware';
+import { db } from '../../persistence';
+import { DAOMatcher } from '../category';
 import { CategoryService } from '../category/category.service';
 import { FileService } from '../file/file.service';
+import { DAOTransaction } from './dao.transaction';
 import { TransactionService } from './transaction.service';
 
 export const transactionRouter = express.Router()
-const categoryService = new CategoryService()
+
+const categoryService = new CategoryService({ repository: db.getRepository(DAOMatcher) })
 const fileService = new FileService()
-const svc = new TransactionService({ accounts: ChaseIdToDetails, fileService, categoryService })
+const svc = new TransactionService({ repository: db.getRepository(DAOTransaction), accounts: ChaseIdToDetails, fileService, categoryService })
 
 transactionRouter.get(
   '/transactions',
@@ -78,7 +82,7 @@ transactionRouter.patch(
       const {
         credits,
         debits,
-        reconciliation 
+        reconciliation
       } = await svc.editTransactions(req.body.editedDebits, req.body.editedCredits)
 
       res.json({ credits, debits, reconciliation });
