@@ -82,7 +82,7 @@ export const ChaseCreditCSVParser = (accountName: string, csv: string): SvcTrans
             description: formatDescription(description),
             amount,
             transactionType,
-            metadata: { institutionTransactionType: type, [AccountType.BANK]: { checkNumber: null }, [AccountType.CREDIT]: {} },
+            metadata: { institutionTransactionType: type, [AccountType.BANK]: { checkNumber: '' }, [AccountType.CREDIT]: {} },
             accountName,
             accountType: AccountType.CREDIT,
             notes: memo

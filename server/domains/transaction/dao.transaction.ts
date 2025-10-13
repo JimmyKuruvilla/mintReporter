@@ -50,7 +50,7 @@ export class DAOTransaction {
     this.date = data?.date.toISOString()
     this.description = data?.description
     this.institutionTransactionType = data?.metadata.institutionTransactionType
-    this.checkNumber = data?.metadata?.[AccountType.BANK]?.checkNumber
+    this.checkNumber = data?.metadata[AccountType.BANK]?.checkNumber
     this.type = data?.transactionType
   }
 
@@ -69,7 +69,8 @@ export class DAOTransaction {
         institutionTransactionType: this.institutionTransactionType,
         [AccountType.BANK]: {
           checkNumber: this.checkNumber
-        }
+        },
+        [AccountType.CREDIT]: {}
       },
       transactionType: this.type,
     })

@@ -17,19 +17,24 @@ export type SvcTransactionCtorArgs = {
   accountName: string
   accountType: AccountType
   description: string
-  metadata: any
+  metadata: Omit<SvcTransactionMetadata, AccountType.BANK> & {
+    [AccountType.BANK]?: {
+      checkNumber?: string | number
+    }
+  }
 }
 
 type SvcTransactionMetadata = {
   institutionTransactionType: string,
-  [AccountType.BANK]?: {
+  [AccountType.BANK]: {
     checkNumber?: number
   }
+  [AccountType.CREDIT]: {}
 }
 
 /*
-** Used to represent the transaction within the business logic
-** Constructor handles csv (string) inputs as well as db inputs
+  ** Used to represent the transaction within the business logic
+  ** Constructor handles csv (string) inputs as well as db inputs
 */
 export class SvcTransaction {
   id?: number
@@ -49,8 +54,14 @@ export class SvcTransaction {
     Object.assign(this, data)
     this.date = data.date instanceof Date ? data.date : new Date(data.date)
     this.amount = typeof data.amount === 'string' ? parseFloat(data.amount) : data.amount
-    if (this?.metadata?.[AccountType.BANK]?.checkNumber) {
-      this.metadata[AccountType.BANK].checkNumber = parseInt(data.metadata[AccountType.BANK].checkNumber, 10)
+    
+    const maybeCheckNumber = data.metadata[AccountType.BANK]?.checkNumber
+    if (maybeCheckNumber) {
+      if (typeof maybeCheckNumber === 'string') {
+        this.metadata[AccountType.BANK] = { ...this.metadata[AccountType.BANK], checkNumber: parseInt(maybeCheckNumber, 10) }
+      } else if (typeof maybeCheckNumber === 'number') {
+        this.metadata[AccountType.BANK] = { ...this.metadata[AccountType.BANK], checkNumber: maybeCheckNumber }
+      }
     }
   }
 
@@ -72,7 +83,7 @@ export class SvcTransaction {
 
     return this;
   };
-  
+
   isWithinDateRange = (startDate: Date, endDate: Date) => this.date >= startDate && this.date <= endDate
 
   isUncategorizable = () => this.category === UNCATEGORIZABLE

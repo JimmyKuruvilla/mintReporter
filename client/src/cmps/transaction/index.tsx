@@ -41,13 +41,14 @@ const createEdit = (row: UiTransaction): SvcTransactionCtorArgs => {
   return t
 }
 
+// TODO shortcutting with ctorArgs leads to casting checkNumber as number. Instead could use a DTO
 const createTransactionRow = (i: SvcTransactionCtorArgs): UiTransaction => ({
   id: i.id,
   category: i.category,
   amount: i.amount,
   date: new Date(i.date),
   description: i.description,
-  checkNum: i.metadata?.bank_account?.checkNumber,
+  checkNum: i.metadata?.bank_account?.checkNumber as number,
   institutionTransactionType: i.metadata?.institutionTransactionType,
   transactionType: i.transactionType,
   accountName: i.accountName,
