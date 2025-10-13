@@ -8,6 +8,7 @@ import { getChaseAccountId } from '../account/chase';
 import { CategoryService } from '../category/category.service';
 import { FileService } from '../file';
 import { SvcReconciliation } from '../reconciliation/reconciliation';
+import { DAOHistoricalTransaction } from './dao.historicalTransaction';
 import { DAOTransaction } from './dao.transaction';
 import { SvcTransaction, SvcTransactionCtorArgs } from './svc.transaction';
 import { TransactionType } from './transactionType';
@@ -22,11 +23,18 @@ const getManager = (manager?: EntityManager): any => {
 
 export class TransactionService {
   repository!: Repository<DAOTransaction>
+  historicalTransactionRepository!: Repository<DAOHistoricalTransaction>
   fileService!: FileService
   categoryService!: CategoryService
   accounts!: AccountIdToDetails
 
-  constructor(data: { repository: Repository<DAOTransaction>, accounts: AccountIdToDetails, fileService: FileService, categoryService: CategoryService }) {
+  constructor(data: {
+    repository: Repository<DAOTransaction>,
+    historicalTransactionRepository: Repository<DAOHistoricalTransaction>,
+    accounts: AccountIdToDetails,
+    fileService: FileService,
+    categoryService: CategoryService
+  }) {
     Object.assign(this, data)
   }
 
@@ -57,7 +65,7 @@ export class TransactionService {
       .map(t => t.assignCategory(matchers))
       .value()
 
-    await this.allDbActions.write(transactions)
+    await this.db.current.writeAny(transactions)
   }
 
   createTransactions = async (startDate: Date, endDate: Date) => {
@@ -66,49 +74,88 @@ export class TransactionService {
   }
 
   editTransactions = async (editedDebits: SvcTransactionCtorArgs[], editedCredits: SvcTransactionCtorArgs[]) => {
-    await this.debitDbActions.write(editedDebits.map(t => new SvcTransaction(t)))
-    await this.crediDbActions.write(editedCredits.map(t => new SvcTransaction(t)))
+    await this.db.current.debit.write(editedDebits.map(t => new SvcTransaction(t)))
+    await this.db.current.credit.write(editedCredits.map(t => new SvcTransaction(t)))
     return this.createReconciliation()
   }
 
   createReconciliation = async () => {
-    const debits = await this.debitDbActions.read()
-    const credits = await this.crediDbActions.read()
+    const debits = await this.db.current.debit.read()
+    const credits = await this.db.current.credit.read()
     return new SvcReconciliation({ debits, credits }).calc()
   }
 
   deleteAllTransactions = async () => {
-    return this.allDbActions.clear()
+    return this.db.current.clear()
   }
 
-  debitDbActions = {
-    read: async (): Promise<SvcTransaction[]> => {
-      return (await this.repository.find({ where: { type: TransactionType.DEBIT } })).map(m => m.toSvc())
-    },
-    write: async (transactions: SvcTransaction[], manager?: EntityManager) => {
-      await getManager(manager).save(transactions.map(t =>
-        new DAOTransaction({ ...t, transactionType: TransactionType.DEBIT })
-      ))
-    },
+  createHistoricalReconciliation = async (startDate: Date, endDate: Date) => {
+    const debits = await this.db.historical.debit.read()
+    const credits = await this.db.historical.credit.read()
+    return new SvcReconciliation({ debits, credits }).calc()
   }
 
-  crediDbActions = {
-    read: async (): Promise<SvcTransaction[]> => {
-      return (await this.repository.find({ where: { type: TransactionType.CREDIT } })).map(m => m.toSvc())
-    },
-    write: async (transactions: SvcTransaction[], manager?: EntityManager) => {
-      await getManager(manager).save(transactions.map(t =>
-        new DAOTransaction({ ...t, transactionType: TransactionType.CREDIT })
-      ))
-    },
+  copyCurrentToHistory = (startDate: Date, endDate: Date) => { // TODO add copy fn. 
+    console.log(`copying from ${startDate} to ${endDate} to historical table`)
   }
 
-  allDbActions = {
-    clear: () => this.repository.clear(),
-    write: async (transactions: SvcTransaction[], manager?: EntityManager) => {
-      await getManager(manager).save(transactions.map(t =>
-        new DAOTransaction(t)
-      ))
-    }
+  db = {
+    current: {
+      clear: () => this.repository.clear(),
+
+      writeAny: async (transactions: SvcTransaction[], manager?: EntityManager) => {
+        await getManager(manager).save(transactions.map(t =>
+          new DAOTransaction(t)
+        ))
+      },
+
+      // TODO date range
+      copy: (startDate: Date, endDate: Date) => { // TODO add copy fn. 
+        console.log(`copying from ${startDate} to ${endDate} to historical table`)
+      },
+
+      debit: {
+        read: async (): Promise<SvcTransaction[]> => {
+          return (await this.repository.find({ where: { type: TransactionType.DEBIT } })).map(m => m.toSvc())
+        },
+        write: async (transactions: SvcTransaction[], manager?: EntityManager) => {
+          await getManager(manager).save(transactions.map(t =>
+            new DAOTransaction({ ...t, transactionType: TransactionType.DEBIT })
+          ))
+        },
+      },
+      credit: {
+        read: async (): Promise<SvcTransaction[]> => {
+          return (await this.repository.find({ where: { type: TransactionType.CREDIT } })).map(m => m.toSvc())
+        },
+        write: async (transactions: SvcTransaction[], manager?: EntityManager) => {
+          await getManager(manager).save(transactions.map(t =>
+            new DAOTransaction({ ...t, transactionType: TransactionType.CREDIT })
+          ))
+        },
+      },
+    },
+    historical: {
+      debit: {
+        read: async (): Promise<SvcTransaction[]> => {
+          return (await this.historicalTransactionRepository.find({ where: { type: TransactionType.DEBIT } })).map(m => m.toSvc())
+        },
+        write: async (transactions: SvcTransaction[], manager?: EntityManager) => {
+          await getManager(manager).save(transactions.map(t =>
+            new DAOTransaction({ ...t, transactionType: TransactionType.DEBIT })
+          ))
+        },
+      },
+      credit: {
+        read: async (): Promise<SvcTransaction[]> => {
+          return (await this.historicalTransactionRepository.find({ where: { type: TransactionType.DEBIT } })).map(m => m.toSvc())
+        },
+        write: async (transactions: SvcTransaction[], manager?: EntityManager) => {
+          await getManager(manager).save(transactions.map(t =>
+            new DAOTransaction({ ...t, transactionType: TransactionType.DEBIT })
+          ))
+        },
+      }
+    },
   }
 }

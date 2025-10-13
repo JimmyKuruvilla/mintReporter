@@ -4,11 +4,18 @@ import { db } from '../../persistence';
 import { CategoryService, DAOMatcher } from '../category';
 import { FileService } from '../file';
 import { DAOTransaction, TransactionService } from '../transaction';
+import { DAOHistoricalTransaction } from '../transaction/dao.historicalTransaction';
 import { OutputService } from './output.service';
 
 const categoryService = new CategoryService({ repository: db.getRepository(DAOMatcher) })
 const fileService = new FileService()
-const transactionService = new TransactionService({ repository: db.getRepository(DAOTransaction), accounts: ChaseIdToDetails, fileService, categoryService })
+const transactionService = new TransactionService({
+  repository: db.getRepository(DAOTransaction),
+  historicalTransactionRepository: db.getRepository(DAOHistoricalTransaction),
+  accounts: ChaseIdToDetails,
+  fileService,
+  categoryService
+})
 const svc = new OutputService({ fileService, transactionService })
 
 export const outputsRouter = express.Router()
