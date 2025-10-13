@@ -19,7 +19,7 @@ type SummaryRow = {
 type CalculatedData = {
   debits: UiTransaction[]
   credits: UiTransaction[]
-  reconciledSummary: SvcReconciliation
+  reconciliation: SvcReconciliation
 }
 
 type InputsLoaderData = CalculatedData & {
@@ -56,14 +56,14 @@ const createTransactionRow = (i: SvcTransactionCtorArgs): UiTransaction => ({
   metadata: i.metadata
 })
 
-const createReconciledRows = (reconciledSummary: SvcReconciliation) =>
+const createReconciledRows = (reconciliation: SvcReconciliation) =>
   Object
-    .entries(reconciledSummary)
+    .entries(reconciliation)
     .map(([category, amount], index) => ({ id: index, category, amount: amount?.toFixed(2) }))
 
 
 export const Transaction = () => {
-  const { categories, debits, credits, reconciledSummary }: InputsLoaderData = useLoaderData();
+  const { categories, debits, credits, reconciliation }: InputsLoaderData = useLoaderData();
   const [tabValue, setTabValue] = useState(0);
   const [transactionColumns, setTransactionColumns] = useState<GridColDef[]>([
     { field: 'id', headerName: 'Id' },
@@ -89,7 +89,7 @@ export const Transaction = () => {
     { field: 'amount', headerName: 'Amount' },
   ]);
 
-  const [reconciledRows, setReconciledRows] = useState<SummaryRow[]>(() => createReconciledRows(reconciledSummary));
+  const [reconciledRows, setReconciledRows] = useState<SummaryRow[]>(() => createReconciledRows(reconciliation));
   const [transactionDebitRows, setTransactionDebitRows] = useState<UiTransaction[]>(() => debits.map(createTransactionRow));
   const [transactionCreditRows, setTransactionCreditRows] = useState<UiTransaction[]>(() => credits.map(createTransactionRow));
 
@@ -103,7 +103,7 @@ export const Transaction = () => {
     setEditedDebits([])
     setTransactionDebitRows(data.debits.map(createTransactionRow))
     setTransactionCreditRows(data.credits.map(createTransactionRow))
-    setReconciledRows(createReconciledRows(data.reconciledSummary))
+    setReconciledRows(createReconciledRows(data.reconciliation))
   }
 
   const handleCreditRowUpdate = (updatedRow: UiTransaction, originalRow: UiTransaction) => {

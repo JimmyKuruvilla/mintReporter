@@ -17,15 +17,14 @@ transactionRouter.get(
   async (req, res, next) => {
 
     try {
-      // TODO rename in UI from summary
       // TODO: make this take a date range so we can just summarize on some of the data. 
       const {
         credits,
         debits,
-        reconciliation: reconciledSummary
+        reconciliation
       } = await svc.createReconciliation()
 
-      res.json({ credits, debits, reconciledSummary });
+      res.json({ credits, debits, reconciliation });
     } catch (error: any) {
       next(error)
     }
@@ -37,7 +36,7 @@ transactionRouter.delete(
   async (req, res, next) => {
     try {
       await svc.deleteAllTransactions()
-      res.status(200).send({ credits: [], debits: [], reconciledSummary: {} });
+      res.status(200).send({ credits: [], debits: [], reconciliation: {} });
     } catch (error: any) {
       next(error)
     }
@@ -58,10 +57,10 @@ transactionRouter.post(
       const {
         credits,
         debits,
-        reconciliation: reconciledSummary
+        reconciliation
       } = await svc.createTransactions(new Date(startDate), new Date(endDate))
 
-      res.json({ credits, debits, reconciledSummary });
+      res.json({ credits, debits, reconciliation });
     } catch (error: any) {
       next(error)
     }
@@ -79,10 +78,10 @@ transactionRouter.patch(
       const {
         credits,
         debits,
-        reconciliation: reconciledSummary
+        reconciliation 
       } = await svc.editTransactions(req.body.editedDebits, req.body.editedCredits)
 
-      res.json({ credits, debits, reconciledSummary });
+      res.json({ credits, debits, reconciliation });
     } catch (error: any) {
       next(error)
     }

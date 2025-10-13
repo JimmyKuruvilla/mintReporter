@@ -56,8 +56,8 @@ const router = createBrowserRouter([
         path: '/transactions',
         loader: async () => {
           const categories = await fatchWithAlert({ path: 'categories' })
-          const { credits, debits, reconciledSummary } = await fatchWithAlert({ path: 'transactions' })
-          return { categories, credits, debits, reconciledSummary }
+          const { credits, debits, reconciliation } = await fatchWithAlert({ path: 'transactions' })
+          return { categories, credits, debits, reconciliation }
         },
         Component: Transaction,
       },
