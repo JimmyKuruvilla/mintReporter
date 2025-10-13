@@ -2,9 +2,9 @@
 import { chain } from 'lodash-es';
 import { IGNORE } from '../../constants';
 import { Persistence } from '../../persistence';
-import { TransactionType } from '../../persistence/transaction/transaction.dao';
-import { getCategoryAcc, ICategoryAcc } from '../../services/category';
-import { SvcTransaction } from '../../services/transaction.svc';
+import { TransactionType } from '../transaction/transactionType';
+import { SvcTransaction } from '../transaction';
+import { getCategoryAcc, ICategoryAcc } from '../category';
 
 export type ICategoryAccWithTotal = ICategoryAcc & { total: number; };
 const reconcileTransactionCategories = (type: TransactionType, umbrellaCategoryAcc: ICategoryAcc, transactions: SvcTransaction[]): ICategoryAccWithTotal => {

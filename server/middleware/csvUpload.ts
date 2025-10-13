@@ -1,10 +1,5 @@
 import multer from 'multer';
-import fs from 'node:fs';
-import { uploadsFolder } from 'server/config';
-
-if (!fs.existsSync(uploadsFolder)) {
-  fs.mkdirSync(uploadsFolder, { recursive: true });
-}
+import { uploadsFolder } from '../config';
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {

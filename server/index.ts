@@ -4,15 +4,16 @@ import cors from 'cors'
 import { csvOutputFolder, uploadsFolder } from './config'
 import { errorMiddleware } from './middleware'
 
-import { uploadsRouter } from './web/uploads'
-import { categoriesRouter } from './web/categories'
-import { inputsRouter } from './web/inputs'
-import { outputsRouter } from './web/outputs'
-import { Persistence } from './persistence'
+import { uploadsRouter } from './domains/file'
+import { outputsRouter } from './domains/output'
+import { inputsRouter } from './domains/transaction'
+import { categoriesRouter } from './domains/category'
+
+import { db } from './persistence'
 
 try {
   try {
-    await Persistence.db.initialize()
+    await db.initialize()
     console.log('DATA_SOURCE_READY')
   } catch (error) {
     console.error('DATA_SOURCE_ERROR', error)

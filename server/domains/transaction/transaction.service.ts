@@ -1,19 +1,18 @@
 import fs from 'fs';
 import { chain } from 'lodash-es';
-import { ChaseIdToDetails, uploadsFolder } from '../config';
-import { UTF8 } from '../constants';
-import { Persistence } from '../persistence';
-import { getChaseAccountId } from './chase';
-import { recursiveTraverse } from './file';
-import { SvcTransaction } from './transaction.svc';
-import { getAvailableMatchers } from './matcher.svc';
+import { ChaseIdToDetails, uploadsFolder } from '../../config';
+import { UTF8 } from '../../constants';
+import { Persistence } from '../../persistence/persistence';
+import { getChaseAccountId } from '../account/chase';
+import { SvcTransaction } from './svc.transaction';
+import { getAvailableMatchers } from '../category';
 
 export const createInitialData = async (startDate: Date, endDate: Date, fileExts: string[]) => {
   console.log(`Running reports from ${startDate} to ${endDate} using ${fileExts}`)
 
   const allTransactions: SvcTransaction[] = []
 
-  await recursiveTraverse(uploadsFolder, fileExts, console, (path: string) => {
+  await Persistence.file.traverse.recursive(uploadsFolder, fileExts, console, (path: string) => {
     const id = getChaseAccountId(path)
     if (id) {
       const csvTransactions = fs.readFileSync(path, { encoding: UTF8 });

@@ -1,10 +1,8 @@
 import express from 'express';
-import 'reflect-metadata';
-import { getUiCategories } from 'server/services/category';
 import * as z from "zod";
-import { validateMiddleware } from '../middleware';
-import { MatcherType, Persistence } from '../persistence';
-import { getUiMatchers, SvcMatcher, SvcMatcherCtorArgs } from '../services/matcher.svc';
+import { validateMiddleware } from '../../middleware';
+import { Persistence } from '../../persistence/persistence';
+import { getUiCategories, getUiMatchers, MatcherType, SvcMatcher, SvcMatcherCtorArgs } from '.';
 
 export const categoriesRouter = express.Router()
 

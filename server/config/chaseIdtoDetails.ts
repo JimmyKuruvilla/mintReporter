@@ -1,6 +1,7 @@
-import { AccountType } from '../persistence/transaction/transaction.dao';
-import { AccountDetails } from '../services/account';
-import { ChaseBankCSVParser, ChaseCreditCSVParser } from '../services/chase';
+
+import { AccountType } from '../domains/transaction/accountType';
+import { AccountDetails } from '../domains/account/accountDetails';
+import { ChaseBankCSVParser, ChaseCreditCSVParser } from '../domains/account/chase';
 
 export const ChaseIdToDetails: { [accountId: string]: AccountDetails } = {
     // test accounts

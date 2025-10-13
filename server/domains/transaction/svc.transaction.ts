@@ -1,14 +1,9 @@
-import { CHECK, IGNORE, UNCATEGORIZABLE } from '../constants'
-import { AccountType, TransactionType } from '../persistence/transaction/transaction.dao'
-import { SvcMatcher } from './matcher.svc'
+import { UNCATEGORIZABLE, IGNORE, CHECK } from '../../constants'
+import { SvcMatcher } from '../category'
+import { AccountType } from './accountType'
+import { TransactionType } from './transactionType'
 
 const UNKNOWN = 'UNKNOWN'
-
-export type UiTransaction = Omit<SvcTransactionCtorArgs, 'date'> & {
-  date: Date
-  checkNum?: number
-  bankType?: string
-}
 
 export type SvcTransactionCtorArgs = {
   id?: number

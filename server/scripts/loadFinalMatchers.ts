@@ -1,8 +1,8 @@
-import { MatcherType, Persistence } from '../persistence';
-import { Read, SvcMatcher } from '../services';
+import { MatcherType, SvcMatcher } from '../domains/category'
+import { db, Persistence } from '../persistence'
 
-await Persistence.db.initialize()
-const finalMatchers = await Read.finalMatchers()
+await db.initialize()
+const finalMatchers = await Persistence.file.read.finalMatchers()
 await Persistence.matchers.final.clear()
 
 const matchers = Object.entries(finalMatchers).flatMap(([category, queryStr]) => {

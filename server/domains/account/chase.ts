@@ -1,8 +1,6 @@
 import path from 'path';
-import { EMPTY_FIELD, NEW_LINE } from '../constants';
-
-import { SvcTransaction } from './transaction.svc';
-import { TransactionType, AccountType } from '../persistence/transaction/transaction.dao';
+import { EMPTY_FIELD, NEW_LINE } from '../../constants';
+import { SvcTransaction, TransactionType, AccountType } from '../transaction';
 
 /*
   problem1: 

@@ -1,20 +1,12 @@
 import { Entity, Column, PrimaryGeneratedColumn, Index } from 'typeorm'
-import { SvcTransaction } from '../../services/transaction.svc'
+import { SvcTransaction } from './svc.transaction'
+import { AccountType } from './accountType'
+import { TransactionType } from './transactionType'
 
-export enum TransactionType {
-  DEBIT = 'debit',
-  CREDIT = 'credit',
-  TRANSFER = 'transfer'
-}
-
-export enum AccountType {
-  BANK = 'bank_account',
-  CREDIT = 'credit_card_account',
-}
 
 @Entity('categorized_transaction')
 @Index('multi_column_unique', ['category', 'date', 'amount', 'type', 'description', 'accountName', 'accountType'], { unique: true })
-export class CategorizedTransactionDAO {
+export class DAOTransaction {
   @Index('categorized_transaction_id_unique', { unique: true })
   @PrimaryGeneratedColumn()
   id?: number

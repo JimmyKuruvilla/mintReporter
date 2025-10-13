@@ -1,6 +1,6 @@
 import express from 'express';
-import { createFinalCSVs } from 'server/services/csv';
-import { csvOutputFilePath, FILE_NAMES } from '../config';
+import { csvOutputFilePath, FILE_NAMES } from '../../config';
+import { createFinalCSVs } from '.';
 
 export const outputsRouter = express.Router()
 

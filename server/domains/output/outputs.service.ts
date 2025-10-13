@@ -1,8 +1,8 @@
 import { sortBy } from 'lodash-es';
-import { IGNORE, NEW_LINE, UNCATEGORIZABLE } from '../constants';
-import { Write } from './file';
-import { IReconciliation, SvcReconciliation } from '../domains/reconciliation/reconciliation.svc';
-import { SvcTransaction } from './transaction.svc';
+import { NEW_LINE, IGNORE, UNCATEGORIZABLE } from '../../constants';
+import { IReconciliation, SvcReconciliation } from '../reconciliation';
+import { SvcTransaction } from '../transaction';
+import { Persistence } from '../../persistence';
 
 export const prepareTransactionCsv = (transactions: SvcTransaction[]) => {
   return transactions
@@ -32,9 +32,9 @@ export const createFinalCSVs = async () => {
   const creditsCSV = prepareTransactionCsv(sortBy(credits, 'description'));
   const summaryCSV = prepareSummaryCsv(reconciledSummary);
 
-  await Write.outputDebits(debitsCSV);
-  await Write.outputCredits(creditsCSV);
-  await Write.outputSummary(summaryCSV);
+  await Persistence.file.write.outputDebits(debitsCSV);
+  await Persistence.file.write.outputCredits(creditsCSV);
+  await Persistence.file.write.outputSummary(summaryCSV);
 
   return { debitsCSV, creditsCSV, summaryCSV };
 };

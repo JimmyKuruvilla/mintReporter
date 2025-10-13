@@ -1,5 +1,6 @@
-import { AccountType } from '../persistence/transaction/transaction.dao';
-import { SvcTransaction } from './transaction.svc';
+
+import { AccountType } from '../transaction/accountType';
+import { SvcTransaction } from '../transaction/svc.transaction';
 
 export interface AccountDetails {
   name: string,

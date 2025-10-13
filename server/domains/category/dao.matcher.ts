@@ -1,15 +1,10 @@
 import { Entity, Column, PrimaryGeneratedColumn, Index } from 'typeorm'
-import { SvcMatcher } from '../../services'
-
-export enum MatcherType {
-  FINAL = 'final',
-  MODIFIED = 'modified',
-  EMPTY = 'empty'
-}
+import { SvcMatcher } from './svc.matcher'
+import { MatcherType } from './matcherType'
 
 @Entity('matcher')
 @Index('matcher_compound_unique', ['category', 'query', 'type'], { unique: true })
-export class MatcherDAO {
+export class DAOMatcher {
   @Index('matcher_id_unique', { unique: true })
   @PrimaryGeneratedColumn()
   id?: number
