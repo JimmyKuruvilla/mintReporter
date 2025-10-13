@@ -1,14 +1,14 @@
-import { Button, IconButton, Tab, Tabs } from '@mui/material';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
+import { IconButton, Tab, Tabs } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useState } from 'react';
 import { useLoaderData } from 'react-router';
-import { IReconciledSummary } from '../../../../server/services/summary';
-import { fatch } from '../../utils/fatch';
+import { SvcReconciliation } from '../../../../server/domains/reconciliation';
+import { SvcTransactionCtorArgs, UiTransaction } from '../../../../server/domains/transaction';
+import { fatchWithAlert } from '../../utils/fatch';
 import { TabPanel } from '../shared/tabPanel';
 import { DateSelector } from './dateSelector';
 import './styles.css';
-import { SvcTransactionCtorArgs, UiTransaction } from '../../../../server/services';
 
 type SummaryRow = {
   id: number,
@@ -19,7 +19,7 @@ type SummaryRow = {
 type CalculatedData = {
   debits: UiTransaction[]
   credits: UiTransaction[]
-  reconciledSummary: IReconciledSummary
+  reconciledSummary: SvcReconciliation
 }
 
 type InputsLoaderData = CalculatedData & {
@@ -30,12 +30,12 @@ const createEdit = (row: UiTransaction): SvcTransactionCtorArgs => {
   const t = structuredClone(row) as any
 
   delete t.checkNum
-  delete t.bankType
+  delete t.institutionTransactionType
   t.date = t.date.toISOString()
 
   t.metadata = {
     bank_account: { checkNumber: row.checkNum },
-    chaseType: row.bankType,
+    institutionTransactionType: row.institutionTransactionType,
   }
 
   return t
@@ -48,20 +48,20 @@ const createTransactionRow = (i: SvcTransactionCtorArgs): UiTransaction => ({
   date: new Date(i.date),
   description: i.description,
   checkNum: i.metadata?.bank_account?.checkNumber,
-  bankType: i.metadata?.chaseType,
+  institutionTransactionType: i.metadata?.institutionTransactionType,
   transactionType: i.transactionType,
   accountName: i.accountName,
   accountType: i.accountType,
   metadata: i.metadata
 })
 
-const createReconciledRows = (reconciledSummary: IReconciledSummary) =>
+const createReconciledRows = (reconciledSummary: SvcReconciliation) =>
   Object
     .entries(reconciledSummary)
     .map(([category, amount], index) => ({ id: index, category, amount: amount?.toFixed(2) }))
 
 
-export const Inputs = () => {
+export const Transaction = () => {
   const { categories, debits, credits, reconciledSummary }: InputsLoaderData = useLoaderData();
   const [tabValue, setTabValue] = useState(0);
   const [transactionColumns, setTransactionColumns] = useState<GridColDef[]>([
@@ -76,7 +76,7 @@ export const Inputs = () => {
     { field: 'amount', headerName: 'Amount' },
     { field: 'date', headerName: 'Date', type: 'date' },
     { field: 'description', headerName: 'Description', width: 400 },
-    { field: 'bankType', headerName: 'BankType' },
+    { field: 'institutionTransactionType', headerName: 'InstType' },
     { field: 'transactionType', headerName: 'TransactionType' },
     { field: 'accountName', headerName: 'AccountName', width: 100 },
     { field: 'accountType', headerName: 'AccountType' },
@@ -130,14 +130,14 @@ export const Inputs = () => {
   };
 
   const handleSaveEdits = () => {
-    fatch({ path: 'inputs', method: 'patch', body: { editedDebits, editedCredits } }).then(updateCalculated)
+    fatchWithAlert({ path: 'transactions', method: 'patch', body: { editedDebits, editedCredits } }).then(updateCalculated)
   }
 
   const paginationModel = { page: 0, pageSize: 10 };
   const reconciledPaginationModel = { page: 0, pageSize: 100 };
 
   return (
-    <div className='inputs'>
+    <div className='transactions'>
       <DateSelector updateCalculated={updateCalculated}></DateSelector>
 
       <div className='tabs'>

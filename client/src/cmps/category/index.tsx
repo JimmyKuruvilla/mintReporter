@@ -7,11 +7,11 @@ import Button from '@mui/material/Button';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useState } from 'react';
 import { useLoaderData } from 'react-router';
-import { UiMatcher } from '../../../../server/services/matcher';
+import { UiMatcher } from '../../../../server/domains/category';
 import { fatchWithAlert } from '../../utils/fatch';
 import './styles.css';
 
-type CategoriesLoaderData = {
+type CategoryLoaderData = {
   matchers: UiMatcher[]
 }
 
@@ -22,8 +22,8 @@ const createRow = (matcher: UiMatcher) => ({
   markedForDelete: matcher.markedForDelete
 })
 
-export const Categories = () => {
-  const { matchers }: CategoriesLoaderData = useLoaderData();
+export const Category = () => {
+  const { matchers }: CategoryLoaderData = useLoaderData();
   const [columns, setColumns] = useState<GridColDef[]>(() => {
     return [
       {
@@ -68,7 +68,6 @@ export const Categories = () => {
     )
   }
   
-//TODO rename inputs component to be called transactions?
   const handleRowUpdate = (updatedRow: UiMatcher, originalRow: UiMatcher) => {
     setRows([updatedRow, ...rows.filter(row => row.id !== updatedRow.id)])
     setHasChanges(true)

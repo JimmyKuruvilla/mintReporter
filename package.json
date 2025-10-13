@@ -8,7 +8,7 @@
     "tsc": "tsc",
     "dev:server": "nodemon",
     "dev:client": "cd client; vite",
-    "stack:dev": "concurrently -n server,client -c blue,green \"npm:dev:server\" \"npm:dev:client\"",
+    "dev": "concurrently -n server,client -c blue,green \"npm:dev:server\" \"npm:dev:client\"",
     "loadBackupMatchers": "tsx server/scripts/loadFinalMatchers.ts"
   },
   "author": "Jimmy Kuruvilla",

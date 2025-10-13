@@ -6,10 +6,10 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router';
 import { fatchWithAlert } from '../../utils/fatch';
-import { Categories } from '../categories';
+import { Category } from '../category';
 import { DisplayCSV } from '../displayCSV';
-import { Inputs } from '../inputs';
 import { Nav } from '../nav';
+import { Transaction } from '../transaction';
 import { UploadCSV } from '../uploadCSV';
 
 import '@fontsource/roboto/300.css';
@@ -42,7 +42,7 @@ const router = createBrowserRouter([
           const matchersData = await fatchWithAlert({ path: 'categories/matchers' })
           return { matchers: matchersData.matchers }
         },
-        Component: Categories
+        Component: Category
       },
       {
         path: '/uploads',
@@ -53,13 +53,13 @@ const router = createBrowserRouter([
         Component: UploadCSV
       },
       {
-        path: '/inputs',
+        path: '/transactions',
         loader: async () => {
           const categories = await fatchWithAlert({ path: 'categories' })
-          const { credits, debits, reconciledSummary } = await fatchWithAlert({ path: 'inputs' })
+          const { credits, debits, reconciledSummary } = await fatchWithAlert({ path: 'transactions' })
           return { categories, credits, debits, reconciledSummary }
         },
-        Component: Inputs,
+        Component: Transaction,
       },
       {
         path: '/outputs',

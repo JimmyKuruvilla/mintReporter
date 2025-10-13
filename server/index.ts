@@ -1,13 +1,13 @@
-import fs from 'node:fs'
-import express from 'express'
 import cors from 'cors'
+import express from 'express'
+import fs from 'node:fs'
 import { csvOutputFolder, uploadsFolder } from './config'
 import { errorMiddleware } from './middleware'
 
+import { categoriesRouter } from './domains/category'
 import { uploadsRouter } from './domains/file'
 import { outputsRouter } from './domains/output'
-import { inputsRouter } from './domains/transaction'
-import { categoriesRouter } from './domains/category'
+import { transactionRouter } from './domains/transaction'
 
 import { db } from './persistence'
 
@@ -33,10 +33,13 @@ try {
   const PORT = process.env.PORT || 4000
 
   app.use(uploadsRouter)
-  app.use(inputsRouter)
+  app.use(transactionRouter)
   app.use(categoriesRouter)
   app.use(outputsRouter)
   app.use(errorMiddleware)
+  app.use((req, res, next) => {
+    res.status(404).json({ error: `No route for ${req.method} ${req.originalUrl}` });
+  });
 
   app.listen(PORT, () => {
     console.log(`SERVER_READY http://localhost:${PORT}, uploads at ${uploadsFolder}`);

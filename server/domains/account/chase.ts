@@ -1,6 +1,6 @@
 import path from 'path';
 import { EMPTY_FIELD, NEW_LINE } from '../../constants';
-import { SvcTransaction, TransactionType, AccountType } from '../transaction';
+import { AccountType, SvcTransaction, TransactionType } from '../transaction';
 
 /*
   problem1: 
@@ -19,7 +19,7 @@ import { SvcTransaction, TransactionType, AccountType } from '../transaction';
 const doubleQuotedOrNotCommaRegex = /"[^"]*"|[^,]+|,,/g;
 
 /*
-chaseTypes
+institutionTransactionType
   transfers:
     - exclude ACCT_XFER to ignore moving money between accounts
     - exclude LOAN_PMT to ignore credit card payments
@@ -82,7 +82,7 @@ export const ChaseCreditCSVParser = (accountName: string, csv: string): SvcTrans
             description: formatDescription(description),
             amount,
             transactionType,
-            metadata: { chaseType: type, [AccountType.BANK]: { checkNumber: null }, [AccountType.CREDIT]: {} },
+            metadata: { institutionTransactionType: type, [AccountType.BANK]: { checkNumber: null }, [AccountType.CREDIT]: {} },
             accountName,
             accountType: AccountType.CREDIT,
             notes: memo
@@ -126,7 +126,7 @@ export const ChaseBankCSVParser = (accountName: string, csv: string): SvcTransac
             description: formatDescription(description),
             amount,
             transactionType: getBankTransactionType(type, description),
-            metadata: { chaseType: type, [AccountType.BANK]: { checkNumber }, [AccountType.CREDIT]: {} },
+            metadata: { institutionTransactionType: type, [AccountType.BANK]: { checkNumber }, [AccountType.CREDIT]: {} },
             accountName,
             accountType: AccountType.BANK,
             notes: undefined

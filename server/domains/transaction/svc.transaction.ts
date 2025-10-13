@@ -1,4 +1,4 @@
-import { UNCATEGORIZABLE, IGNORE, CHECK } from '../../constants'
+import { CHECK, IGNORE, UNCATEGORIZABLE } from '../../constants'
 import { SvcMatcher } from '../category'
 import { AccountType } from './accountType'
 import { TransactionType } from './transactionType'
@@ -21,7 +21,7 @@ export type SvcTransactionCtorArgs = {
 }
 
 type SvcTransactionMetadata = {
-  chaseType: string,
+  institutionTransactionType: string,
   [AccountType.BANK]?: {
     checkNumber?: number
   }

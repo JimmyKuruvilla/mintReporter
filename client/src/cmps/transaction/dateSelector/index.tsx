@@ -45,7 +45,7 @@ export const DateSelector = ({ updateCalculated }: DateSelectorProps) => {
     localStorage.setItem(END_DATE, formattedEndDate)
 
     fatchWithAlert({
-      path: 'inputs', method: 'post',
+      path: 'transactions', method: 'post',
       body: {
         startDate: formattedStartDate,
         endDate: formattedEndDate
@@ -58,7 +58,7 @@ export const DateSelector = ({ updateCalculated }: DateSelectorProps) => {
 
   const handleDeleteInitialData = async () => {
     fatchWithAlert({
-      path: 'inputs', method: 'delete',
+      path: 'transactions', method: 'delete',
     }).then((data) => {
       setHasChanges(false)
       updateCalculated(data)
@@ -72,8 +72,8 @@ export const DateSelector = ({ updateCalculated }: DateSelectorProps) => {
         <DatePicker className='datepicker endDate' defaultValue={endDate} onChange={handleSetEndDate}></DatePicker>
 
         <div className='right'>
-          <Button variant="contained" color={hasChanges ? "secondary" : "primary"} onClick={handleCalculate}>Calculate</Button>
-          <Button variant="contained" onClick={handleDeleteInitialData} color="error">Clear</Button>
+          <Button variant="contained" color={hasChanges ? 'secondary' : 'primary'} onClick={handleCalculate}>Calculate</Button>
+          <Button variant="contained" onClick={handleDeleteInitialData} color='error'>Clear</Button>
         </div>
       </div>
     </div>

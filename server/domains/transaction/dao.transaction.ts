@@ -1,8 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, Index } from 'typeorm'
-import { SvcTransaction } from './svc.transaction'
+import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm'
 import { AccountType } from './accountType'
+import { SvcTransaction } from './svc.transaction'
 import { TransactionType } from './transactionType'
-
 
 @Entity('categorized_transaction')
 @Index('multi_column_unique', ['category', 'date', 'amount', 'type', 'description', 'accountName', 'accountType'], { unique: true })
@@ -33,7 +32,7 @@ export class DAOTransaction {
   accountType: AccountType
 
   @Column('text')
-  institutionTransactionType: string // metadata.chaseType
+  institutionTransactionType: string
 
   @Column({ type: 'int', nullable: true })
   checkNumber?: number // metadata.bank_account.checkNumber
@@ -50,7 +49,7 @@ export class DAOTransaction {
     this.amount = data?.amount
     this.date = data?.date.toISOString()
     this.description = data?.description
-    this.institutionTransactionType = data?.metadata.chaseType
+    this.institutionTransactionType = data?.metadata.institutionTransactionType
     this.checkNumber = data?.metadata?.[AccountType.BANK]?.checkNumber
     this.type = data?.transactionType
   }
@@ -67,7 +66,7 @@ export class DAOTransaction {
       date: new Date(this.date),
       description: this.description,
       metadata: {
-        chaseType: this.institutionTransactionType, // TODO: rename globally
+        institutionTransactionType: this.institutionTransactionType,
         [AccountType.BANK]: {
           checkNumber: this.checkNumber
         }

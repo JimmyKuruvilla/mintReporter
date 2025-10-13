@@ -7,10 +7,10 @@ import { createInitialData } from './transaction.service';
 import { SvcTransaction, SvcTransactionCtorArgs } from './svc.transaction';
 import { SvcReconciliation } from '../reconciliation';
 
-export const inputsRouter = express.Router()
+export const transactionRouter = express.Router()
 
-inputsRouter.get(
-  '/inputs',
+transactionRouter.get(
+  '/transactions',
   async (req, res, next) => {
     let reconciledSummary = {}
     let credits: SvcTransaction[] = []
@@ -34,8 +34,8 @@ inputsRouter.get(
   });
 
 // TODO: make this take a date range so we can just wipe some of the data. 
-inputsRouter.delete(
-  '/inputs',
+transactionRouter.delete(
+  '/transactions',
   async (req, res, next) => {
     try {
       await Persistence.transactions.all.clear()
@@ -45,13 +45,13 @@ inputsRouter.delete(
     }
   });
 
-const InputsBodySchema = z.object({
+const TransactionBodySchema = z.object({
   startDate: z.string(),
   endDate: z.string(),
 });
-inputsRouter.post(
-  '/inputs',
-  validateMiddleware(InputsBodySchema, 'body'),
+transactionRouter.post(
+  '/transactions',
+  validateMiddleware(TransactionBodySchema, 'body'),
   async (req, res, next) => {
     try {
       const startDate = req.body.startDate
@@ -70,8 +70,8 @@ const EditsBodySchema = z.object({
   editedDebits: z.array(z.any()),
   editedCredits: z.array(z.any()),
 });
-inputsRouter.patch(
-  '/inputs',
+transactionRouter.patch(
+  '/transactions',
   validateMiddleware(EditsBodySchema, 'body'),
   async (req, res, next) => {
     try {
