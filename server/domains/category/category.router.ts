@@ -1,16 +1,19 @@
 import express from 'express';
 import * as z from "zod";
-import { validateMiddleware } from '../../middleware';
-import { Persistence } from '../../persistence/persistence';
-import { getUiCategories, getUiMatchers, MatcherType, SvcMatcher, SvcMatcherCtorArgs } from '.';
 
+import { validateMiddleware } from '../../middleware';
+import { CategoryService } from './category.service';
+import { MatcherType } from './matcherType';
+import { SvcMatcherCtorArgs } from './svc.matcher';
+
+const svc = new CategoryService()
 export const categoriesRouter = express.Router()
 
 categoriesRouter.get(
   '/categories',
   async (req, res, next) => {
     try {
-      res.json((await getUiCategories()));
+      res.json((await svc.getUiCategories()));
     } catch (error: any) {
       next(error)
     }
@@ -21,8 +24,8 @@ categoriesRouter.get(
   async (req, res, next) => {
     try {
       res.json({
-        categories: (await getUiCategories()),
-        matchers: await getUiMatchers()
+        categories: (await svc.getUiCategories()),
+        matchers: await svc.getUiMatchers()
       });
     } catch (error: any) {
       next(error)
@@ -37,19 +40,11 @@ categoriesRouter.post(
   validateMiddleware(MatchersParamsSchema, 'params'),
   async (req, res, next) => {
     try {
-      if (req.params.type === MatcherType.FINAL) {
-        await Persistence.matchers.modified.clear()
-        await Persistence.matchers.final.write(
-          req.body.map((matcher: SvcMatcherCtorArgs) => new SvcMatcher({ ...matcher, type: MatcherType.EMPTY }))
-        )
-      } else {
-        await Persistence.matchers.modified.write(
-          req.body.map((matcher: SvcMatcherCtorArgs) => new SvcMatcher({ ...matcher, type: MatcherType.EMPTY }))
-        )
-      }
+      await svc.createMatchers(req.params.type as MatcherType, req.body as SvcMatcherCtorArgs[])
+
       res.json({
-        categories: (await getUiCategories()),
-        matchers: await getUiMatchers()
+        categories: await svc.getUiCategories(),
+        matchers: await svc.getUiMatchers()
       });
     } catch (error: any) {
       next(error)
@@ -60,19 +55,13 @@ categoriesRouter.delete(
   '/categories/matchers/modified',
   async (req, res, next) => {
     try {
-      try {
-        await Persistence.matchers.modified.clear()
-      } catch (error) {
-        console.warn(`No modified file to delete`)
-      }
+      await svc.deleteModifiedMatchers()
 
       res.json({
-        categories: (await getUiCategories()),
-        matchers: await getUiMatchers()
+        categories: await svc.getUiCategories(),
+        matchers: await svc.getUiMatchers()
       });
     } catch (error: any) {
       next(error)
     }
   });
-
-// TODO: move all business logic into services that handle clearly defined actions

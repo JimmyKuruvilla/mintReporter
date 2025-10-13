@@ -1,2 +1,2 @@
-export { db } from './dataSource'
-export { Persistence } from './persistence'
+export { db } from './dataSource';
+

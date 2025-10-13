@@ -1,11 +1,43 @@
 import fs from 'fs';
 import { readdir, stat } from 'fs/promises';
 import path from 'path';
-import { uploadsFolder, finalMatchersFilePath, csvOutputFilePath, FILE_NAMES } from '../../config';
-
-const json = (data: any) => JSON.stringify(data, null, 2);
+import { csvOutputFilePath, FILE_NAMES, finalMatchersFilePath, uploadsFolder } from '../../config';
 
 export type IFileOnServer = { filename: string; };
+export type IMatchersFromFile = { [umbrellaCategory: string]: string; };
+
+export class FileService {
+  constructor() { }
+
+  traverse = {
+    recursive: recursiveTraverse
+  }
+
+  listMany = {
+    uploads: async () => fs.readdirSync(uploadsFolder)
+  }
+
+  read = {
+    jsonFile: readJsonFile,
+    finalMatchers: () => readJsonFile<IMatchersFromFile>(finalMatchersFilePath()),
+  }
+
+  write = {
+    outputDebits: (data: string) => fs.writeFileSync(csvOutputFilePath(FILE_NAMES.CSV.DEBITS), data),
+    outputCredits: (data: string) => fs.writeFileSync(csvOutputFilePath(FILE_NAMES.CSV.CREDITS), data),
+    outputSummary: (data: string) => fs.writeFileSync(csvOutputFilePath(FILE_NAMES.CSV.SUMMARY), data)
+  }
+
+  remove = {}
+
+  removeMany = {
+    uploads: () => recursiveTraverse(uploadsFolder, ['ALL'], console, (path: string) => {
+      fs.unlinkSync(path);
+    })
+  }
+}
+
+const json = (data: any) => JSON.stringify(data, null, 2);
 
 const readJsonFile = async <T>(filepath: string): Promise<T> => {
   return JSON.parse(await fs.readFileSync(filepath, { encoding: 'utf8' }))
@@ -34,31 +66,3 @@ const recursiveTraverse = async (rootPath: string, allowedExtensions: string[], 
     }
   }
 };
-
-export const traverse = {
-  recursive: recursiveTraverse
-}
-
-export const listMany = {
-  uploads: async () => fs.readdirSync(uploadsFolder)
-};
-
-export type IMatchersFromFile = { [umbrellaCategory: string]: string; };
-export const read = {
-  finalMatchers: () => readJsonFile<IMatchersFromFile>(finalMatchersFilePath()),
-};
-
-export const write = {
-  outputDebits: (data: string) => fs.writeFileSync(csvOutputFilePath(FILE_NAMES.CSV.DEBITS), data),
-  outputCredits: (data: string) => fs.writeFileSync(csvOutputFilePath(FILE_NAMES.CSV.CREDITS), data),
-  outputSummary: (data: string) => fs.writeFileSync(csvOutputFilePath(FILE_NAMES.CSV.SUMMARY), data)
-};
-
-export const remove = {};
-
-export const removeMany = {
-  uploads: () => recursiveTraverse(uploadsFolder, ['ALL'], console, (path: string) => {
-    fs.unlinkSync(path);
-  })
-};
-

@@ -1,10 +1,10 @@
 
 import { chain } from 'lodash-es';
 import { IGNORE } from '../../constants';
-import { Persistence } from '../../persistence';
-import { TransactionType } from '../transaction/transactionType';
+import { CategoryService, ICategoryAcc } from '../category';
 import { SvcTransaction } from '../transaction';
-import { getCategoryAcc, ICategoryAcc } from '../category';
+import { TransactionType } from '../transaction/transactionType';
+const categoryService = new CategoryService()
 
 export type ICategoryAccWithTotal = ICategoryAcc & { total: number; };
 const reconcileTransactionCategories = (type: TransactionType, umbrellaCategoryAcc: ICategoryAcc, transactions: SvcTransaction[]): ICategoryAccWithTotal => {
@@ -44,14 +44,16 @@ export class SvcReconciliation {
   credits!: SvcTransaction[]
   reconciliation!: IReconciliation
 
-  constructor() { }
+  constructor(data: {
+    debits: SvcTransaction[],
+    credits: SvcTransaction[]
+  }) {
+    Object.assign(this, data)
+  }
 
   // TODO: this also needs to take a date range
   calc = async () => {
-    this.debits = await Persistence.transactions.debits.read()
-    this.credits = await Persistence.transactions.credits.read()
-
-    const categoryAcc = await getCategoryAcc();
+    const categoryAcc = await categoryService.getCategoryAcc();
     this.reconciliation = createReconciliation(
       reconcileTransactionCategories(TransactionType.DEBIT, categoryAcc, this.debits),
       reconcileTransactionCategories(TransactionType.CREDIT, categoryAcc, this.credits)

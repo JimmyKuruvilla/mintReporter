@@ -1,9 +1,12 @@
-import { MatcherType, SvcMatcher } from '../domains/category'
-import { db, Persistence } from '../persistence'
+import { CategoryService, MatcherType, SvcMatcher } from '../domains/category'
+import { FileService } from '../domains/file'
+import { db } from '../persistence'
 
 await db.initialize()
-const finalMatchers = await Persistence.file.read.finalMatchers()
-await Persistence.matchers.final.clear()
+const fileService = new FileService()
+const categoryService =new CategoryService()
+const finalMatchers = await fileService.read.finalMatchers()
+await categoryService.finalMatcherDbActions.clear()
 
 const matchers = Object.entries(finalMatchers).flatMap(([category, queryStr]) => {
   const queries = queryStr.split(',')
@@ -17,5 +20,5 @@ const matchers = Object.entries(finalMatchers).flatMap(([category, queryStr]) =>
   })
 })
 
-await Persistence.matchers.final.write(matchers)
+await categoryService.finalMatcherDbActions.write(matchers)
 console.log(`Cleared final matched and inserted ${matchers.length} new final matchers`)

@@ -1,6 +1,8 @@
 import path from 'path';
 import { EMPTY_FIELD, NEW_LINE } from '../../constants';
-import { AccountType, SvcTransaction, TransactionType } from '../transaction';
+import { AccountType } from '../transaction/accountType';
+import { SvcTransaction } from '../transaction/svc.transaction';
+import { TransactionType } from '../transaction/transactionType';
 
 /*
   problem1: 

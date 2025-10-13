@@ -1,2 +1,3 @@
-export * from './outputs.service'
-export * from './outputs.router'
+export * from './output.router'
+export * from './output.service'
+

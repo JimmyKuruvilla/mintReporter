@@ -1,31 +1,29 @@
 import express from 'express';
 
 import * as z from "zod";
+import { ChaseIdToDetails } from '../../config/chaseIdtoDetails';
 import { validateMiddleware } from '../../middleware';
-import { Persistence } from '../../persistence/persistence';
-import { createInitialData } from './transaction.service';
-import { SvcTransaction, SvcTransactionCtorArgs } from './svc.transaction';
-import { SvcReconciliation } from '../reconciliation';
+import { CategoryService } from '../category/category.service';
+import { FileService } from '../file/file.service';
+import { TransactionService } from './transaction.service';
 
 export const transactionRouter = express.Router()
+const categoryService = new CategoryService()
+const fileService = new FileService()
+const svc = new TransactionService({ accounts: ChaseIdToDetails, fileService, categoryService })
 
 transactionRouter.get(
   '/transactions',
   async (req, res, next) => {
-    let reconciledSummary = {}
-    let credits: SvcTransaction[] = []
-    let debits: SvcTransaction[] = []
 
     try {
-      try {
-        // TODO: make this take a date range so we can just summarize on some of the data. 
-        const resp = await new SvcReconciliation().calc()
-        reconciledSummary = resp.reconciliation
-        credits = resp.credits
-        debits = resp.debits
-      } catch (error) {
-        console.log(error)
-      }
+      // TODO rename in UI from summary
+      // TODO: make this take a date range so we can just summarize on some of the data. 
+      const {
+        credits,
+        debits,
+        reconciliation: reconciledSummary
+      } = await svc.createReconciliation()
 
       res.json({ credits, debits, reconciledSummary });
     } catch (error: any) {
@@ -38,7 +36,7 @@ transactionRouter.delete(
   '/transactions',
   async (req, res, next) => {
     try {
-      await Persistence.transactions.all.clear()
+      await svc.deleteAllTransactions()
       res.status(200).send({ credits: [], debits: [], reconciledSummary: {} });
     } catch (error: any) {
       next(error)
@@ -56,9 +54,12 @@ transactionRouter.post(
     try {
       const startDate = req.body.startDate
       const endDate = req.body.endDate
-      await createInitialData(new Date(startDate), new Date(endDate), ['.csv'])
 
-      const { credits, debits, reconciliation: reconciledSummary, } = await new SvcReconciliation().calc()
+      const {
+        credits,
+        debits,
+        reconciliation: reconciledSummary
+      } = await svc.createTransactions(new Date(startDate), new Date(endDate))
 
       res.json({ credits, debits, reconciledSummary });
     } catch (error: any) {
@@ -75,13 +76,11 @@ transactionRouter.patch(
   validateMiddleware(EditsBodySchema, 'body'),
   async (req, res, next) => {
     try {
-      const editedDebits: SvcTransactionCtorArgs[] = req.body.editedDebits
-      const editedCredits: SvcTransactionCtorArgs[] = req.body.editedCredits
-
-      await Persistence.transactions.debits.write(editedDebits.map(t => new SvcTransaction(t)))
-      await Persistence.transactions.credits.write(editedCredits.map(t => new SvcTransaction(t)))
-
-      const { credits, debits, reconciliation: reconciledSummary, } = await new SvcReconciliation().calc()
+      const {
+        credits,
+        debits,
+        reconciliation: reconciledSummary
+      } = await svc.editTransactions(req.body.editedDebits, req.body.editedCredits)
 
       res.json({ credits, debits, reconciledSummary });
     } catch (error: any) {
