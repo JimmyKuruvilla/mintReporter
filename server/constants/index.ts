@@ -9,3 +9,6 @@ export const CHECK = 'Check';
 
 export const EMPTY_FIELD = ',,';
 export const CATEGORY = 'category';
+
+export const MIN_DATE = '1000-01-01';
+export const MAX_DATE = '3000-01-01';

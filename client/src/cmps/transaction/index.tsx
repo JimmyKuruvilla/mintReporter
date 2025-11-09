@@ -22,7 +22,7 @@ type CalculatedData = {
   reconciliation: SvcReconciliation
 }
 
-type InputsLoaderData = CalculatedData & {
+type TransactionLoaderData = CalculatedData & {
   categories: string[]
 }
 
@@ -61,9 +61,12 @@ const createReconciledRows = (reconciliation: SvcReconciliation) =>
     .entries(reconciliation)
     .map(([category, amount], index) => ({ id: index, category, amount: amount?.toFixed(2) }))
 
+type TransactionProps = {
+  isEditable: boolean
+}
 
-export const Transaction = () => {
-  const { categories, debits, credits, reconciliation }: InputsLoaderData = useLoaderData();
+export const Transaction = ({ isEditable = true }: TransactionProps) => {
+  const { categories, debits, credits, reconciliation }: TransactionLoaderData = useLoaderData();
   const [tabValue, setTabValue] = useState(0);
   const [transactionColumns, setTransactionColumns] = useState<GridColDef[]>([
     { field: 'id', headerName: 'Id' },
@@ -71,7 +74,7 @@ export const Transaction = () => {
       field: 'category', headerName: 'Category',
       type: 'singleSelect',
       valueOptions: categories,
-      editable: true,
+      editable: isEditable,
       width: 150
     },
     { field: 'amount', headerName: 'Amount' },
@@ -139,7 +142,7 @@ export const Transaction = () => {
 
   return (
     <div className='transactions'>
-      <DateSelector updateCalculated={updateCalculated}></DateSelector>
+      <DateSelector updateCalculated={updateCalculated} showClear={isEditable}></DateSelector>
 
       <div className='tabs'>
         <Tabs
@@ -153,13 +156,13 @@ export const Transaction = () => {
           <Tab label="Reconciled" />
         </Tabs>
 
-        <IconButton
+        {isEditable && <IconButton
           sx={{ margin: '10px 10px 10px 0' }}
           color={hasChanges() ? "secondary" : "primary"}
           onClick={handleSaveEdits}
         >
           <SaveOutlinedIcon />
-        </IconButton>
+        </IconButton>}
 
         <TabPanel value={tabValue} index={0}>
           <DataGrid

@@ -11,9 +11,12 @@ const END_DATE = 'endDate'
 
 type DateSelectorProps = {
   updateCalculated: Function
+  showClear: boolean
 }
 
-export const DateSelector = ({ updateCalculated }: DateSelectorProps) => {
+// START HERE: isEditable works, but we need need props for the 
+// 1. localstorage, 2. the urls to use. 
+export const DateSelector = ({ updateCalculated, showClear = true }: DateSelectorProps) => {
   const [hasChanges, setHasChanges] = useState(false)
 
   const initialStartDate = localStorage.getItem(START_DATE)
@@ -73,7 +76,7 @@ export const DateSelector = ({ updateCalculated }: DateSelectorProps) => {
 
         <div className='right'>
           <Button variant="contained" color={hasChanges ? 'secondary' : 'primary'} onClick={handleCalculate}>Calculate</Button>
-          <Button variant="contained" onClick={handleDeleteInitialData} color='error'>Clear</Button>
+          {showClear && <Button variant="contained" onClick={handleDeleteInitialData} color='error'>Clear</Button>}
         </div>
       </div>
     </div>

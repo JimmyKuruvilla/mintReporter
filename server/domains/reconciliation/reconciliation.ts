@@ -54,7 +54,10 @@ export class SvcReconciliation {
     Object.assign(this, data)
   }
 
-  // TODO: this also needs to take a date range
+  /**
+   * Returns the reconciled summary of credits and debits
+   * Ensure the credits and debits are within the date range required
+   */
   calc = async () => {
     const categoryAcc = await categoryService.getCategoryAcc();
     this.reconciliation = createReconciliation(

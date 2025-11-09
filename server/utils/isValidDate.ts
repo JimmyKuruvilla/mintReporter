@@ -1,0 +1,1 @@
+export const isValidDate = (maybeDate:any) => maybeDate instanceof Date && !Number.isNaN(maybeDate.valueOf())
