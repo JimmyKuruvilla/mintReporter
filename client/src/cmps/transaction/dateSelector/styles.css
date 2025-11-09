@@ -1,0 +1,18 @@
+.dateInputs {
+
+  .buttons {
+    display: flex;
+
+    .datepicker.endDate {
+      margin-left: 10px;
+    }
+
+    .right {
+      margin-left: auto;
+
+      button {
+        margin: 0 8px;
+      }
+    }
+  }
+}

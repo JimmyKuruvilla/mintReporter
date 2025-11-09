@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "CommonJS",
+    "module": "es2022",
     "esModuleInterop": true,
     "allowJs": false,
     "target": "ESNext",
@@ -12,11 +12,13 @@
     "noUnusedLocals": false,
     "outDir": "dist",
     "baseUrl": "./",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
   },
   "include": [
-    "src/**/*"
-, "src/chaseIdtoDetails.ts"  ],
+    "server/**/*"
+  ],
   "exclude": [
     "node_modules"
   ]

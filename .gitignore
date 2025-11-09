@@ -1,10 +1,12 @@
 node_modules
-chaseIdtoDetails.ts
+dist
 *.csv
 *.CSV
-.DS_Store
 *.xlsx
 .vscode
-dist
-data
+.DS_Store
 modifiedBaseForReview.json
+
+config/chaseIdtoDetails.ts
+server/tmp
+db.sqlite

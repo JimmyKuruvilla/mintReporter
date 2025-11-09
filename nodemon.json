@@ -1,0 +1,6 @@
+{
+    "watch": ["server"],
+    "ignore": ["dist/*", "node_modules/*"],
+    "ext": "ts,tsx",
+    "exec": "npm run tsc; tsx server/index.ts"
+}

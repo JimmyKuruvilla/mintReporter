@@ -45,11 +45,21 @@ Usage
 - stage2 will also report any Checks found. Update debits.all.json with categories to categorize the checks
 - Ignore only works when updated in summary.ts because we don't want it in the final summary csv. 
 
+UI Usage is very similar just less error prone and obvious
 
 Bugs:
 fragment: american (american airlines) matches t.description: American Meadows. Fixed as a one time update. Solution is American airlines needs to be more specific. 
 
 
 TODO
-1. instead of dumping into initial - copy to a date named folder and keep all the docs for a given set in the same place. Overwriting if the same name exists, group by month it's broad. 
-2. After stage 1, stage 2 to should create new files with the perma categories and the one time categories separated so I can easily upadte all then merge them.
+2. highlight the uncategorized in the reconciled summary. 
+
+move business logic to services
+add tests vitest
+add pino logger
+add eslint
+add backup to s3 script
+add ability to ingest historical csv from sheets and turn it into a data archive
+add graphs?
+
+// use effect Ts /neverthrow at that point. 

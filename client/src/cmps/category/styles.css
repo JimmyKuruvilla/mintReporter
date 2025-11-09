@@ -1,0 +1,23 @@
+.categories {
+  display: flex;
+  flex-flow: column;
+
+  .buttons {
+    display: flex;
+
+    .left {
+      margin-left: 0;
+
+      button {
+        margin-left: 10px;
+      }
+    }
+
+    .right {
+      margin-left: auto;
+      button {
+        margin: 0 8px;
+      }
+    }
+  }
+}
