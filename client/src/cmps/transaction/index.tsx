@@ -7,8 +7,9 @@ import { SvcReconciliation } from '../../../../server/domains/reconciliation';
 import { SvcTransactionCtorArgs, UiTransaction } from '../../../../server/domains/transaction';
 import { fatchWithAlert } from '../../utils/fatch';
 import { TabPanel } from '../shared/tabPanel';
-import { DateSelector } from './dateSelector';
+import { HistoricalTransactionToolbar } from './historical/historicalTransactionToolbar';
 import './styles.css';
+import { TransactionToolbar } from './transactionToolbar';
 
 type SummaryRow = {
   id: number,
@@ -22,7 +23,7 @@ type CalculatedData = {
   reconciliation: SvcReconciliation
 }
 
-type InputsLoaderData = CalculatedData & {
+type TransactionLoaderData = CalculatedData & {
   categories: string[]
 }
 
@@ -61,9 +62,12 @@ const createReconciledRows = (reconciliation: SvcReconciliation) =>
     .entries(reconciliation)
     .map(([category, amount], index) => ({ id: index, category, amount: amount?.toFixed(2) }))
 
+type TransactionProps = {
+  isHistorical: boolean
+}
 
-export const Transaction = () => {
-  const { categories, debits, credits, reconciliation }: InputsLoaderData = useLoaderData();
+export const Transaction = ({ isHistorical = false }: TransactionProps) => {
+  const { categories, debits, credits, reconciliation }: TransactionLoaderData = useLoaderData();
   const [tabValue, setTabValue] = useState(0);
   const [transactionColumns, setTransactionColumns] = useState<GridColDef[]>([
     { field: 'id', headerName: 'Id' },
@@ -71,7 +75,7 @@ export const Transaction = () => {
       field: 'category', headerName: 'Category',
       type: 'singleSelect',
       valueOptions: categories,
-      editable: true,
+      editable: !isHistorical,
       width: 150
     },
     { field: 'amount', headerName: 'Amount' },
@@ -98,7 +102,7 @@ export const Transaction = () => {
 
   const hasChanges = () => editedCredits.length > 0 || editedDebits.length > 0
 
-  const updateCalculated = (data: CalculatedData) => {
+  const updateDisplayData = (data: CalculatedData) => {
     setEditedCredits([])
     setEditedDebits([])
     setTransactionDebitRows(data.debits.map(createTransactionRow))
@@ -131,7 +135,7 @@ export const Transaction = () => {
   };
 
   const handleSaveEdits = () => {
-    fatchWithAlert({ path: 'transactions', method: 'patch', body: { editedDebits, editedCredits } }).then(updateCalculated)
+    fatchWithAlert({ path: 'transactions', method: 'patch', body: { editedDebits, editedCredits } }).then(updateDisplayData)
   }
 
   const paginationModel = { page: 0, pageSize: 10 };
@@ -139,7 +143,8 @@ export const Transaction = () => {
 
   return (
     <div className='transactions'>
-      <DateSelector updateCalculated={updateCalculated}></DateSelector>
+      {isHistorical && <HistoricalTransactionToolbar updateDisplayData={updateDisplayData}></HistoricalTransactionToolbar>}
+      {!isHistorical && <TransactionToolbar updateDisplayData={updateDisplayData}></TransactionToolbar>}
 
       <div className='tabs'>
         <Tabs
@@ -153,13 +158,13 @@ export const Transaction = () => {
           <Tab label="Reconciled" />
         </Tabs>
 
-        <IconButton
+        {!isHistorical && <IconButton
           sx={{ margin: '10px 10px 10px 0' }}
           color={hasChanges() ? "secondary" : "primary"}
           onClick={handleSaveEdits}
         >
           <SaveOutlinedIcon />
-        </IconButton>
+        </IconButton>}
 
         <TabPanel value={tabValue} index={0}>
           <DataGrid

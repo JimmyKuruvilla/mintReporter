@@ -52,7 +52,9 @@ fragment: american (american airlines) matches t.description: American Meadows. 
 
 
 TODO
-2. highlight the uncategorized in the reconciled summary. 
+1. highlight the uncategorized in the reconciled summary. 
+-- order it first or add a button to show it easily
+2. the history view is POSTING to create new transacitons. It should just be GET ing a date range. 
 
 move business logic to services
 add tests vitest

@@ -16,6 +16,9 @@ import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
+import { MAX_DATE, MIN_DATE } from '../../../../server/constants';
+import { getStartAndEndDates } from '../../utils/dateService';
+import { HistoricalTransaction } from '../transaction/historical';
 import './styles.css';
 
 const theme = createTheme({ cssVariables: true });
@@ -53,13 +56,27 @@ const router = createBrowserRouter([
         Component: UploadCSV
       },
       {
-        path: '/transactions',
+        path: '/transactions/current',
         loader: async () => {
           const categories = await fatchWithAlert({ path: 'categories' })
           const { credits, debits, reconciliation } = await fatchWithAlert({ path: 'transactions' })
           return { categories, credits, debits, reconciliation }
         },
         Component: Transaction,
+      },
+      {
+        path: '/transactions/historical',
+        loader: async () => {
+          const categories = await fatchWithAlert({ path: 'categories' })
+          const { startDate, endDate } = getStartAndEndDates()
+          const query = new URLSearchParams({
+            startDate: startDate ?? MIN_DATE,
+            endDate: endDate ?? MAX_DATE
+          }).toString()
+          const { credits, debits, reconciliation } = await fatchWithAlert({ path: `transactions/history?${query}` })
+          return { categories, credits, debits, reconciliation }
+        },
+        Component: HistoricalTransaction,
       },
       {
         path: '/outputs',

@@ -23,22 +23,22 @@ const svc = new TransactionService({
   categoryService
 })
 
+const HistoricalTransactionGetQuerySchema = z.object({
+  startDate: z.string(),
+  endDate: z.string(),
+});
 transactionRouter.get(
   '/transactions/history',
+  validateMiddleware(HistoricalTransactionGetQuerySchema, 'query'),
   async (req, res, next) => {
 
     try {
-      // TODO: make this take a date range so we can just summarize on some of the data. 
-      // new cmp for historical data (can hold graphs later), with no ability to delete data. 
-      // so in the working set you can delete data, but historical data has to be managed separately
-      // add a button to copy the current working set to the historical table - last step in the workflow
-      const { startDate, endDate } = req.body
-
+      const { startDate, endDate } = req.query
       const {
         credits,
         debits,
         reconciliation
-      } = await svc.createHistoricalReconciliation(new Date(startDate), new Date(endDate))
+      } = await svc.createHistoricalReconciliation(startDate as string, endDate as string)
 
       res.json({ credits, debits, reconciliation });
     } catch (error: any) {
@@ -46,27 +46,62 @@ transactionRouter.get(
     }
   });
 
+const HistoricalTransactionPostBodySchema = z.object({
+  startDate: z.string(),
+  endDate: z.string(),
+});
 transactionRouter.post(
   '/transactions/history',
+  validateMiddleware(HistoricalTransactionPostBodySchema, 'body'),
   async (req, res, next) => {
 
     try {
       const { startDate, endDate } = req.body
-      await svc.copyCurrentToHistory(new Date(startDate), new Date(endDate))
+      await svc.copyCurrentToHistory(startDate as string, endDate as string)
 
-      res.status(201)
+      res.status(201).json({})
     } catch (error: any) {
       next(error)
     }
   });
 
 
+const TransactionGetQuerySchema = z.object({
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+});
 transactionRouter.get(
   '/transactions',
+  validateMiddleware(TransactionGetQuerySchema, 'query'),
   async (req, res, next) => {
 
     try {
-      // TODO: make this take a date range so we can just summarize on some of the data. 
+      const { startDate, endDate } = req.query
+
+      const {
+        credits,
+        debits,
+        reconciliation
+      } = await svc.createReconciliation(startDate as string, endDate as string)
+
+      res.json({ credits, debits, reconciliation });
+    } catch (error: any) {
+      next(error)
+    }
+  });
+
+const TransactionDeleteQuerySchema = z.object({
+  startDate: z.string(),
+  endDate: z.string(),
+});
+transactionRouter.delete(
+  '/transactions',
+  validateMiddleware(TransactionDeleteQuerySchema, 'query'),
+  async (req, res, next) => {
+    try {
+      const { startDate, endDate } = req.query
+      await svc.deleteCurrentByDateRange(startDate as string, endDate as string)
+
       const {
         credits,
         debits,
@@ -79,25 +114,13 @@ transactionRouter.get(
     }
   });
 
-// TODO: make this take a date range so we can just wipe some of the data. 
-transactionRouter.delete(
-  '/transactions',
-  async (req, res, next) => {
-    try {
-      await svc.deleteAllTransactions()
-      res.status(200).send({ credits: [], debits: [], reconciliation: {} });
-    } catch (error: any) {
-      next(error)
-    }
-  });
-
-const TransactionBodySchema = z.object({
+const TransactionPostBodySchema = z.object({
   startDate: z.string(),
   endDate: z.string(),
 });
 transactionRouter.post(
   '/transactions',
-  validateMiddleware(TransactionBodySchema, 'body'),
+  validateMiddleware(TransactionPostBodySchema, 'body'),
   async (req, res, next) => {
     try {
       const { startDate, endDate } = req.body
@@ -106,7 +129,7 @@ transactionRouter.post(
         credits,
         debits,
         reconciliation
-      } = await svc.createTransactions(new Date(startDate), new Date(endDate))
+      } = await svc.createTransactions(startDate as string, endDate as string)
 
       res.json({ credits, debits, reconciliation });
     } catch (error: any) {

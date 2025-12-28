@@ -2,8 +2,10 @@ import fs from 'fs';
 import { chain } from 'lodash-es';
 import { EntityManager, Repository } from 'typeorm';
 import { AccountIdToDetails, uploadsFolder } from '../../config';
-import { UTF8 } from '../../constants';
+import { MAX_DATE, MIN_DATE, UTF8 } from '../../constants';
+import { InvalidDateError } from '../../errors/invalidDateError';
 import { db } from '../../persistence/dataSource';
+import { isValidDate } from '../../utils/isValidDate';
 import { getChaseAccountId } from '../account/chase';
 import { CategoryService } from '../category/category.service';
 import { FileService } from '../file';
@@ -38,7 +40,7 @@ export class TransactionService {
     Object.assign(this, data)
   }
 
-  createInitialData = async (startDate: Date, endDate: Date, fileExts: string[]) => {
+  private createInitialData = async (startDate: Date, endDate: Date, fileExts: string[]) => {
     console.log(`Running reports from ${startDate} to ${endDate} using ${fileExts}`)
 
     const allTransactions: SvcTransaction[] = []
@@ -68,8 +70,20 @@ export class TransactionService {
     await this.db.current.writeAny(transactions)
   }
 
-  createTransactions = async (startDate: Date, endDate: Date) => {
-    await this.createInitialData(new Date(startDate), new Date(endDate), ['.csv'])
+  private getDateRange = (_startDate: string, _endDate: string) => {
+    const startDate = new Date(_startDate)
+    const endDate = new Date(_endDate)
+    if (!(isValidDate(startDate) && isValidDate(endDate))) {
+      throw new InvalidDateError(_startDate, _endDate)
+    } else {
+      return { startDate, endDate }
+    }
+  }
+
+  createTransactions = async (_startDate: string = MIN_DATE, _endDate: string = MAX_DATE) => {
+    const { startDate, endDate } = this.getDateRange(_startDate, _endDate)
+
+    await this.createInitialData(startDate, endDate, ['.csv'])
     return this.createReconciliation()
   }
 
@@ -79,29 +93,46 @@ export class TransactionService {
     return this.createReconciliation()
   }
 
-  createReconciliation = async () => {
-    const debits = await this.db.current.debit.read()
-    const credits = await this.db.current.credit.read()
+  createReconciliation = async (_startDate: string = MIN_DATE, _endDate: string = MAX_DATE) => {
+    const { startDate, endDate } = this.getDateRange(_startDate, _endDate)
+
+    const debits = await this.db.current.debit.read(startDate, endDate)
+    const credits = await this.db.current.credit.read(startDate, endDate)
     return new SvcReconciliation({ debits, credits }).calc()
   }
 
-  deleteAllTransactions = async () => {
-    return this.db.current.clear()
-  }
+  createHistoricalReconciliation = async (_startDate: string = MIN_DATE, _endDate: string = MAX_DATE) => {
+    const { startDate, endDate } = this.getDateRange(_startDate, _endDate)
 
-  createHistoricalReconciliation = async (startDate: Date, endDate: Date) => {
-    const debits = await this.db.historical.debit.read()
-    const credits = await this.db.historical.credit.read()
+    const debits = await this.db.historical.debit.read(startDate, endDate)
+    const credits = await this.db.historical.credit.read(startDate, endDate)
     return new SvcReconciliation({ debits, credits }).calc()
   }
 
-  copyCurrentToHistory = (startDate: Date, endDate: Date) => { // TODO add copy fn. 
-    console.log(`copying from ${startDate} to ${endDate} to historical table`)
+  deleteCurrentByDateRange = async (_startDate: string = MIN_DATE, _endDate: string = MAX_DATE) => {
+    const { startDate, endDate } = this.getDateRange(_startDate, _endDate)
+
+    return this.db.current.deleteByDateRange(startDate, endDate)
+  }
+
+  /**
+   * Copies the working set of transactions to the history table
+   * The startdate is inclusive, and the end date is exclusive. The FE sends +1 day to capture full months
+   */
+  copyCurrentToHistory = async (startDate: string = MIN_DATE, endDate: string = MAX_DATE) => {
+    return this.db.current.copyToHistory(startDate, endDate)
   }
 
   db = {
     current: {
       clear: () => this.repository.clear(),
+      deleteByDateRange: (startDate: Date, endDate: Date) => {
+        return this.repository
+          .createQueryBuilder()
+          .where(`date BETWEEN :startDate AND :endDate`, { startDate, endDate })
+          .delete()
+          .execute()
+      },
 
       writeAny: async (transactions: SvcTransaction[], manager?: EntityManager) => {
         await getManager(manager).save(transactions.map(t =>
@@ -109,14 +140,28 @@ export class TransactionService {
         ))
       },
 
-      // TODO date range
-      copy: (startDate: Date, endDate: Date) => { // TODO add copy fn. 
-        console.log(`copying from ${startDate} to ${endDate} to historical table`)
+      copyToHistory: async (startDate: string, endDate: string) => {
+        const columns = `category, date, amount, type, description, accountName, accountType, institutionTransactionType, checkNumber, notes`
+        const sql = `
+          INSERT INTO historical_transaction (${columns})
+          SELECT ${columns}
+          FROM "${this.repository.metadata.tableName}"
+          where date BETWEEN ? and ?;
+        `;
+        await db.manager.transaction(async (manager) => {
+          await manager.query(sql, [startDate, endDate])
+        })
       },
 
       debit: {
-        read: async (): Promise<SvcTransaction[]> => {
-          return (await this.repository.find({ where: { type: TransactionType.DEBIT } })).map(m => m.toSvc())
+        read: async (startDate: Date, endDate: Date): Promise<SvcTransaction[]> => {
+          return (
+            await this.repository
+              .createQueryBuilder()
+              .where(`type = :type`, { type: TransactionType.DEBIT })
+              .andWhere(`date BETWEEN :startDate AND :endDate`, { startDate, endDate })
+              .getMany()
+          ).map((m: DAOTransaction) => m.toSvc())
         },
         write: async (transactions: SvcTransaction[], manager?: EntityManager) => {
           await getManager(manager).save(transactions.map(t =>
@@ -125,8 +170,14 @@ export class TransactionService {
         },
       },
       credit: {
-        read: async (): Promise<SvcTransaction[]> => {
-          return (await this.repository.find({ where: { type: TransactionType.CREDIT } })).map(m => m.toSvc())
+        read: async (startDate: Date, endDate: Date): Promise<SvcTransaction[]> => {
+          return (
+            await this.repository
+              .createQueryBuilder()
+              .where(`type = :type`, { type: TransactionType.CREDIT })
+              .andWhere(`date BETWEEN :startDate AND :endDate`, { startDate, endDate })
+              .getMany()
+          ).map((m: DAOTransaction) => m.toSvc())
         },
         write: async (transactions: SvcTransaction[], manager?: EntityManager) => {
           await getManager(manager).save(transactions.map(t =>
@@ -137,8 +188,14 @@ export class TransactionService {
     },
     historical: {
       debit: {
-        read: async (): Promise<SvcTransaction[]> => {
-          return (await this.historicalTransactionRepository.find({ where: { type: TransactionType.DEBIT } })).map(m => m.toSvc())
+        read: async (startDate: Date, endDate: Date): Promise<SvcTransaction[]> => {
+          return (
+            await this.historicalTransactionRepository
+              .createQueryBuilder()
+              .where(`type = :type`, { type: TransactionType.DEBIT })
+              .andWhere(`date BETWEEN :startDate AND :endDate`, { startDate, endDate })
+              .getMany()
+          ).map((m: DAOTransaction) => m.toSvc())
         },
         write: async (transactions: SvcTransaction[], manager?: EntityManager) => {
           await getManager(manager).save(transactions.map(t =>
@@ -147,8 +204,14 @@ export class TransactionService {
         },
       },
       credit: {
-        read: async (): Promise<SvcTransaction[]> => {
-          return (await this.historicalTransactionRepository.find({ where: { type: TransactionType.DEBIT } })).map(m => m.toSvc())
+        read: async (startDate: Date, endDate: Date): Promise<SvcTransaction[]> => {
+          return (
+            await this.historicalTransactionRepository
+              .createQueryBuilder()
+              .where(`type = :type`, { type: TransactionType.CREDIT })
+              .andWhere(`date BETWEEN :startDate AND :endDate`, { startDate, endDate })
+              .getMany()
+          ).map((m: DAOTransaction) => m.toSvc())
         },
         write: async (transactions: SvcTransaction[], manager?: EntityManager) => {
           await getManager(manager).save(transactions.map(t =>

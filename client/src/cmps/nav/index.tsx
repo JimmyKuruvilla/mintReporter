@@ -14,8 +14,12 @@ export const Nav = () => {
         <Button variant="outlined">Uploads</Button>
       </NavLink>
 
-      <NavLink to="/transactions">
+      <NavLink to="/transactions/current">
         <Button variant="outlined">Transactions</Button>
+      </NavLink>
+
+      <NavLink to="/transactions/historical">
+        <Button variant="outlined">History</Button>
       </NavLink>
 
       <NavLink to="/outputs">
