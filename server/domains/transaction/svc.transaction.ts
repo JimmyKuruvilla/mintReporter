@@ -1,4 +1,5 @@
 import { CHECK, IGNORE, UNCATEGORIZABLE } from '../../constants'
+import { convertSlashToDashDate, getLocalDate } from '../../utils/date'
 import { SvcMatcher } from '../category'
 import { AccountType } from './accountType'
 import { TransactionType } from './transactionType'
@@ -32,9 +33,11 @@ type SvcTransactionMetadata = {
   [AccountType.CREDIT]: {}
 }
 
+
 /*
   ** Used to represent the transaction within the business logic
   ** Constructor handles csv (string) inputs as well as db inputs
+  ** Dates are assumed to be in user local time = server local time
 */
 export class SvcTransaction {
   id?: number
@@ -52,9 +55,23 @@ export class SvcTransaction {
 
   constructor(data: SvcTransactionCtorArgs) {
     Object.assign(this, data)
-    this.date = data.date instanceof Date ? data.date : new Date(data.date)
-    this.amount = typeof data.amount === 'string' ? parseFloat(data.amount) : data.amount
     
+    // db -> service uses date
+    if (data.date instanceof Date) {
+      this.date = data.date
+    } else {
+      // csv -> db sends mm-dd-yyyy strings
+      if (data.date.includes('/')) {
+        this.date = getLocalDate(convertSlashToDashDate(data.date))
+      } else {
+        // ui -> db sends utc date strings
+        this.date = new Date(data.date)
+      }
+    }
+
+    this.description = this.formatDescription(data.description)
+    this.amount = typeof data.amount === 'string' ? parseFloat(data.amount) : data.amount
+
     const maybeCheckNumber = data.metadata[AccountType.BANK]?.checkNumber
     if (maybeCheckNumber) {
       if (typeof maybeCheckNumber === 'string') {
@@ -84,7 +101,9 @@ export class SvcTransaction {
     return this;
   };
 
-  isWithinDateRange = (startDate: Date, endDate: Date) => this.date >= startDate && this.date <= endDate
+  formatDescription = (description: string) => description.replace(/ +/g, ' ').replaceAll('&amp;', '_and_').replaceAll('*', ' ').replaceAll('"', '')
+
+  isWithinDateRange = (startDate: Date, endDate: Date) => this.date >= startDate && this.date < endDate
 
   isUncategorizable = () => this.category === UNCATEGORIZABLE
 

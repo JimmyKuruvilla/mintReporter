@@ -5,7 +5,7 @@ import { TransactionType } from './transactionType'
 
 export abstract class AbsTransaction {
   id?: number
-  
+
   @Column('text')
   category: string
 
@@ -43,7 +43,7 @@ export abstract class AbsTransaction {
     this.accountName = data?.accountName
     this.accountType = data?.accountType
     this.amount = data?.amount
-    this.date = data?.date.toISOString()
+    this.date = data?.date.toISOString() // local timestamp comes in, and is stored as UTC
     this.description = data?.description
     this.institutionTransactionType = data?.metadata.institutionTransactionType
     this.checkNumber = data?.metadata[AccountType.BANK]?.checkNumber
@@ -59,7 +59,7 @@ export abstract class AbsTransaction {
       accountName: this.accountName,
       accountType: this.accountType,
       amount: this.amount,
-      date: new Date(this.date),
+      date: new Date(this.date), // UTC timestamp date comes out
       description: this.description,
       metadata: {
         institutionTransactionType: this.institutionTransactionType,

@@ -50,7 +50,6 @@ export const CREDIT_DEBIT_TYPES = ['sale', 'fee'];
 export const CREDIT_TRANSFER_TYPES = ['payment'];
 export const KNOWN_CHASE_CREDIT_TYPES = [...CREDIT_DEBIT_TYPES, ...CREDIT_CREDIT_TYPES, ...CREDIT_TRANSFER_TYPES];
 
-const formatDescription = (description: string) => description.replace(/ +/g, ' ').replaceAll('&amp;', '_and_').replaceAll('*', ' ').replaceAll('"', '')
 
 const getLineMatches = (line: string) => line.match(doubleQuotedOrNotCommaRegex)?.map(_ => _ === EMPTY_FIELD ? '' : _)
 
@@ -61,6 +60,7 @@ export const getChaseAccountId = (filename: string) => {
 }
 
 // headers: Transaction Date,Post Date,Description,Category,Type,Amount,Memo
+// transactionDate and postDate in format: '02/18/2026'
 export const ChaseCreditCSVParser = (accountName: string, csv: string): SvcTransaction[] => {
   const [headers, ...lines] = csv.split(NEW_LINE);
   return lines
@@ -80,8 +80,8 @@ export const ChaseCreditCSVParser = (accountName: string, csv: string): SvcTrans
               : TransactionType.DEBIT
 
           return new SvcTransaction({
-            date: transactionDate,
-            description: formatDescription(description),
+            date: transactionDate, 
+            description,
             amount,
             transactionType,
             metadata: { institutionTransactionType: type, [AccountType.BANK]: { checkNumber: '' }, [AccountType.CREDIT]: {} },
@@ -125,7 +125,7 @@ export const ChaseBankCSVParser = (accountName: string, csv: string): SvcTransac
         if (KNOWN_CHASE_BANK_TYPES.includes(type)) {
           return new SvcTransaction({
             date: postDate,
-            description: formatDescription(description),
+            description,
             amount,
             transactionType: getBankTransactionType(type, description),
             metadata: { institutionTransactionType: type, [AccountType.BANK]: { checkNumber }, [AccountType.CREDIT]: {} },

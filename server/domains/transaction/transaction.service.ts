@@ -3,9 +3,8 @@ import { chain } from 'lodash-es';
 import { EntityManager, Repository } from 'typeorm';
 import { AccountIdToDetails, uploadsFolder } from '../../config';
 import { MAX_DATE, MIN_DATE, UTF8 } from '../../constants';
-import { InvalidDateError } from '../../errors/invalidDateError';
 import { db } from '../../persistence/dataSource';
-import { isValidDate } from '../../utils/isValidDate';
+import { getDateRange, isValidDate } from '../../utils/date';
 import { getChaseAccountId } from '../account/chase';
 import { CategoryService } from '../category/category.service';
 import { FileService } from '../file';
@@ -70,18 +69,8 @@ export class TransactionService {
     await this.db.current.writeAny(transactions)
   }
 
-  private getDateRange = (_startDate: string, _endDate: string) => {
-    const startDate = new Date(_startDate)
-    const endDate = new Date(_endDate)
-    if (!(isValidDate(startDate) && isValidDate(endDate))) {
-      throw new InvalidDateError(_startDate, _endDate)
-    } else {
-      return { startDate, endDate }
-    }
-  }
-
   createTransactions = async (_startDate: string = MIN_DATE, _endDate: string = MAX_DATE) => {
-    const { startDate, endDate } = this.getDateRange(_startDate, _endDate)
+    const { startDate, endDate } = getDateRange(_startDate, _endDate)
 
     await this.createInitialData(startDate, endDate, ['.csv'])
     return this.createReconciliation()
@@ -94,7 +83,7 @@ export class TransactionService {
   }
 
   createReconciliation = async (_startDate: string = MIN_DATE, _endDate: string = MAX_DATE) => {
-    const { startDate, endDate } = this.getDateRange(_startDate, _endDate)
+    const { startDate, endDate } = getDateRange(_startDate, _endDate)
 
     const debits = await this.db.current.debit.read(startDate, endDate)
     const credits = await this.db.current.credit.read(startDate, endDate)
@@ -102,7 +91,7 @@ export class TransactionService {
   }
 
   createHistoricalReconciliation = async (_startDate: string = MIN_DATE, _endDate: string = MAX_DATE) => {
-    const { startDate, endDate } = this.getDateRange(_startDate, _endDate)
+    const { startDate, endDate } = getDateRange(_startDate, _endDate)
 
     const debits = await this.db.historical.debit.read(startDate, endDate)
     const credits = await this.db.historical.credit.read(startDate, endDate)
@@ -110,7 +99,7 @@ export class TransactionService {
   }
 
   deleteCurrentByDateRange = async (_startDate: string = MIN_DATE, _endDate: string = MAX_DATE) => {
-    const { startDate, endDate } = this.getDateRange(_startDate, _endDate)
+    const { startDate, endDate } = getDateRange(_startDate, _endDate)
 
     return this.db.current.deleteByDateRange(startDate, endDate)
   }

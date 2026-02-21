@@ -114,6 +114,9 @@ transactionRouter.delete(
     }
   });
 
+/**
+ * Does not consider timezone. Assumes client, server, and upload data is all in same timezone.
+ */
 const TransactionPostBodySchema = z.object({
   startDate: z.string(),
   endDate: z.string(),
