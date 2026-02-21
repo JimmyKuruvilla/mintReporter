@@ -2,7 +2,7 @@ import fs from 'fs';
 import { chain } from 'lodash-es';
 import { EntityManager, Repository } from 'typeorm';
 import { AccountIdToDetails, uploadsFolder } from '../../config';
-import { MAX_DATE, MIN_DATE, UTF8 } from '../../constants';
+import { DUPLICATE, IGNORE, MAX_DATE, MIN_DATE, UTF8 } from '../../constants';
 import { db } from '../../persistence/dataSource';
 import { getDateRange, isValidDate } from '../../utils/date';
 import { getChaseAccountId } from '../account/chase';
@@ -61,11 +61,24 @@ export class TransactionService {
 
     const matchers = await this.categoryService.getAvailableMatchers()
 
-    const transactions = chain(allTransactions)
-      .filter(t => t.isWithinDateRange(startDate, endDate) && t.isNotTransfer())
-      .map(t => t.assignCategory(matchers))
-      .value()
+    let transactions = []
+    const dupes = new Map()
+    for (const t of allTransactions) {
+      if (t.isWithinDateRange(startDate, endDate) && t.isNotTransfer()) {
+        const tmp = t.assignCategory(matchers)
+        const key = `${t.category}__${t.date}__${t.amount}__${t.transactionType}__${t.description}__${t.accountName}__${t.accountType}`
+        if (dupes.has(key)) {
+          tmp.description = `DUPLICATE ${t.description} - ${dupes.get(key)}`
+          dupes.set(key, dupes.get(key) + 1)
+        } else {
+          dupes.set(key, 1)
+        }
 
+        transactions.push(tmp)
+      }
+    }
+
+    console.warn('DUPLICATES_FOUND', [...dupes].filter(([, value]) => value > 1))
     await this.db.current.writeAny(transactions)
   }
 
