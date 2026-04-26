@@ -10,8 +10,9 @@ export const ChaseIdToDetails: AccountIdToDetails = {
   '5678': { name: 'Credit Card', parser: ChaseCreditCSVParser, type: AccountType.CREDIT },
 
   // add new account details here
+  '0899': { name: 'Out and About', parser: ChaseCreditCSVParser, type: AccountType.CREDIT },
   '8293': { name: 'Repeat Bills', parser: ChaseCreditCSVParser, type: AccountType.CREDIT },
-  '3328': { name: 'Out and About', parser: ChaseCreditCSVParser, type: AccountType.CREDIT },
+  '3328': { name: 'Out and About', parser: ChaseCreditCSVParser, type: AccountType.CREDIT }, // old, cancelled after ~Mar 2026
   '7327': { name: 'Out and About', parser: ChaseCreditCSVParser, type: AccountType.CREDIT }, // old, cancelled after ~Jun 2025
   '3491': { name: 'Out and About', parser: ChaseCreditCSVParser, type: AccountType.CREDIT }, // old, cancelled after Jun 29 2024
 

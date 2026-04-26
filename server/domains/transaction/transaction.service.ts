@@ -68,7 +68,7 @@ export class TransactionService {
         const tmp = t.assignCategory(matchers)
         const key = `${t.category}__${t.date}__${t.amount}__${t.transactionType}__${t.description}__${t.accountName}__${t.accountType}`
         if (dupes.has(key)) {
-          tmp.description = `DUPLICATE ${t.description} - ${dupes.get(key)}`
+          tmp.description = `${DUPLICATE} ${t.description} - ${dupes.get(key)}`
           dupes.set(key, dupes.get(key) + 1)
         } else {
           dupes.set(key, 1)

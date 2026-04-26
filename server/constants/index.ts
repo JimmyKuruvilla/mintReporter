@@ -5,6 +5,7 @@ export const UTF8 = 'utf8';
 
 export const IGNORE = 'Ignore';
 export const UNCATEGORIZABLE = 'Uncategorizable';
+export const DUPLICATE = 'Duplicate';
 export const CHECK = 'Check';
 
 export const EMPTY_FIELD = ',,';
